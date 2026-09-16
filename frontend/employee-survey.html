@@ -521,7 +521,7 @@ function renderQuestion() {
 
   document.getElementById("progressLabel").textContent = t().progressLabelFn(current + 1, total());
   document.getElementById("surveyProgressFill").style.width = `${((current + 1) / total()) * 100}%`;
-  document.getElementById("qText").textContent = q.text_pt;
+  document.getElementById("qText").textContent = (lang === "en" && q.text_en) ? q.text_en : q.text_pt;
 
   const opts = document.getElementById("scaleOptions");
   opts.innerHTML = scaleLabels.map((label, i) => {
