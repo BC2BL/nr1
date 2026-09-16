@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Environment — NEVER commit real credentials
+.env
+backend/.env
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test outputs
+/tmp/
+
+# Build artifacts
+*.pdf

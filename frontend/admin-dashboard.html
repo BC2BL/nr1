@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2BeLive · Painel do Administrador</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap');
+
+  :root {
+    /* 2BeLive brand tokens */
+    --color-primary:      #304269;
+    --color-secondary:    #eb6025;
+    --color-dark-blue:    #0a1744;
+    --color-bg:           #F7F7F5;
+    --color-surface:      #ffffff;
+    --color-border:       #D9DEE8;
+    --color-text-primary: #0a1744;
+    --color-text-muted:   #6B7280;
+    --color-error:        #fe6c5f;
+    --color-error-soft:   rgba(254,108,95,0.10);
+    --color-success:      #22C55E;
+    --color-success-soft: #E8F5E9;
+    --color-success-text: #2E7D32;
+    --color-warning:      #ffc000;
+    --color-warning-soft: #FFF8E1;
+    --color-warning-text: #E65100;
+    --color-tint-blue:    #EEF2F8;
+    --color-tint-orange:  #FFF0E8;
+    --gauge-empty:        #B9C2BF;
+    /* Aliases matching old token names for backward compat */
+    --paper:      var(--color-bg);
+    --ink:        var(--color-text-primary);
+    --ink-soft:   var(--color-text-muted);
+    --muted:      var(--color-text-muted);
+    --line:       var(--color-border);
+    --line-soft:  #E5EAF3;
+    --brand:      var(--color-secondary);
+    --brand-soft: var(--color-tint-blue);
+    --green:      var(--color-success-text);
+    --green-soft: var(--color-success-soft);
+    --amber:      var(--color-warning-text);
+    --amber-soft: var(--color-warning-soft);
+    --red:        var(--color-error);
+    --red-soft:   var(--color-error-soft);
+    --grey:       var(--color-text-muted);
+    --grey-soft:  var(--color-tint-blue);
+    /* Glass depth layer */
+    --glass-fill:  rgba(255,255,255,0.80);
+    --glass-blur:  20px;
+    --card-shadow:
+      0 2px 0 0 rgba(255,255,255,0.90) inset,
+      0 1px 2px rgba(10,23,68,0.05),
+      0 6px 20px rgba(10,23,68,0.09),
+      0 20px 44px rgba(10,23,68,0.06);
+    /* Font */
+    --font: 'Nunito', -apple-system, 'Segoe UI', sans-serif;
+    --radius-sm:   4px;
+    --radius-md:   8px;
+    --radius-lg:   12px;
+    --radius-full: 9999px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background:
+      radial-gradient(ellipse 70% 55% at 50% 35%,
+        rgba(10,23,68,0.07), rgba(247,247,245,0)),
+      var(--color-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font);
+    padding: 40px 24px;
+  }
+  @media (max-width: 640px) { body { padding: 24px 16px; } }
+
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 28px; gap: 16px; flex-wrap: wrap;
+  }
+  @media (max-width: 640px) { .header { flex-direction: column; align-items: stretch; } }
+  .eyebrow {
+    font-family: var(--font); font-size: 11px; color: var(--color-secondary);
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .company-name { font-family: var(--font); font-weight: 600; font-size: 28px; margin: 0; }
+  @media (max-width: 640px) { .company-name { font-size: 24px; } }
+  .cycle-label { font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
+
+  .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+  @media (max-width: 640px) { .header-right { align-items: stretch; } }
+
+  .lang-toggle { display: flex; gap: 4px; background: rgba(217,222,232,0.45); border-radius: 20px; padding: 3px; align-self: flex-end; }
+  @media (max-width: 640px) { .lang-toggle { align-self: flex-start; } }
+  .lang-toggle button {
+    font-family: var(--font); font-size: 11px; font-weight: 500;
+    padding: 5px 11px; border-radius: 16px; cursor: pointer; border: none; background: transparent;
+    color: var(--ink-soft);
+  }
+  .lang-toggle button.active { background: var(--color-dark-blue); color: #fff; }
+
+  .rate-card {
+    background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow);
+    padding: 12px 18px; min-width: 200px;
+  }
+  @media (max-width: 640px) { .rate-card { min-width: 0; width: 100%; } }
+  .rate-label { font-size: 11px; color: var(--ink-soft); margin-bottom: 6px; }
+  .rate-value { font-family: var(--font); font-size: 22px; font-weight: 500; }
+  .rate-status { font-size: 11.5px; color: var(--green); margin-left: 8px; }
+  .rate-bar-track { height: 5px; background: #E9EDEC; border-radius: 3px; margin-top: 8px; overflow: hidden; }
+  .rate-bar-fill { height: 100%; background: var(--color-secondary); }
+  .rate-seats { font-size: 10.5px; color: var(--muted); margin-top: 6px; font-family: var(--font); }
+
+  /* Vital signs strip */
+  .section-title { font-size: 12.5px; color: var(--ink-soft); margin-bottom: 12px; font-weight: 500; }
+  .domain-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 32px;
+  }
+  @media (max-width: 640px) { .domain-grid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); } }
+
+  .domain-card {
+    background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow);
+    padding: 18px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0;
+  }
+  .domain-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .domain-label { font-size: 13px; font-weight: 600; }
+  .domain-n { font-family: var(--font); font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+  .risk-badge {
+    font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .risk-badge.green { color: var(--green); background: var(--green-soft); }
+  .risk-badge.amber { color: var(--amber); background: var(--amber-soft); }
+  .risk-badge.red { color: var(--red); background: var(--red-soft); }
+
+  .gauge-row { display: flex; align-items: center; gap: 12px; }
+  .gauge-wrap { position: relative; width: 64px; height: 64px; flex-shrink: 0; }
+  .gauge-value {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-family: var(--font); font-size: 15px; font-weight: 500;
+  }
+  .trend { font-family: var(--font); font-size: 11px; }
+  .trend.up { color: var(--green); }
+  .trend.down { color: var(--red); }
+  .trend.flat { color: var(--muted); }
+
+  .suppressed-box {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 10px 4px; gap: 4px; text-align: center;
+  }
+  .suppressed-n { font-family: var(--font); font-size: 18px; color: var(--gauge-empty); }
+  .suppressed-msg { font-size: 11.5px; color: var(--muted); line-height: 1.4; }
+
+  /* Reward pool */
+  .reward-card {
+    background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow);
+    padding: 16px 18px; margin-bottom: 32px; display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 12px;
+  }
+  .reward-title { font-size: 13px; font-weight: 600; }
+  .reward-subtitle { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .reward-right { display: flex; gap: 24px; align-items: center; }
+  .reward-count { font-family: var(--font); font-size: 16px; text-align: right; }
+  .reward-label { font-size: 10.5px; color: var(--muted); text-align: right; }
+  .btn-brand {
+    font-family: var(--font); font-size: 12.5px; font-weight: 600;
+    background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(235,96,37,0.28);
+    padding: 9px 16px; cursor: pointer;
+  }
+
+  /* Action plan */
+  .action-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+    flex-wrap: wrap; gap: 8px;
+  }
+  .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .filter-btn {
+    font-family: var(--font); font-size: 11.5px;
+    padding: 5px 10px; border-radius: 20px; cursor: pointer;
+    border: 1px solid var(--line); background: rgba(255,255,255,0.70); color: var(--color-text-muted);
+  }
+  .filter-btn.active { border-color: var(--color-primary); background: var(--color-tint-blue); color: var(--color-primary); }
+
+  .action-list { background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow); padding: 4px 16px; }
+  .empty-state { padding: 24px 4px; text-align: center; color: var(--muted); font-size: 13px; }
+
+  .action-row {
+    display: grid; grid-template-columns: auto 1fr auto auto auto; gap: 16px; align-items: center;
+    padding: 14px 4px; border-bottom: 1px solid var(--line-soft);
+  }
+  .action-row:last-child { border-bottom: none; }
+  .action-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .action-title { font-size: 13.5px; }
+  .action-meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .action-owner { font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
+  .action-completion { font-family: var(--font); font-size: 12px; white-space: nowrap; }
+  .status-pill {
+    font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+  }
+  .status-pill.open { color: var(--grey); background: var(--grey-soft); }
+  .status-pill.in_progress { color: var(--amber); background: var(--amber-soft); }
+  .status-pill.completed { color: var(--green); background: var(--green-soft); }
+
+  /* Mobile action row: stacked */
+  @media (max-width: 640px) {
+    .action-row { grid-template-columns: unset; display: flex; flex-direction: column; gap: 8px; }
+    .action-row-top { display: flex; align-items: flex-start; gap: 10px; }
+    .action-row-bottom {
+      display: flex; justify-content: space-between; align-items: center; padding-left: 16px; flex-wrap: wrap; gap: 8px;
+    }
+    .action-row-bottom-left { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--ink-soft); }
+  }
+  .desktop-only { display: contents; }
+  @media (max-width: 640px) { .desktop-only { display: none; } }
+  .mobile-only { display: none; }
+  @media (max-width: 640px) { .mobile-only { display: flex; } }
+
+  .hidden { display: none !important; }
+
+  /* Login gate */
+  .login-wrap {
+    max-width: 380px; margin: 80px auto; background: #fff; border: 1px solid var(--line);
+    border-radius: 14px; padding: 32px 28px;
+  }
+  .login-wrap h1 { font-family: var(--font); font-weight: 600; font-size: 22px; margin: 0 0 8px; }
+  .login-wrap p { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 22px; }
+  .login-field { margin-bottom: 14px; }
+  .login-field label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 6px; }
+  .login-field input {
+    width: 100%; box-sizing: border-box; padding: 11px 13px; border-radius: 8px;
+    border: 1px solid var(--line); font-family: var(--font); font-size: 14px; outline: none;
+  }
+  .login-field input:focus { border-color: var(--color-primary); }
+  .login-error { font-size: 12px; color: var(--red); margin-bottom: 12px; min-height: 0; }
+  .login-btn {
+    width: 100%; font-family: var(--font); font-size: 14px; font-weight: 600;
+    background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(235,96,37,0.28);
+    padding: 12px 16px; cursor: pointer; margin-top: 6px;
+  }
+  .login-btn:disabled { background: var(--disabled, #C3CBC9); cursor: default; }
+</style>
+</head>
+<body>
+
+<div class="login-wrap" id="loginScreen">
+  <h1 id="loginTitle">Painel do Administrador</h1>
+  <p id="loginSubtitle">Entre com sua conta para ver os resultados da sua empresa.</p>
+  <div class="login-field">
+    <label id="loginEmailLabel">E-mail</label>
+    <input type="email" id="loginEmail" autocomplete="username" />
+  </div>
+  <div class="login-field">
+    <label id="loginPasswordLabel">Senha</label>
+    <input type="password" id="loginPassword" autocomplete="current-password" />
+  </div>
+  <div class="login-error hidden" id="loginError"></div>
+  <button class="login-btn" id="loginBtn">Entrar</button>
+</div>
+
+<div class="wrap hidden" id="dashboardWrap">
+  <div class="header">
+    <div>
+      <div class="eyebrow" data-k="eyebrow"></div>
+      <h1 class="company-name" data-k="companyName"></h1>
+      <div class="cycle-label" id="cycleLabel"></div>
+    </div>
+    <div class="header-right">
+      <div class="lang-toggle">
+        <button data-lang="pt" class="active">PT</button>
+        <button data-lang="en">EN</button>
+      </div>
+      <div class="rate-card">
+        <div class="rate-label" data-k="responseRate"></div>
+        <div>
+          <span class="rate-value">84%</span>
+          <span class="rate-status" data-k="coverageGood"></span>
+        </div>
+        <div class="rate-bar-track"><div class="rate-bar-fill" style="width: 84%"></div></div>
+        <div class="rate-seats" id="seatsCompleted"></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-title" data-k="panelTitle"></div>
+    <div class="domain-grid" id="domainGrid"></div>
+  </div>
+
+  <div class="reward-card">
+    <div>
+      <div class="reward-title" data-k="rewardTitle"></div>
+      <div class="reward-subtitle" data-k="rewardSubtitle"></div>
+    </div>
+    <div class="reward-right">
+      <div>
+        <div class="reward-count">84 / 100</div>
+        <div class="reward-label" data-k="redeemed"></div>
+      </div>
+      <button class="btn-brand" data-k="addCodes"></button>
+    </div>
+  </div>
+
+  <div>
+    <div class="action-header">
+      <div class="section-title" data-k="actionPlanTitle" style="margin-bottom:0"></div>
+      <div class="filter-row" id="filterRow"></div>
+    </div>
+    <div class="action-list" id="actionList"></div>
+  </div>
+</div>
+
+<script>
+const DICT = {
+  pt: {
+    eyebrow: "Diagnóstico Psicossocial · NR-1",
+    companyName: "Comércio Alfa Ltda.",
+    cycleLabel: "Ciclo: Agosto 2026 · encerrado em 24 ago",
+    responseRate: "Taxa de resposta",
+    coverageGood: "Boa cobertura",
+    seatsCompleted: "84 de 100 vagas concluídas",
+    panelTitle: "Painel de indicadores por domínio",
+    domains: { demands: "Demandas", control: "Autonomia", support: "Apoio", relationships: "Relacionamentos", role: "Clareza de Papel", change: "Gestão de Mudanças" },
+    riskLabels: { green: "Adequado", amber: "Atenção", red: "Prioridade" },
+    suppressedMsg: "Respostas insuficientes para preservar o anonimato (mínimo de 5)",
+    vsCycle: "vs. ciclo anterior",
+    rewardTitle: "Incentivo de participação",
+    rewardSubtitle: "Cupom Starbucks · financiado pela empresa",
+    redeemed: "resgatados",
+    addCodes: "Adicionar códigos",
+    actionPlanTitle: "Plano de ação",
+    statusLabels: { all: "Todos", open: "Aberto", in_progress: "Em andamento", completed: "Concluído" },
+    deliveryLabels: { on_platform_training: "Treinamento 2BeLive", off_platform: "Ação da empresa" },
+    completedWord: "concluído",
+    noActions: "Nenhuma ação neste status.",
+    actions: {
+      1: "Treinamento: priorização e gestão de carga de trabalho",
+      2: "Revisar distribuição de tarefas nos picos sazonais",
+      3: "Treinamento: comunicação em períodos de mudança organizacional",
+      4: "Ampliar autonomia decisória em reuniões de equipe",
+    },
+    loginTitle: "Painel do Administrador",
+    loginSubtitle: "Entre com sua conta para ver os resultados da sua empresa.",
+    loginEmailLabel: "E-mail",
+    loginPasswordLabel: "Senha",
+    loginBtn: "Entrar",
+    loginBtnLoading: "Entrando...",
+    loginErrorInvalid: "E-mail ou senha incorretos.",
+    loginErrorNetwork: "Não foi possível conectar ao servidor. Verifique se o backend está rodando.",
+    noCycleMsg: "Nenhum ciclo de pesquisa encontrado para esta empresa ainda.",
+    actionPlanMockNote: "(dados de exemplo — endpoints de plano de ação ainda não implementados)",
+  },
+  en: {
+    eyebrow: "Psychosocial Diagnostic · NR-1",
+    companyName: "Comércio Alfa Ltda.",
+    cycleLabel: "Cycle: August 2026 · closed Aug 24",
+    responseRate: "Response rate",
+    coverageGood: "Good coverage",
+    seatsCompleted: "84 of 100 seats completed",
+    panelTitle: "Domain indicator panel",
+    domains: { demands: "Demands", control: "Control", support: "Support", relationships: "Relationships", role: "Role Clarity", change: "Change Management" },
+    riskLabels: { green: "Adequate", amber: "Attention", red: "Priority" },
+    suppressedMsg: "Not enough responses to protect anonymity (minimum 5)",
+    vsCycle: "vs. prior cycle",
+    rewardTitle: "Participation incentive",
+    rewardSubtitle: "Starbucks coupon · company-funded",
+    redeemed: "redeemed",
+    addCodes: "Add codes",
+    actionPlanTitle: "Action plan",
+    statusLabels: { all: "All", open: "Open", in_progress: "In progress", completed: "Completed" },
+    deliveryLabels: { on_platform_training: "2BeLive training", off_platform: "Company action" },
+    completedWord: "complete",
+    noActions: "No actions in this status.",
+    actions: {
+      1: "Training: workload prioritization and management",
+      2: "Review task distribution during seasonal peaks",
+      3: "Training: communication during organizational change",
+      4: "Expand decision-making autonomy in team meetings",
+    },
+    loginTitle: "Admin Dashboard",
+    loginSubtitle: "Sign in to see your company's results.",
+    loginEmailLabel: "Email",
+    loginPasswordLabel: "Password",
+    loginBtn: "Sign in",
+    loginBtnLoading: "Signing in...",
+    loginErrorInvalid: "Incorrect email or password.",
+    loginErrorNetwork: "Couldn't reach the server. Check that the backend is running.",
+    noCycleMsg: "No survey cycle found for this company yet.",
+    actionPlanMockNote: "(sample data — action-plan endpoints not implemented yet)",
+  },
+};
+
+// Point this at your deployed backend once hosted (see README.md in the
+// backend package). Defaults to localhost for local testing.
+const API_BASE_URL = "http://localhost:3000/api/v1";
+
+let lang = "pt";
+let filter = "all";
+let adminToken = null;
+let companyId = null;
+let cycleId = null;
+let cycleInfo = null;    // { targetSeatCount, completedCount, responseRate, ... }
+let domainScores = [];   // real rows from GET /companies/:id/cycles/:id/scores
+let rewardPoolStatus = null;
+let actionPlans = [];    // real rows from GET /companies/:id/cycles/:id/action-plans
+
+function t() { return DICT[lang]; }
+
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    ...opts,
+    headers: { ...(opts.headers || {}), Authorization: `Bearer ${adminToken}` },
+  });
+  if (res.status === 401) {
+    // Token expired or invalid — drop back to the login screen rather than
+    // rendering a dashboard with no data.
+    showLogin();
+    throw new Error("unauthorized");
+  }
+  return res;
+}
+
+async function loadDashboardData() {
+  const latestRes = await apiFetch(`/companies/${companyId}/cycles/latest`);
+  if (latestRes.status === 404) {
+    document.getElementById("domainGrid").innerHTML =
+      `<div class="empty-state">${t().noCycleMsg}</div>`;
+    return;
+  }
+  cycleInfo = await latestRes.json();
+  cycleId = cycleInfo.id;
+
+  const [scoresRes, rewardRes, actionsRes] = await Promise.all([
+    apiFetch(`/companies/${companyId}/cycles/${cycleId}/scores`),
+    apiFetch(`/companies/${companyId}/cycles/${cycleId}/reward-pool/status`),
+    apiFetch(`/companies/${companyId}/cycles/${cycleId}/action-plans`),
+  ]);
+  domainScores = await scoresRes.json();
+  rewardPoolStatus = await rewardRes.json();
+  actionPlans = await actionsRes.json();
+
+  renderAll();
+}
+
+function gaugeSvg(score, band) {
+  const pct = score ? (score / 5) * 100 : 0;
+  const color = band === "green" ? "#3F7D5C" : band === "amber" ? "#C98A2C" : band === "red" ? "#B54A3F" : "#B9C2BF";
+  const circumference = 169.6;
+  const dash = (pct / 100) * circumference;
+  return `
+    <div class="gauge-wrap">
+      <svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="27" fill="none" stroke="#E3E8E6" stroke-width="6"/>
+        <circle cx="32" cy="32" r="27" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"
+          stroke-dasharray="${dash} ${circumference}" transform="rotate(-90 32 32)"/>
+      </svg>
+      <div class="gauge-value">${score ? Number(score).toFixed(1) : "—"}</div>
+    </div>`;
+}
+
+function trendHtml(current, prior) {
+  // Real domain_score_cache doesn't carry a "prior cycle" comparison yet
+  // (that needs a second real cycle to exist) — omitted rather than faked.
+  if (!current || !prior) return "";
+  const diff = current - prior;
+  const up = diff > 0.02, down = diff < -0.02;
+  const cls = up ? "up" : down ? "down" : "flat";
+  const arrow = up ? "↑" : down ? "↓" : "→";
+  return `<span class="trend ${cls}">${arrow} ${Math.abs(diff).toFixed(1)} ${t().vsCycle}</span>`;
+}
+
+function renderDomains() {
+  const grid = document.getElementById("domainGrid");
+  if (!domainScores.length) {
+    grid.innerHTML = `<div class="empty-state">${t().noCycleMsg}</div>`;
+    return;
+  }
+  grid.innerHTML = domainScores.map(d => {
+    const suppressed = d.mean_score === null;
+    const domainCode = d.domain_code;
+    if (suppressed) {
+      return `
+        <div class="domain-card">
+          <div class="domain-card-top">
+            <div>
+              <div class="domain-label">${t().domains[domainCode] || domainCode}</div>
+            </div>
+          </div>
+          <div class="suppressed-box">
+            <div class="suppressed-n">n=${d.respondent_count}</div>
+            <div class="suppressed-msg">${t().suppressedMsg}</div>
+          </div>
+        </div>`;
+    }
+    return `
+      <div class="domain-card">
+        <div class="domain-card-top">
+          <div>
+            <div class="domain-label">${t().domains[domainCode] || domainCode}</div>
+            <div class="domain-n">n=${d.respondent_count}</div>
+          </div>
+          <span class="risk-badge ${d.risk_band}">${t().riskLabels[d.risk_band]}</span>
+        </div>
+        <div class="gauge-row">
+          ${gaugeSvg(d.mean_score, d.risk_band)}
+          <div>${trendHtml(d.mean_score, null)}</div>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+function renderFilters() {
+  const row = document.getElementById("filterRow");
+  const opts = ["all", "open", "in_progress", "completed"];
+  row.innerHTML = opts.map(f =>
+    `<button class="filter-btn ${filter === f ? "active" : ""}" data-filter="${f}">${t().statusLabels[f]}</button>`
+  ).join("");
+  row.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      filter = btn.getAttribute("data-filter");
+      renderFilters();
+      renderActions();
+    });
+  });
+}
+
+function renderActions() {
+  const list = document.getElementById("actionList");
+  const filtered = filter === "all" ? actionPlans : actionPlans.filter(a => a.status === filter);
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty-state">${t().noActions}</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(a => {
+    const scoreRow = domainScores.find(s => s.domain_code === a.domain_code);
+    const band = scoreRow ? scoreRow.risk_band : null;
+    const dotColor = band === "green" ? "#3F7D5C" : band === "amber" ? "#C98A2C" : band === "red" ? "#B54A3F" : "#B9C2BF";
+    const ownerLabel = a.owner_name || "—";
+    return `
+      <div class="action-row">
+        <div class="action-row-top">
+          <span class="action-dot" style="background:${dotColor}; margin-top:5px;"></span>
+          <div style="flex:1; min-width:0;">
+            <div class="action-title">${a.title}</div>
+            <div class="action-meta">${t().domains[a.domain_code] || a.domain_code} · ${t().deliveryLabels[a.delivery_type] || a.delivery_type}</div>
+          </div>
+          <span class="desktop-only-owner action-owner">${ownerLabel}</span>
+          <span class="desktop-only-completion"></span>
+          <span class="status-pill ${a.status} desktop-only-pill">${t().statusLabels[a.status]}</span>
+        </div>
+        <div class="action-row-bottom mobile-only">
+          <div class="action-row-bottom-left">
+            <span>${ownerLabel}</span>
+          </div>
+          <span class="status-pill ${a.status}">${t().statusLabels[a.status]}</span>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+function renderHeaderAndReward() {
+  if (cycleInfo) {
+    document.querySelector(".rate-value").textContent = `${Math.round(cycleInfo.responseRate * 100)}%`;
+    document.querySelector(".rate-bar-fill").style.width = `${Math.min(cycleInfo.responseRate * 100, 100)}%`;
+    document.getElementById("seatsCompleted").textContent =
+      lang === "pt"
+        ? `${cycleInfo.completedCount} de ${cycleInfo.targetSeatCount} vagas concluídas`
+        : `${cycleInfo.completedCount} of ${cycleInfo.targetSeatCount} seats completed`;
+    document.getElementById("cycleLabel").textContent = cycleInfo.title || t().cycleLabel;
+  }
+
+  const rewardCountEl = document.querySelector(".reward-count");
+  if (rewardPoolStatus && rewardPoolStatus.exists) {
+    rewardCountEl.textContent = `${rewardPoolStatus.issued} / ${rewardPoolStatus.total}`;
+  } else if (rewardPoolStatus) {
+    rewardCountEl.textContent = "—";
+  }
+}
+
+function renderAll() {
+  document.querySelectorAll("[data-k]").forEach(el => {
+    const key = el.getAttribute("data-k");
+    const val = t()[key];
+    if (typeof val === "string") el.textContent = val;
+  });
+  renderHeaderAndReward();
+  renderDomains();
+  renderFilters();
+  renderActions();
+}
+
+function showLogin() {
+  document.getElementById("loginScreen").classList.remove("hidden");
+  document.getElementById("dashboardWrap").classList.add("hidden");
+}
+
+function showDashboard() {
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("dashboardWrap").classList.remove("hidden");
+}
+
+function applyLoginText() {
+  document.getElementById("loginTitle").textContent = t().loginTitle;
+  document.getElementById("loginSubtitle").textContent = t().loginSubtitle;
+  document.getElementById("loginEmailLabel").textContent = t().loginEmailLabel;
+  document.getElementById("loginPasswordLabel").textContent = t().loginPasswordLabel;
+  document.getElementById("loginBtn").textContent = t().loginBtn;
+}
+
+document.getElementById("loginBtn").addEventListener("click", async () => {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const errorEl = document.getElementById("loginError");
+  errorEl.classList.add("hidden");
+
+  const btn = document.getElementById("loginBtn");
+  btn.disabled = true;
+  btn.textContent = t().loginBtnLoading;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errorEl.textContent = t().loginErrorInvalid;
+      errorEl.classList.remove("hidden");
+      return;
+    }
+    adminToken = data.token;
+    companyId = data.companyId;
+    showDashboard();
+    await loadDashboardData();
+  } catch (err) {
+    errorEl.textContent = t().loginErrorNetwork;
+    errorEl.classList.remove("hidden");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = t().loginBtn;
+  }
+});
+
+document.querySelectorAll(".lang-toggle button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    lang = btn.getAttribute("data-lang");
+    document.querySelectorAll(".lang-toggle button").forEach(b => b.classList.toggle("active", b === btn));
+    applyLoginText();
+    if (adminToken) renderAll();
+  });
+});
+
+applyLoginText();
+showLogin();
+</script>
+
+<style>
+  /* Desktop layout for action rows: grid instead of stacked flex */
+  @media (min-width: 641px) {
+    .action-row { display: grid; grid-template-columns: auto 1fr auto auto auto; gap: 16px; align-items: center; }
+    .action-row-top { display: contents; }
+    .action-row-bottom { display: none; }
+    .desktop-only-owner, .desktop-only-completion, .desktop-only-pill { display: block; }
+  }
+  @media (max-width: 640px) {
+    .desktop-only-owner, .desktop-only-completion, .desktop-only-pill { display: none; }
+  }
+</style>
+</body>
+</html>

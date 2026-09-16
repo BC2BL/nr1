@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2BeLive · Super Admin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap');
+
+  :root {
+    --color-primary:      #304269;
+    --color-secondary:    #eb6025;
+    --color-dark-blue:    #0a1744;
+    --color-bg:           #F7F7F5;
+    --color-surface:      #ffffff;
+    --color-border:       #D9DEE8;
+    --color-text-primary: #0a1744;
+    --color-text-muted:   #6B7280;
+    --color-error:        #fe6c5f;
+    --color-error-soft:   rgba(254,108,95,0.10);
+    --color-success:      #22C55E;
+    --color-success-soft: #E8F5E9;
+    --color-success-text: #2E7D32;
+    --color-warning:      #ffc000;
+    --color-warning-soft: #FFF8E1;
+    --color-warning-text: #E65100;
+    --color-tint-blue:    #EEF2F8;
+    --color-tint-orange:  #FFF0E8;
+    /* Aliases for backward compat */
+    --paper:      var(--color-bg);
+    --ink:        var(--color-text-primary);
+    --ink-soft:   var(--color-text-muted);
+    --muted:      var(--color-text-muted);
+    --line:       var(--color-border);
+    --line-soft:  #E5EAF3;
+    --brand:      var(--color-secondary);
+    --brand-soft: var(--color-tint-blue);
+    --green:      var(--color-success-text);
+    --green-soft: var(--color-success-soft);
+    --amber:      var(--color-warning-text);
+    --amber-soft: var(--color-warning-soft);
+    --red:        var(--color-error);
+    --red-soft:   var(--color-error-soft);
+    --grey:       var(--color-text-muted);
+    --grey-soft:  var(--color-tint-blue);
+    --glass-fill:  rgba(255,255,255,0.80);
+    --glass-blur:  20px;
+    --card-shadow:
+      0 2px 0 0 rgba(255,255,255,0.90) inset,
+      0 1px 2px rgba(10,23,68,0.05),
+      0 6px 20px rgba(10,23,68,0.09),
+      0 20px 44px rgba(10,23,68,0.06);
+    --font: 'Nunito', -apple-system, 'Segoe UI', sans-serif;
+    --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px; --radius-full: 9999px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background:
+      radial-gradient(ellipse 70% 55% at 50% 35%,
+        rgba(10,23,68,0.07), rgba(247,247,245,0)),
+      var(--color-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font);
+    padding: 40px 24px;
+  }
+  @media (max-width: 720px) { body { padding: 20px 14px; } }
+
+  .wrap { max-width: 1120px; margin: 0 auto; }
+
+  .header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 28px; gap: 16px; flex-wrap: wrap;
+  }
+  .eyebrow {
+    font-family: var(--font); font-size: 11px; color: var(--color-secondary);
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;
+  }
+  h1 { font-family: var(--font); font-weight: 600; font-size: 28px; margin: 0; }
+  @media (max-width: 720px) { h1 { font-size: 22px; } }
+  .subtitle { font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
+
+  .lang-toggle { display: flex; gap: 4px; background: rgba(217,222,232,0.45); border-radius: 20px; padding: 3px; }
+  .lang-toggle button {
+    font-family: var(--font); font-size: 11px; font-weight: 500;
+    padding: 5px 11px; border-radius: 16px; cursor: pointer; border: none; background: transparent;
+    color: var(--ink-soft);
+  }
+  .lang-toggle button.active { background: var(--color-dark-blue); color: #fff; }
+
+  /* Platform stat strip */
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow); padding: 16px 18px;
+  }
+  .stat-label { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 6px; }
+  .stat-value { font-family: var(--font); font-size: 26px; font-weight: 500; }
+  .stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .stat-value.warn { color: var(--amber); }
+
+  /* Attention banner */
+  .attention-banner {
+    background: var(--amber-soft); border: 1px solid #E9D3A8; border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: #8A5F1F;
+  }
+  .attention-banner.hidden { display: none; }
+  .attention-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); flex-shrink: 0; }
+
+  /* Search / filter row */
+  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }
+  .search-box {
+    flex: 1; min-width: 200px; max-width: 320px; padding: 9px 14px; border-radius: 9px;
+    border: 1px solid var(--line); font-family: var(--font); font-size: 13.5px; outline: none;
+  }
+  .search-box:focus { border-color: var(--color-primary); }
+  .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .filter-btn {
+    font-family: var(--font); font-size: 11.5px;
+    padding: 5px 10px; border-radius: 20px; cursor: pointer;
+    border: 1px solid var(--line); background: rgba(255,255,255,0.70); color: var(--color-text-muted); white-space: nowrap;
+  }
+  .filter-btn.active { border-color: var(--color-primary); background: var(--color-tint-blue); color: var(--color-primary); }
+
+  /* Company table */
+  .table-wrap {
+    background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow); overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px;
+    color: var(--muted); font-weight: 600; padding: 12px 16px; border-bottom: 1px solid var(--line);
+    background: var(--paper);
+  }
+  tbody td { padding: 14px 16px; border-bottom: 1px solid var(--line-soft); font-size: 13.5px; vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr { cursor: pointer; transition: background 0.1s; }
+  tbody tr:hover { background: var(--paper); }
+
+  .company-cell .cname { font-weight: 600; color: var(--ink); }
+  .company-cell .ccnpj { font-size: 11px; color: var(--muted); font-family: var(--font); margin-top: 2px; }
+
+  .plan-pill {
+    font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 20px; white-space: nowrap;
+  }
+  .plan-pill.active { color: var(--green); background: var(--green-soft); }
+  .plan-pill.trial { color: var(--color-secondary); background: var(--brand-soft); }
+  .plan-pill.suspended { color: var(--red); background: var(--red-soft); }
+
+  .seats-cell { font-family: var(--font); font-size: 12.5px; }
+  .rate-mini-track { width: 70px; height: 4px; background: #E9EDEC; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+  .rate-mini-fill { height: 100%; background: var(--color-secondary); }
+  .rate-mini-fill.low { background: var(--amber); }
+
+  .health-dot-row { display: flex; gap: 3px; align-items: center; }
+  .hdot { width: 7px; height: 7px; border-radius: 50%; }
+  .hdot.green { background: var(--green); }
+  .hdot.amber { background: var(--amber); }
+  .hdot.red { background: var(--red); }
+  .hdot.grey { background: #D5DCDA; }
+
+  .chevron { color: var(--muted); font-size: 13px; }
+
+  /* Mobile: card layout instead of table */
+  @media (max-width: 720px) {
+    thead { display: none; }
+    table, tbody, tr, td { display: block; width: 100%; }
+    tbody tr {
+      border-bottom: 1px solid var(--line-soft); padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;
+    }
+    tbody td { padding: 0; border: none; }
+    .mobile-row-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .mobile-row-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .td-hide-mobile { display: none; }
+  }
+  .td-only-mobile { display: none; }
+  @media (max-width: 720px) { .td-only-mobile { display: block; } }
+
+  /* Drill-in panel (slide-over) */
+  .drilldown-overlay {
+    position: fixed; inset: 0; background: rgba(22,41,43,0.35); display: flex;
+    justify-content: flex-end; z-index: 10;
+  }
+  .drilldown-overlay.hidden { display: none; }
+  .drilldown-panel {
+    background: var(--paper); width: 100%; max-width: 480px; height: 100%; overflow-y: auto;
+    padding: 28px 24px; box-shadow: -8px 0 24px rgba(0,0,0,0.08);
+  }
+  .drilldown-close {
+    background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px;
+    font-family: var(--font); font-size: 12.5px; cursor: pointer; color: var(--ink-soft);
+    margin-bottom: 20px;
+  }
+  .dd-company-name { font-family: var(--font); font-weight: 600; font-size: 22px; margin: 0 0 4px; }
+  .dd-meta { font-size: 12.5px; color: var(--ink-soft); margin-bottom: 20px; }
+  .dd-section-title { font-size: 12px; color: var(--ink-soft); font-weight: 600; margin: 20px 0 10px; }
+  .dd-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .dd-stat-card { background: #fff; border: 1px solid var(--line); border-radius: 9px; padding: 12px 14px; }
+  .dd-stat-label { font-size: 10.5px; color: var(--muted); margin-bottom: 4px; }
+  .dd-stat-value { font-family: var(--font); font-size: 17px; }
+  .dd-domain-list { display: flex; flex-direction: column; gap: 6px; }
+  .dd-domain-row {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px;
+  }
+  .dd-domain-name { font-size: 12.5px; }
+  .dd-open-btn {
+    width: 100%; margin-top: 22px; font-family: var(--font); font-size: 13.5px; font-weight: 600;
+    background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(235,96,37,0.28); padding: 12px 16px; cursor: pointer;
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="header">
+    <div>
+      <div class="eyebrow" data-k="eyebrow"></div>
+      <h1 data-k="title"></h1>
+      <div class="subtitle" data-k="subtitle"></div>
+    </div>
+    <div class="lang-toggle">
+      <button data-lang="pt" class="active">PT</button>
+      <button data-lang="en">EN</button>
+    </div>
+  </div>
+
+  <div class="stat-grid" id="statGrid"></div>
+
+  <div class="attention-banner" id="attentionBanner">
+    <span class="attention-dot"></span>
+    <span id="attentionText"></span>
+  </div>
+
+  <div class="toolbar">
+    <input class="search-box" id="searchBox" type="text" />
+    <div class="filter-row" id="filterRow"></div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-k="colCompany"></th>
+          <th class="td-hide-mobile" data-k="colPlan"></th>
+          <th class="td-hide-mobile" data-k="colSeats"></th>
+          <th class="td-hide-mobile" data-k="colResponse"></th>
+          <th data-k="colHealth"></th>
+          <th class="td-hide-mobile" data-k="colSince"></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="companyTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Drill-in panel -->
+<div class="drilldown-overlay hidden" id="drilldownOverlay">
+  <div class="drilldown-panel">
+    <button class="drilldown-close" id="ddCloseBtn">✕ <span data-k="close"></span></button>
+    <div class="dd-company-name" id="ddCompanyName"></div>
+    <div class="dd-meta" id="ddMeta"></div>
+
+    <div class="dd-section-title" data-k="ddOverview"></div>
+    <div class="dd-stat-grid">
+      <div class="dd-stat-card">
+        <div class="dd-stat-label" data-k="colSeats"></div>
+        <div class="dd-stat-value" id="ddSeats"></div>
+      </div>
+      <div class="dd-stat-card">
+        <div class="dd-stat-label" data-k="colResponse"></div>
+        <div class="dd-stat-value" id="ddResponse"></div>
+      </div>
+      <div class="dd-stat-card">
+        <div class="dd-stat-label" data-k="ddCycles"></div>
+        <div class="dd-stat-value" id="ddCycles"></div>
+      </div>
+      <div class="dd-stat-card">
+        <div class="dd-stat-label" data-k="ddOpenActions"></div>
+        <div class="dd-stat-value" id="ddOpenActions"></div>
+      </div>
+    </div>
+
+    <div class="dd-section-title" data-k="ddDomains"></div>
+    <div class="dd-domain-list" id="ddDomainList"></div>
+
+    <button class="dd-open-btn" data-k="ddOpenDashboard"></button>
+  </div>
+</div>
+
+<script>
+const DICT = {
+  pt: {
+    eyebrow: "2BeLive · Uso Interno",
+    title: "Painel Super Admin",
+    subtitle: "Visão geral de todas as empresas na plataforma",
+    statTotalCompanies: "Empresas ativas",
+    statNewThisMonth: "Novas este mês",
+    statTotalEmployees: "Funcionários convidados",
+    statAvgResponse: "Taxa média de resposta",
+    statNeedAttention: "Precisam de atenção",
+    attentionText: (n) => `${n} ${n === 1 ? "empresa precisa" : "empresas precisam"} de atenção — taxa de resposta baixa ou ciclo parado.`,
+    searchPlaceholder: "Buscar empresa...",
+    filters: { all: "Todas", active: "Ativas", trial: "Teste", attention: "Atenção", suspended: "Suspensas" },
+    colCompany: "Empresa", colPlan: "Plano", colSeats: "Vagas", colResponse: "Resposta",
+    colHealth: "Domínios", colSince: "Desde",
+    close: "Fechar",
+    ddOverview: "Visão geral",
+    ddCycles: "Ciclos realizados",
+    ddOpenActions: "Ações em aberto",
+    ddDomains: "Último ciclo · por domínio",
+    ddOpenDashboard: "Abrir painel da empresa",
+    planLabels: { active: "Ativo", trial: "Teste", suspended: "Suspenso" },
+    domains: { demands: "Demandas", control: "Autonomia", support: "Apoio", relationships: "Relacionamentos", role: "Clareza de Papel", change: "Gestão de Mudanças" },
+    riskLabels: { green: "Adequado", amber: "Atenção", red: "Prioridade" },
+    suppressed: "dados insuf.",
+  },
+  en: {
+    eyebrow: "2BeLive · Internal Use",
+    title: "Super Admin Panel",
+    subtitle: "Overview of every company on the platform",
+    statTotalCompanies: "Active companies",
+    statNewThisMonth: "New this month",
+    statTotalEmployees: "Employees invited",
+    statAvgResponse: "Avg. response rate",
+    statNeedAttention: "Need attention",
+    attentionText: (n) => `${n} ${n === 1 ? "company needs" : "companies need"} attention — low response rate or a stalled cycle.`,
+    searchPlaceholder: "Search company...",
+    filters: { all: "All", active: "Active", trial: "Trial", attention: "Attention", suspended: "Suspended" },
+    colCompany: "Company", colPlan: "Plan", colSeats: "Seats", colResponse: "Response",
+    colHealth: "Domains", colSince: "Since",
+    close: "Close",
+    ddOverview: "Overview",
+    ddCycles: "Cycles run",
+    ddOpenActions: "Open actions",
+    ddDomains: "Latest cycle · by domain",
+    ddOpenDashboard: "Open company dashboard",
+    planLabels: { active: "Active", trial: "Trial", suspended: "Suspended" },
+    domains: { demands: "Demands", control: "Control", support: "Support", relationships: "Relationships", role: "Role Clarity", change: "Change Management" },
+    riskLabels: { green: "Adequate", amber: "Attention", red: "Priority" },
+    suppressed: "insuff. data",
+  },
+};
+
+// Mock data — represents what a cross-company query against
+// company + survey_cycle + domain_score_cache would return.
+const MOCK_COMPANIES = [
+  {
+    id: "c1", name: "Comércio Alfa Ltda.", cnpj: "12.345.678/0001-90", plan: "active",
+    seats: 100, completed: 84, since: "2026-06-12", cyclesRun: 3, openActions: 3,
+    domains: [
+      { domain: "demands", risk: "red" }, { domain: "control", risk: "amber" },
+      { domain: "support", risk: "green" }, { domain: "relationships", risk: null },
+      { domain: "role", risk: "green" }, { domain: "change", risk: "amber" },
+    ],
+  },
+  {
+    id: "c2", name: "Indústria Beta S.A.", cnpj: "23.456.789/0001-01", plan: "active",
+    seats: 450, completed: 402, since: "2026-03-04", cyclesRun: 5, openActions: 1,
+    domains: [
+      { domain: "demands", risk: "amber" }, { domain: "control", risk: "green" },
+      { domain: "support", risk: "green" }, { domain: "relationships", risk: "green" },
+      { domain: "role", risk: "green" }, { domain: "change", risk: "green" },
+    ],
+  },
+  {
+    id: "c3", name: "Logística Gama Ltda.", cnpj: "34.567.890/0001-12", plan: "trial",
+    seats: 60, completed: 11, since: "2026-08-10", cyclesRun: 1, openActions: 0,
+    domains: [
+      { domain: "demands", risk: null }, { domain: "control", risk: null },
+      { domain: "support", risk: null }, { domain: "relationships", risk: null },
+      { domain: "role", risk: null }, { domain: "change", risk: null },
+    ],
+  },
+  {
+    id: "c4", name: "Varejo Delta Comércio", cnpj: "45.678.901/0001-23", plan: "active",
+    seats: 220, completed: 58, since: "2026-05-20", cyclesRun: 2, openActions: 5,
+    domains: [
+      { domain: "demands", risk: "red" }, { domain: "control", risk: "red" },
+      { domain: "support", risk: "amber" }, { domain: "relationships", risk: "red" },
+      { domain: "role", risk: "amber" }, { domain: "change", risk: "red" },
+    ],
+  },
+  {
+    id: "c5", name: "Consultoria Épsilon", cnpj: "56.789.012/0001-34", plan: "suspended",
+    seats: 35, completed: 0, since: "2026-02-15", cyclesRun: 1, openActions: 0,
+    domains: [
+      { domain: "demands", risk: null }, { domain: "control", risk: null },
+      { domain: "support", risk: null }, { domain: "relationships", risk: null },
+      { domain: "role", risk: null }, { domain: "change", risk: null },
+    ],
+  },
+  {
+    id: "c6", name: "Transportes Zeta", cnpj: "67.890.123/0001-45", plan: "active",
+    seats: 180, completed: 171, since: "2026-04-08", cyclesRun: 4, openActions: 2,
+    domains: [
+      { domain: "demands", risk: "amber" }, { domain: "control", risk: "green" },
+      { domain: "support", risk: "green" }, { domain: "relationships", risk: "amber" },
+      { domain: "role", risk: "green" }, { domain: "change", risk: "green" },
+    ],
+  },
+];
+
+let lang = "pt";
+let filter = "all";
+let search = "";
+
+function t() { return DICT[lang]; }
+
+function responseRate(c) { return c.completed / c.seats; }
+
+function needsAttention(c) {
+  if (c.plan === "suspended") return false;
+  const rate = responseRate(c);
+  const daysSince = (Date.now() - new Date(c.since)) / (1000 * 60 * 60 * 24);
+  return (daysSince > 21 && rate < 0.5) || c.domains.some(d => d.risk === "red");
+}
+
+function matchesFilter(c) {
+  if (filter === "all") return true;
+  if (filter === "attention") return needsAttention(c);
+  return c.plan === filter;
+}
+
+function matchesSearch(c) {
+  if (!search.trim()) return true;
+  return c.name.toLowerCase().includes(search.trim().toLowerCase());
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  const locale = lang === "pt" ? "pt-BR" : "en-US";
+  return d.toLocaleDateString(locale, { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function renderStats() {
+  const total = MOCK_COMPANIES.filter(c => c.plan !== "suspended").length;
+  const newThisMonth = MOCK_COMPANIES.filter(c => {
+    const d = new Date(c.since);
+    const now = new Date();
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).length;
+  const totalEmployees = MOCK_COMPANIES.reduce((sum, c) => sum + c.seats, 0);
+  const avgRate = MOCK_COMPANIES.reduce((sum, c) => sum + responseRate(c), 0) / MOCK_COMPANIES.length;
+  const attentionCount = MOCK_COMPANIES.filter(needsAttention).length;
+
+  const grid = document.getElementById("statGrid");
+  grid.innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">${t().statTotalCompanies}</div>
+      <div class="stat-value">${total}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">${t().statNewThisMonth}</div>
+      <div class="stat-value">+${newThisMonth}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">${t().statTotalEmployees}</div>
+      <div class="stat-value">${totalEmployees.toLocaleString(lang === "pt" ? "pt-BR" : "en-US")}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">${t().statAvgResponse}</div>
+      <div class="stat-value">${Math.round(avgRate * 100)}%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">${t().statNeedAttention}</div>
+      <div class="stat-value ${attentionCount > 0 ? "warn" : ""}">${attentionCount}</div>
+    </div>
+  `;
+
+  const banner = document.getElementById("attentionBanner");
+  if (attentionCount > 0) {
+    banner.classList.remove("hidden");
+    document.getElementById("attentionText").textContent = t().attentionText(attentionCount);
+  } else {
+    banner.classList.add("hidden");
+  }
+}
+
+function renderFilters() {
+  const row = document.getElementById("filterRow");
+  const opts = ["all", "active", "trial", "attention", "suspended"];
+  row.innerHTML = opts.map(f =>
+    `<button class="filter-btn ${filter === f ? "active" : ""}" data-filter="${f}">${t().filters[f]}</button>`
+  ).join("");
+  row.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      filter = btn.getAttribute("data-filter");
+      renderFilters();
+      renderTable();
+    });
+  });
+}
+
+function healthDots(company) {
+  return company.domains.map(d => {
+    const cls = d.risk || "grey";
+    return `<span class="hdot ${cls}"></span>`;
+  }).join("");
+}
+
+function renderTable() {
+  const tbody = document.getElementById("companyTableBody");
+  const rows = MOCK_COMPANIES.filter(c => matchesFilter(c) && matchesSearch(c));
+
+  tbody.innerHTML = rows.map(c => {
+    const rate = responseRate(c);
+    const rateLow = rate < 0.5;
+    return `
+      <tr data-id="${c.id}">
+        <td>
+          <div class="mobile-row-top">
+            <div class="company-cell">
+              <div class="cname">${c.name}</div>
+              <div class="ccnpj">${c.cnpj}</div>
+            </div>
+            <span class="chevron td-only-mobile">›</span>
+          </div>
+        </td>
+        <td class="td-hide-mobile"><span class="plan-pill ${c.plan}">${t().planLabels[c.plan]}</span></td>
+        <td class="td-hide-mobile seats-cell">${c.completed} / ${c.seats}
+          <div class="rate-mini-track"><div class="rate-mini-fill ${rateLow ? "low" : ""}" style="width:${Math.min(rate * 100, 100)}%"></div></div>
+        </td>
+        <td class="td-hide-mobile seats-cell">${Math.round(rate * 100)}%</td>
+        <td><div class="health-dot-row">${healthDots(c)}</div></td>
+        <td class="td-hide-mobile" style="color: var(--ink-soft); font-size: 12.5px;">${formatDate(c.since)}</td>
+        <td class="td-hide-mobile"><span class="chevron">›</span></td>
+      </tr>`;
+  }).join("");
+
+  tbody.querySelectorAll("tr").forEach(row => {
+    row.addEventListener("click", () => openDrilldown(row.getAttribute("data-id")));
+  });
+}
+
+function openDrilldown(id) {
+  const c = MOCK_COMPANIES.find(x => x.id === id);
+  if (!c) return;
+  const rate = responseRate(c);
+
+  document.getElementById("ddCompanyName").textContent = c.name;
+  document.getElementById("ddMeta").textContent = `${c.cnpj} · ${t().planLabels[c.plan]} · ${formatDate(c.since)}`;
+  document.getElementById("ddSeats").textContent = `${c.completed} / ${c.seats}`;
+  document.getElementById("ddResponse").textContent = `${Math.round(rate * 100)}%`;
+  document.getElementById("ddCycles").textContent = c.cyclesRun;
+  document.getElementById("ddOpenActions").textContent = c.openActions;
+
+  document.getElementById("ddDomainList").innerHTML = c.domains.map(d => {
+    if (!d.risk) {
+      return `<div class="dd-domain-row"><span class="dd-domain-name">${t().domains[d.domain]}</span><span style="font-size:11px;color:var(--muted);">${t().suppressed}</span></div>`;
+    }
+    return `<div class="dd-domain-row">
+      <span class="dd-domain-name">${t().domains[d.domain]}</span>
+      <span class="risk-tag" style="font-size:11px;font-weight:600;color:${d.risk === "green" ? "#3F7D5C" : d.risk === "amber" ? "#C98A2C" : "#B54A3F"}">${t().riskLabels[d.risk]}</span>
+    </div>`;
+  }).join("");
+
+  document.getElementById("drilldownOverlay").classList.remove("hidden");
+}
+
+document.getElementById("ddCloseBtn").addEventListener("click", () => {
+  document.getElementById("drilldownOverlay").classList.add("hidden");
+});
+document.getElementById("drilldownOverlay").addEventListener("click", (e) => {
+  if (e.target.id === "drilldownOverlay") document.getElementById("drilldownOverlay").classList.add("hidden");
+});
+
+document.getElementById("searchBox").addEventListener("input", (e) => {
+  search = e.target.value;
+  renderTable();
+});
+
+document.querySelectorAll(".lang-toggle button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    lang = btn.getAttribute("data-lang");
+    document.querySelectorAll(".lang-toggle button").forEach(b => b.classList.toggle("active", b === btn));
+    applyText();
+  });
+});
+
+function applyText() {
+  document.querySelectorAll("[data-k]").forEach(el => {
+    const key = el.getAttribute("data-k");
+    const val = t()[key];
+    if (typeof val === "string") el.textContent = val;
+  });
+  document.getElementById("searchBox").placeholder = t().searchPlaceholder;
+  renderStats();
+  renderFilters();
+  renderTable();
+}
+
+applyText();
+</script>
+</body>
+</html>

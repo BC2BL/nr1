@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2BeLive · Configuração da Conta</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap');
+
+  :root {
+    --color-primary:      #304269;
+    --color-secondary:    #eb6025;
+    --color-dark-blue:    #0a1744;
+    --color-bg:           #F7F7F5;
+    --color-surface:      #ffffff;
+    --color-border:       #D9DEE8;
+    --color-text-primary: #0a1744;
+    --color-text-muted:   #6B7280;
+    --color-error:        #fe6c5f;
+    --color-tint-blue:    #EEF2F8;
+    --color-success-text: #2E7D32;
+    /* Aliases */
+    --paper:      var(--color-bg);
+    --ink:        var(--color-text-primary);
+    --ink-soft:   var(--color-text-muted);
+    --muted:      var(--color-text-muted);
+    --line:       var(--color-border);
+    --line-soft:  #E5EAF3;
+    --brand:      var(--color-secondary);
+    --brand-soft: var(--color-tint-blue);
+    --disabled:   #C3CBC9;
+    --red:        var(--color-error);
+    /* Glass depth */
+    --glass-fill:  rgba(255,255,255,0.80);
+    --glass-blur:  20px;
+    --card-shadow:
+      0 2px 0 0 rgba(255,255,255,0.90) inset,
+      0 1px 2px rgba(10,23,68,0.05),
+      0 6px 20px rgba(10,23,68,0.09),
+      0 20px 44px rgba(10,23,68,0.06);
+    --font: 'Nunito', -apple-system, 'Segoe UI', sans-serif;
+    --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px; --radius-full: 9999px;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 35%,
+        rgba(10,23,68,0.07), rgba(247,247,245,0)),
+      var(--color-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font);
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+  @media (max-width: 560px) {
+    body { padding: 20px 14px; }
+  }
+
+  .wrap { width: 100%; max-width: 520px; }
+
+  .top-row {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+  }
+  .eyebrow {
+    font-family: var(--font); font-size: 11px; color: var(--color-secondary);
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+
+  .lang-toggle { display: flex; gap: 4px; background: rgba(217,222,232,0.45); border-radius: 20px; padding: 3px; }
+  .lang-toggle button {
+    font-family: var(--font); font-size: 11px; font-weight: 500;
+    padding: 5px 11px; border-radius: 16px; cursor: pointer; border: none; background: transparent;
+    color: var(--ink-soft);
+  }
+  .lang-toggle button.active { background: var(--color-dark-blue); color: #fff; }
+
+  .step-dots { display: flex; gap: 6px; margin-bottom: 8px; }
+  .step-dots .dot { flex: 1; height: 3px; border-radius: 2px; background: #E3E8E6; transition: background 0.2s; }
+  .step-dots .dot.done { background: var(--color-secondary); }
+
+  .step-label {
+    font-family: var(--font); font-size: 11.5px; color: var(--ink-soft); margin-bottom: 20px;
+  }
+
+  .card {
+    background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow);
+    padding: 32px 28px;
+  }
+  @media (max-width: 560px) {
+    .card { padding: 24px 20px; }
+  }
+
+  .card h1 {
+    font-family: var(--font); font-weight: 600; font-size: 22px; margin: 0 0 8px;
+  }
+  .card p.body {
+    font-size: 13.5px; color: var(--ink-soft); line-height: 1.6; margin: 0 0 24px;
+  }
+
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block; font-family: var(--font); font-size: 13px; font-weight: 600;
+    color: var(--ink); margin-bottom: 6px;
+  }
+  .field input {
+    width: 100%; padding: 12px 14px; border-radius: 9px; border: 1px solid var(--line);
+    font-family: var(--font); font-size: 14.5px; color: var(--ink); outline: none;
+  }
+  .field input:focus { border-color: var(--color-primary); }
+  .field .hint { font-size: 11.5px; color: var(--muted); margin-top: 5px; }
+  .field .error { font-size: 11.5px; color: var(--red); margin-top: 5px; }
+
+  .seat-input {
+    font-family: var(--font) !important; font-size: 20px !important; font-weight: 500;
+    text-align: center;
+  }
+  input[type="range"] { width: 100%; accent-color: var(--color-secondary); margin-top: 4px; }
+
+  .review-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 0; border-bottom: 1px solid var(--line-soft);
+  }
+  .review-row:last-child { border-bottom: none; }
+  .review-row .rlabel { font-size: 11.5px; color: var(--muted); margin-bottom: 2px; }
+  .review-row .rvalue { font-size: 14px; color: var(--ink); }
+  .review-row button {
+    font-family: var(--font); font-size: 12px; font-weight: 600;
+    color: var(--color-secondary); background: transparent; border: none; cursor: pointer;
+  }
+
+  .nav-row { display: flex; justify-content: space-between; margin-top: 20px; }
+  .btn-back {
+    font-family: var(--font); font-size: 13.5px; font-weight: 500;
+    background: transparent; color: var(--ink-soft); border: none; cursor: pointer; padding: 10px 4px;
+  }
+  .btn-back:disabled { color: var(--disabled); cursor: default; }
+  .btn-primary {
+    font-family: var(--font); font-size: 14px; font-weight: 600;
+    background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(235,96,37,0.28);
+    padding: 12px 24px; cursor: pointer;
+  }
+  .btn-primary:hover { opacity: 0.95; }
+
+  .success-card { text-align: center; padding: 36px 32px; }
+  @media (max-width: 560px) {
+    .success-card { padding: 28px 20px; }
+  }
+  .success-icon {
+    width: 48px; height: 48px; border-radius: 50%; background: var(--brand-soft);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+  }
+  .link-box {
+    background: var(--paper); border-radius: 12px; padding: 18px 18px; margin-bottom: 10px; text-align: left;
+  }
+  .link-box .llabel { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 8px; font-weight: 600; }
+  .link-inner {
+    background: #fff; border: 1px dashed #B9C2BF; border-radius: 8px; padding: 12px 12px;
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }
+  @media (max-width: 560px) {
+    .link-inner { flex-direction: column; align-items: stretch; }
+  }
+  .link-inner span {
+    font-family: var(--font); font-size: 12.5px; word-break: break-all; color: var(--ink);
+  }
+  .btn-copy {
+    font-family: var(--font); font-size: 12px; font-weight: 600;
+    background: var(--color-secondary); color: #fff; border: none; border-radius: 6px;
+    padding: 8px 14px; cursor: pointer; white-space: nowrap;
+  }
+  .btn-copy.copied { background: var(--brand-soft); color: var(--color-secondary); }
+  .success-note { font-size: 11.5px; color: var(--muted); margin-bottom: 24px; }
+  .btn-full {
+    width: 100%; font-family: var(--font); font-size: 14.5px; font-weight: 600;
+    background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(235,96,37,0.28);
+    padding: 13px 16px; cursor: pointer;
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top-row">
+    <div class="eyebrow" id="eyebrow"></div>
+    <div class="lang-toggle">
+      <button data-lang="pt" class="active">PT</button>
+      <button data-lang="en">EN</button>
+    </div>
+  </div>
+
+  <!-- WIZARD -->
+  <div id="wizard">
+    <div class="step-dots" id="stepDots"></div>
+    <div class="step-label" id="stepLabel"></div>
+
+    <div class="card">
+      <!-- Step 0: Company -->
+      <div class="step-panel" data-step="0">
+        <h1 data-k="s1Title"></h1>
+        <p class="body" data-k="s1Body"></p>
+        <div class="field">
+          <label data-k="companyName"></label>
+          <input type="text" id="companyName" data-placeholder-k="companyNamePh" />
+          <div class="error hidden" id="err-companyName"></div>
+        </div>
+        <div class="field">
+          <label data-k="cnpj"></label>
+          <input type="text" id="cnpj" data-placeholder-k="cnpjPh" />
+          <div class="hint" data-k="cnpjNote"></div>
+        </div>
+      </div>
+
+      <!-- Step 1: Admin -->
+      <div class="step-panel hidden" data-step="1">
+        <h1 data-k="s2Title"></h1>
+        <p class="body" data-k="s2Body"></p>
+        <div class="field">
+          <label data-k="adminName"></label>
+          <input type="text" id="adminName" data-placeholder-k="adminNamePh" />
+          <div class="error hidden" id="err-adminName"></div>
+        </div>
+        <div class="field">
+          <label data-k="adminEmail"></label>
+          <input type="email" id="adminEmail" data-placeholder-k="adminEmailPh" />
+          <div class="error hidden" id="err-adminEmail"></div>
+        </div>
+        <div class="field">
+          <label data-k="password"></label>
+          <input type="password" id="password" data-placeholder-k="passwordPh" />
+          <div class="error hidden" id="err-password"></div>
+        </div>
+      </div>
+
+      <!-- Step 2: Seats -->
+      <div class="step-panel hidden" data-step="2">
+        <h1 data-k="s3Title"></h1>
+        <p class="body" data-k="s3Body"></p>
+        <div class="field">
+          <label data-k="seatCount"></label>
+          <input type="number" id="seatsNumber" class="seat-input" min="1" value="100" />
+          <div class="hint" id="seatHint"></div>
+        </div>
+        <input type="range" id="seatsRange" min="10" max="3500" step="10" value="100" />
+      </div>
+
+      <!-- Step 3: Review -->
+      <div class="step-panel hidden" data-step="3">
+        <h1 data-k="s4Title"></h1>
+        <p class="body" data-k="s4Body"></p>
+        <div class="review-row">
+          <div><div class="rlabel" data-k="reviewCompany"></div><div class="rvalue" id="rv-company">—</div></div>
+          <button data-goto="0" data-k="editLink"></button>
+        </div>
+        <div class="review-row">
+          <div><div class="rlabel" data-k="reviewAdmin"></div><div class="rvalue" id="rv-admin">—</div></div>
+          <button data-goto="1" data-k="editLink"></button>
+        </div>
+        <div class="review-row">
+          <div><div class="rlabel" data-k="reviewSeats"></div><div class="rvalue" id="rv-seats">—</div></div>
+          <button data-goto="2" data-k="editLink"></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-back" id="backBtn" data-k="backBtn"></button>
+      <button class="btn-primary" id="nextBtn"></button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="success" class="card success-card hidden">
+    <div class="success-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path d="M4 12.5L9.5 18L20 6" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1 data-k="successTitle"></h1>
+    <p class="body" data-k="successBody"></p>
+    <div class="link-box">
+      <div class="llabel" data-k="linkLabel"></div>
+      <div class="link-inner">
+        <span id="surveyUrl"></span>
+        <button class="btn-copy" id="copyBtn"></button>
+      </div>
+    </div>
+    <div class="success-note" data-k="successNote"></div>
+    <button class="btn-full" data-k="goDashboard"></button>
+  </div>
+</div>
+
+<script>
+const DICT = {
+  pt: {
+    eyebrow: "Configuração da Conta",
+    steps: ["Empresa", "Administrador", "Vagas", "Revisão"],
+    stepLabel: (n, total) => `Etapa ${n} de ${total}`,
+    s1Title: "Sobre a sua empresa",
+    s1Body: "Vamos usar essas informações para configurar o painel da sua empresa.",
+    companyName: "Nome da empresa",
+    companyNamePh: "Ex: Comércio Alfa Ltda.",
+    cnpj: "CNPJ",
+    cnpjPh: "00.000.000/0000-00",
+    cnpjNote: "Opcional, mas ajuda a validar sua conta mais rápido.",
+    s2Title: "Crie sua conta de administrador",
+    s2Body: "Você usará este login para acompanhar respostas e gerenciar o plano de ação.",
+    adminName: "Seu nome",
+    adminNamePh: "Ex: Marina Alves",
+    adminEmail: "E-mail corporativo",
+    adminEmailPh: "voce@empresa.com.br",
+    password: "Senha",
+    passwordPh: "Mínimo 8 caracteres",
+    s3Title: "Quantas pessoas vão responder?",
+    s3Body: "Isso define o número de vagas do seu plano e ajuda a calcular a taxa de resposta.",
+    seatCount: "Número de funcionários (vagas)",
+    seatHint: (n) => {
+      if (n <= 500) return "Recomendado: convidar todos os funcionários.";
+      if (n <= 1000) return "Recomendado: amostra mínima de 500 respondentes.";
+      if (n <= 2000) return "Recomendado: amostra mínima de 650 respondentes.";
+      if (n <= 3000) return "Recomendado: amostra mínima de 700 respondentes.";
+      return "Recomendado: amostra mínima de 800 respondentes.";
+    },
+    s4Title: "Revise antes de criar",
+    s4Body: "Confira os dados abaixo. Você poderá editar tudo isso depois no painel.",
+    reviewCompany: "Empresa", reviewAdmin: "Administrador", reviewSeats: "Vagas", editLink: "Editar",
+    backBtn: "Voltar", nextBtn: "Continuar", createBtn: "Criar conta",
+    successTitle: "Sua conta está pronta",
+    successBody: "Compartilhe o link abaixo com seus funcionários para que eles comecem a pesquisa.",
+    linkLabel: "Link da pesquisa", copyBtn: "Copiar link", copiedBtn: "Copiado!",
+    goDashboard: "Ir para o painel",
+    successNote: "Qualquer pessoa com este link pode responder — não é necessário criar conta.",
+    required: "Campo obrigatório", invalidEmail: "Digite um e-mail válido",
+    slugFallback: "sua-empresa",
+  },
+  en: {
+    eyebrow: "Account Setup",
+    steps: ["Company", "Admin", "Seats", "Review"],
+    stepLabel: (n, total) => `Step ${n} of ${total}`,
+    s1Title: "About your company",
+    s1Body: "We'll use this to set up your company's dashboard.",
+    companyName: "Company name",
+    companyNamePh: "e.g. Comércio Alfa Ltda.",
+    cnpj: "CNPJ",
+    cnpjPh: "00.000.000/0000-00",
+    cnpjNote: "Optional, but helps verify your account faster.",
+    s2Title: "Create your admin account",
+    s2Body: "You'll use this login to track responses and manage the action plan.",
+    adminName: "Your name",
+    adminNamePh: "e.g. Marina Alves",
+    adminEmail: "Work email",
+    adminEmailPh: "you@company.com",
+    password: "Password",
+    passwordPh: "8 characters minimum",
+    s3Title: "How many people will respond?",
+    s3Body: "This sets your plan's seat count and helps calculate the response rate.",
+    seatCount: "Number of employees (seats)",
+    seatHint: (n) => {
+      if (n <= 500) return "Recommended: invite all employees.";
+      if (n <= 1000) return "Recommended: minimum sample of 500 respondents.";
+      if (n <= 2000) return "Recommended: minimum sample of 650 respondents.";
+      if (n <= 3000) return "Recommended: minimum sample of 700 respondents.";
+      return "Recommended: minimum sample of 800 respondents.";
+    },
+    s4Title: "Review before creating",
+    s4Body: "Check the details below. You'll be able to edit all of this later from the dashboard.",
+    reviewCompany: "Company", reviewAdmin: "Admin", reviewSeats: "Seats", editLink: "Edit",
+    backBtn: "Back", nextBtn: "Continue", createBtn: "Create account",
+    successTitle: "Your account is ready",
+    successBody: "Share the link below with your employees so they can start the survey.",
+    linkLabel: "Survey link", copyBtn: "Copy link", copiedBtn: "Copied!",
+    goDashboard: "Go to dashboard",
+    successNote: "Anyone with this link can respond — no account needed on their end.",
+    required: "This field is required", invalidEmail: "Enter a valid email",
+    slugFallback: "your-company",
+  },
+};
+
+let lang = "pt";
+let step = 0;
+const totalSteps = 4;
+const form = { companyName: "", cnpj: "", adminName: "", adminEmail: "", password: "", seats: 100 };
+
+// Point this at your deployed backend once hosted (see README.md in the
+// backend package). Defaults to localhost for local testing.
+const API_BASE_URL = "http://localhost:3000/api/v1";
+
+function t() { return DICT[lang]; }
+
+function applyStaticText() {
+  document.getElementById("eyebrow").textContent = t().eyebrow;
+  document.querySelectorAll("[data-k]").forEach(el => {
+    const key = el.getAttribute("data-k");
+    const val = t()[key];
+    if (typeof val === "string") el.textContent = val;
+  });
+  document.querySelectorAll("[data-placeholder-k]").forEach(el => {
+    el.placeholder = t()[el.getAttribute("data-placeholder-k")];
+  });
+  document.getElementById("nextBtn").textContent = (step === totalSteps - 1 ? t().createBtn : t().nextBtn) + " →";
+  document.getElementById("backBtn").textContent = "← " + t().backBtn;
+  document.getElementById("copyBtn").textContent = t().copyBtn;
+  renderStepDots();
+  renderStepLabel();
+  renderSeatHint();
+  renderReview();
+}
+
+function renderStepDots() {
+  const el = document.getElementById("stepDots");
+  el.innerHTML = "";
+  for (let i = 0; i < totalSteps; i++) {
+    const d = document.createElement("div");
+    d.className = "dot" + (i <= step ? " done" : "");
+    el.appendChild(d);
+  }
+}
+
+function renderStepLabel() {
+  document.getElementById("stepLabel").textContent =
+    `${t().stepLabel(step + 1, totalSteps)} · ${t().steps[step]}`;
+}
+
+function renderSeatHint() {
+  document.getElementById("seatHint").textContent = t().seatHint(form.seats);
+}
+
+function renderReview() {
+  document.getElementById("rv-company").textContent = form.companyName || "—";
+  document.getElementById("rv-admin").textContent =
+    `${form.adminName || "—"} · ${form.adminEmail || "—"}`;
+  document.getElementById("rv-seats").textContent = String(form.seats);
+}
+
+function showStep(n) {
+  document.querySelectorAll(".step-panel").forEach(p => {
+    p.classList.toggle("hidden", Number(p.getAttribute("data-step")) !== n);
+  });
+  document.getElementById("backBtn").disabled = n === 0;
+  document.getElementById("nextBtn").textContent = (n === totalSteps - 1 ? t().createBtn : t().nextBtn) + " →";
+  renderStepDots();
+  renderStepLabel();
+}
+
+function clearErrors() {
+  document.querySelectorAll(".error").forEach(e => { e.classList.add("hidden"); e.textContent = ""; });
+}
+
+function showError(id, msg) {
+  const el = document.getElementById("err-" + id);
+  el.textContent = msg;
+  el.classList.remove("hidden");
+}
+
+function validateStep() {
+  clearErrors();
+  let ok = true;
+  if (step === 0 && !form.companyName.trim()) {
+    showError("companyName", t().required); ok = false;
+  }
+  if (step === 1) {
+    if (!form.adminName.trim()) { showError("adminName", t().required); ok = false; }
+    if (!form.adminEmail.trim()) { showError("adminEmail", t().required); ok = false; }
+    else if (!/^\S+@\S+\.\S+$/.test(form.adminEmail)) { showError("adminEmail", t().invalidEmail); ok = false; }
+    if (!form.password || form.password.length < 8) { showError("password", t().required); ok = false; }
+  }
+  return ok;
+}
+
+function slugify(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+function goNext() {
+  if (!validateStep()) return;
+  if (step < totalSteps - 1) {
+    step++;
+    showStep(step);
+  } else {
+    finish();
+  }
+}
+
+function goBack() {
+  if (step > 0) { step--; showStep(step); }
+}
+
+async function finish() {
+  clearErrors();
+  const nextBtn = document.getElementById("nextBtn");
+  const originalLabel = nextBtn.textContent;
+  nextBtn.disabled = true;
+  nextBtn.textContent = lang === "pt" ? "Criando..." : "Creating...";
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/companies/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        companyName: form.companyName,
+        cnpj: form.cnpj || null,
+        adminName: form.adminName,
+        adminEmail: form.adminEmail,
+        password: form.password,
+        seats: form.seats,
+      }),
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      if (data.error === "email_already_registered") {
+        step = 1;
+        showStep(step);
+        showError("adminEmail", lang === "pt"
+          ? "Este e-mail já está cadastrado."
+          : "This email is already registered.");
+      } else {
+        showError("adminEmail", lang === "pt"
+          ? "Não foi possível criar a conta. Tente novamente."
+          : "Couldn't create the account. Please try again.");
+      }
+      return;
+    }
+
+    // Real signup succeeded — surveyUrl comes from the server, not a
+    // locally-guessed slug, since invite tokens are opaque by design.
+    document.getElementById("wizard").classList.add("hidden");
+    document.getElementById("success").classList.remove("hidden");
+    document.getElementById("surveyUrl").textContent = data.surveyUrl;
+
+    // Keep the admin JWT around in case a "go to dashboard" link should
+    // carry it forward — held in memory only, not localStorage.
+    window.__2belive_admin_token = data.token;
+    window.__2belive_company_id = data.company.id;
+  } catch (err) {
+    showError("adminEmail", lang === "pt"
+      ? "Erro de conexão com o servidor. Verifique se o backend está rodando."
+      : "Couldn't reach the server. Check that the backend is running.");
+  } finally {
+    nextBtn.disabled = false;
+    nextBtn.textContent = originalLabel;
+  }
+}
+
+// Field bindings
+document.getElementById("companyName").addEventListener("input", e => form.companyName = e.target.value);
+document.getElementById("cnpj").addEventListener("input", e => form.cnpj = e.target.value);
+document.getElementById("adminName").addEventListener("input", e => form.adminName = e.target.value);
+document.getElementById("adminEmail").addEventListener("input", e => form.adminEmail = e.target.value);
+document.getElementById("password").addEventListener("input", e => form.password = e.target.value);
+
+document.getElementById("seatsNumber").addEventListener("input", e => {
+  form.seats = Math.max(1, parseInt(e.target.value) || 1);
+  document.getElementById("seatsRange").value = Math.min(form.seats, 3500);
+  renderSeatHint();
+});
+document.getElementById("seatsRange").addEventListener("input", e => {
+  form.seats = parseInt(e.target.value);
+  document.getElementById("seatsNumber").value = form.seats;
+  renderSeatHint();
+});
+
+document.getElementById("nextBtn").addEventListener("click", goNext);
+document.getElementById("backBtn").addEventListener("click", goBack);
+
+document.querySelectorAll("[data-goto]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    step = Number(btn.getAttribute("data-goto"));
+    showStep(step);
+  });
+});
+
+document.getElementById("copyBtn").addEventListener("click", () => {
+  const btn = document.getElementById("copyBtn");
+  btn.textContent = t().copiedBtn;
+  btn.classList.add("copied");
+  setTimeout(() => {
+    btn.textContent = t().copyBtn;
+    btn.classList.remove("copied");
+  }, 1800);
+});
+
+document.querySelectorAll(".lang-toggle button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    lang = btn.getAttribute("data-lang");
+    document.querySelectorAll(".lang-toggle button").forEach(b => b.classList.toggle("active", b === btn));
+    applyStaticText();
+    // Note: surveyUrl is set once from the real server response in finish()
+    // and doesn't change with language, since it's a real opaque token.
+  });
+});
+
+applyStaticText();
+showStep(0);
+</script>
+</body>
+</html>

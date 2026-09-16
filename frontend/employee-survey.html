@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2BeLive · Pesquisa Anônima</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap');
+
+  :root {
+    --color-primary:      #304269;
+    --color-secondary:    #eb6025;
+    --color-dark-blue:    #0a1744;
+    --color-bg:           #F7F7F5;
+    --color-surface:      #ffffff;
+    --color-border:       #D9DEE8;
+    --color-text-primary: #0a1744;
+    --color-text-muted:   #6B7280;
+    --color-error:        #fe6c5f;
+    --color-tint-blue:    #EEF2F8;
+    --color-success-text: #2E7D32;
+    /* Aliases */
+    --paper:      var(--color-bg);
+    --ink:        var(--color-text-primary);
+    --ink-soft:   var(--color-text-muted);
+    --muted:      var(--color-text-muted);
+    --line:       var(--color-border);
+    --brand:      var(--color-secondary);
+    --brand-soft: var(--color-tint-blue);
+    --disabled:   #C3CBC9;
+    --red:        var(--color-error);
+    /* Glass depth */
+    --glass-fill:  rgba(255,255,255,0.80);
+    --glass-blur:  20px;
+    --card-shadow:
+      0 2px 0 0 rgba(255,255,255,0.90) inset,
+      0 1px 2px rgba(10,23,68,0.05),
+      0 6px 20px rgba(10,23,68,0.09),
+      0 20px 44px rgba(10,23,68,0.06);
+    --font: 'Nunito', -apple-system, 'Segoe UI', sans-serif;
+    --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px; --radius-full: 9999px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 35%,
+        rgba(10,23,68,0.07), rgba(247,247,245,0)),
+      var(--color-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+    min-height: 100vh;
+  }
+  @media (max-width: 480px) { body { padding: 20px 14px; } }
+
+  .wrap { width: 100%; max-width: 560px; }
+
+  .top-row { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 20px; }
+  .demo-toggle {
+    font-family: var(--font); font-size: 10.5px; color: var(--muted);
+    background: transparent; border: 1px dashed #C3CBC9; border-radius: 20px;
+    padding: 5px 10px; cursor: pointer;
+  }
+  .lang-toggle { display: flex; gap: 4px; background: rgba(217,222,232,0.45); border-radius: 20px; padding: 3px; }
+  .lang-toggle button {
+    font-family: var(--font); font-size: 11px; font-weight: 500;
+    padding: 5px 11px; border-radius: 16px; cursor: pointer; border: none; background: transparent;
+    color: var(--ink-soft);
+  }
+  .lang-toggle button.active { background: var(--color-dark-blue); color: #fff; }
+
+  .card { background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow); padding: 32px 28px; }
+  @media (max-width: 480px) { .card { padding: 24px 20px; } }
+
+  .eyebrow {
+    font-family: var(--font); font-size: 11px; color: var(--color-secondary);
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px;
+  }
+  h1 { font-family: var(--font); font-weight: 600; font-size: 24px; margin: 0 0 14px; line-height: 1.3; }
+  h1.compact { font-size: 24px; margin-bottom: 12px; }
+  p.body { font-size: 14.5px; color: var(--ink-soft); line-height: 1.65; margin: 0 0 22px; }
+
+  .anonymity-box { background: var(--paper); border-radius: 10px; padding: 16px 18px; margin-bottom: 22px; }
+  .anonymity-title { font-size: 12.5px; font-weight: 600; margin-bottom: 10px; }
+  .anonymity-box ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+  .anonymity-box li { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+
+  .est-time { font-size: 12px; color: var(--muted); margin-bottom: 18px; font-family: var(--font); }
+
+  .btn-primary-full {
+    width: 100%; font-family: var(--font); font-size: 15px; font-weight: 600;
+    background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(235,96,37,0.28);
+    padding: 14px 16px; cursor: pointer;
+  }
+  .resume-btn-row { display: flex; gap: 10px; margin-top: 24px; }
+  @media (max-width: 480px) { .resume-btn-row { flex-direction: column; } }
+  .btn-resume {
+    flex: 1; font-family: var(--font); font-size: 14px; font-weight: 600;
+    background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(235,96,37,0.28);
+    padding: 13px 16px; cursor: pointer;
+  }
+  .btn-restart {
+    font-family: var(--font); font-size: 14px; font-weight: 500;
+    background: rgba(255,255,255,0.70); color: var(--color-text-muted); border: 1px solid var(--line); border-radius: 10px;
+    padding: 13px 16px; cursor: pointer;
+  }
+
+  .progress-track { height: 4px; background: #E3E8E6; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--color-secondary); transition: width 0.3s ease; }
+  .progress-label { font-family: var(--font); font-size: 11.5px; color: var(--ink-soft); margin-bottom: 8px; }
+
+  .q-card { padding: 30px 26px; }
+  @media (max-width: 480px) { .q-card { padding: 22px 18px; } }
+  .q-text { font-family: var(--font); font-weight: 500; font-size: 21px; line-height: 1.4; margin: 0 0 24px; }
+
+  .scale-option {
+    width: 100%; text-align: left; padding: 16px 18px; border-radius: 10px;
+    border: 1px solid var(--line); background: #fff;
+    display: flex; align-items: center; gap: 14px; cursor: pointer;
+    font-family: var(--font); font-size: 14.5px; color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .scale-option:last-child { margin-bottom: 0; }
+  .scale-option.selected { border: 1.5px solid var(--brand); background: var(--brand-soft); }
+  .scale-radio {
+    width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+    border: 1.5px solid #B9C2BF; background: #fff; box-sizing: border-box;
+  }
+  .scale-option.selected .scale-radio { border: 5.5px solid var(--brand); }
+
+  .save-note { font-size: 11.5px; color: var(--muted); margin-top: 20px; text-align: center; line-height: 1.5; }
+
+  .nav-row { display: flex; justify-content: space-between; margin-top: 20px; }
+  .btn-back {
+    font-family: var(--font); font-size: 13.5px; font-weight: 500;
+    background: transparent; color: var(--ink-soft); border: none; cursor: pointer; padding: 10px 4px;
+  }
+  .btn-back:disabled { color: var(--disabled); cursor: default; }
+  .btn-next {
+    font-family: var(--font); font-size: 14px; font-weight: 600;
+    background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(235,96,37,0.28);
+    padding: 12px 24px; cursor: pointer;
+  }
+  .btn-next:disabled { background: var(--disabled); cursor: default; }
+
+  .complete-card { text-align: center; padding: 36px 28px; }
+  @media (max-width: 480px) { .complete-card { padding: 28px 20px; } }
+  .check-icon {
+    width: 48px; height: 48px; border-radius: 50%; background: var(--brand-soft);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+  }
+  .reward-box { background: var(--paper); border-radius: 12px; padding: 20px 20px; margin-bottom: 8px; }
+  .reward-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .reward-body { font-size: 12.5px; color: var(--ink-soft); margin-bottom: 14px; }
+  .code-row {
+    background: #fff; border: 1px dashed #B9C2BF; border-radius: 8px;
+    padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }
+  .code-text { font-family: var(--font); font-size: 15px; letter-spacing: 0.5px; }
+  .btn-copy {
+    font-family: var(--font); font-size: 12px; font-weight: 600;
+    background: var(--color-secondary); color: #fff; border: none; border-radius: 6px;
+    padding: 7px 12px; cursor: pointer; white-space: nowrap;
+  }
+  .btn-copy.copied { background: var(--brand-soft); color: var(--color-secondary); }
+  .no-reward { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .btn-close {
+    margin-top: 22px; font-family: var(--font); font-size: 13.5px; font-weight: 500;
+    background: transparent; color: var(--ink-soft); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 22px; cursor: pointer;
+  }
+
+  .lgpd-footer {
+    text-align: center;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    margin-top: 16px;
+    padding-bottom: 8px;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+    max-width: 560px;
+    width: 100%;
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top-row">
+    <button class="demo-toggle" id="demoToggle"></button>
+    <div class="lang-toggle">
+      <button data-lang="pt" class="active">PT</button>
+      <button data-lang="en">EN</button>
+    </div>
+  </div>
+
+  <!-- LANDING: fresh -->
+  <div id="landingFresh" class="card">
+    <div class="eyebrow" data-k="eyebrow"></div>
+    <h1 id="welcomeTitle"></h1>
+    <p class="body" data-k="welcomeBody"></p>
+    <div class="anonymity-box">
+      <div class="anonymity-title" data-k="anonymityTitle"></div>
+      <ul id="anonymityList"></ul>
+    </div>
+    <div class="est-time" id="estTime"></div>
+    <button class="btn-primary-full" id="startBtn" data-k="startBtn"></button>
+  </div>
+
+  <!-- LANDING: resume -->
+  <div id="landingResume" class="card hidden">
+    <div class="eyebrow" data-k="eyebrow"></div>
+    <h1 class="compact" data-k="resumeTitle"></h1>
+    <p class="body" id="resumeBody"></p>
+    <div class="progress-track"><div class="progress-fill" id="resumeProgressFill"></div></div>
+    <div class="resume-btn-row">
+      <button class="btn-resume" id="resumeBtn" data-k="resumeBtn"></button>
+      <button class="btn-restart" id="restartBtn" data-k="restartBtn"></button>
+    </div>
+  </div>
+
+  <!-- SURVEY -->
+  <div id="surveyScreen" class="hidden">
+    <div class="progress-label" id="progressLabel"></div>
+    <div class="progress-track" style="margin-bottom: 22px;"><div class="progress-fill" id="surveyProgressFill"></div></div>
+
+    <div class="card q-card">
+      <div class="q-text" id="qText"></div>
+      <div id="scaleOptions"></div>
+      <div class="save-note" data-k="saveNote"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-back" id="qBackBtn">← <span data-k="backBtn"></span></button>
+      <button class="btn-next" id="qNextBtn"></button>
+    </div>
+  </div>
+
+  <!-- COMPLETE -->
+  <div id="completeScreen" class="card complete-card hidden">
+    <div class="check-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path d="M4 12.5L9.5 18L20 6" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1 class="compact" data-k="completeTitle"></h1>
+    <p class="body" data-k="completeBody" style="padding: 0 8px;"></p>
+
+    <div id="rewardYes" class="reward-box">
+      <div class="reward-title" data-k="rewardTitle"></div>
+      <div class="reward-body" data-k="rewardBody"></div>
+      <div class="code-row">
+        <span class="code-text" id="rewardCode"></span>
+        <button class="btn-copy" id="copyCodeBtn"></button>
+      </div>
+    </div>
+    <p id="rewardNo" class="no-reward hidden" data-k="noRewardBody"></p>
+
+    <button class="btn-close" data-k="doneBtn"></button>
+  </div>
+</div>
+
+<p class="lgpd-footer" id="lgpdFooter"></p>
+
+<script>
+const DICT = {
+  pt: {
+    eyebrow: "Pesquisa Anônima de Bem-Estar",
+    welcomeTitleFn: (c) => `${c} quer ouvir você`,
+    welcomeBody: "Esta pesquisa ajuda a identificar como está o ambiente de trabalho e onde podemos melhorar. Suas respostas são completamente anônimas — ninguém, nem mesmo a equipe de RH, poderá ver quem respondeu o quê.",
+    anonymityTitle: "Como protegemos seu anonimato",
+    anonymityPoints: [
+      "Não coletamos seu nome, e-mail ou qualquer identificador pessoal nas respostas.",
+      "Resultados só aparecem para a empresa quando há respostas suficientes de um grupo — nunca de forma individual.",
+      "Você pode pausar e continuar depois; isso não é rastreado até você.",
+    ],
+    estTimeFn: (n) => `Leva cerca de ${Math.max(2, Math.round(n * 0.25))} minutos · ${n} perguntas`,
+    startBtn: "Começar pesquisa",
+    resumeTitle: "Você já começou esta pesquisa",
+    resumeBodyFn: (n, total) => `Você respondeu ${n} de ${total} perguntas. Deseja continuar de onde parou?`,
+    resumeBtn: "Continuar",
+    restartBtn: "Começar do zero",
+    progressLabelFn: (n, total) => `Pergunta ${n} de ${total}`,
+    backBtn: "Voltar",
+    nextBtn: "Próxima",
+    submitBtn: "Enviar respostas",
+    scaleFreq: ["Nunca", "Raramente", "Às vezes", "Frequentemente", "Sempre"],
+    scaleAgree: ["Discordo totalmente", "Discordo", "Neutro", "Concordo", "Concordo totalmente"],
+    saveNote: "Sua resposta é salva automaticamente. Você pode fechar e voltar depois.",
+    completeTitle: "Obrigado por participar",
+    completeBody: "Suas respostas foram enviadas de forma anônima. Elas serão combinadas com as de outros colegas para gerar um panorama da equipe — nenhuma resposta individual é visível.",
+    rewardTitle: "Um agradecimento",
+    rewardBody: "Aqui está um cupom Starbucks, por gentileza da empresa:",
+    copyBtn: "Copiar código",
+    copiedBtn: "Copiado!",
+    noRewardBody: "Os cupons deste ciclo já foram todos resgatados. Obrigado mesmo assim por participar!",
+    doneBtn: "Fechar",
+    demoFresh: "demo: mostrar visita nova",
+    demoResume: "demo: mostrar retomada",
+    companyName: "Comércio Alfa Ltda.",
+    lgpdFooter: "Suas respostas são anônimas e protegidas pela Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018). Nenhum dado pessoal identificável é coletado nesta pesquisa.",
+    demoQuestions: [
+      { id: "P1", text_pt: "Sei exatamente o que se espera de mim no meu trabalho.", scale: "agree" },
+      { id: "D1", text_pt: "Consigo concluir minhas tarefas dentro do horário normal de trabalho.", scale: "agree" },
+      { id: "C1", text_pt: "Tenho liberdade para decidir como organizar o meu trabalho.", scale: "freq" },
+      { id: "S1", text_pt: "Quando enfrento dificuldades no trabalho, posso contar com a ajuda dos meus colegas.", scale: "freq" },
+      { id: "M1", text_pt: "Quando ocorrem mudanças na empresa, entendo claramente os motivos por trás delas.", scale: "agree" },
+      { id: "R2", text_pt: "Já fui alvo de comentários ou comportamentos desrespeitosos no ambiente de trabalho.", scale: "freq" },
+      { id: "D2", text_pt: "Tenho prazos que considero impossíveis de cumprir.", scale: "freq" },
+      { id: "P3", text_pt: "Recebo instruções conflitantes sobre como fazer meu trabalho.", scale: "freq" },
+      { id: "M2", text_pt: "Sou consultado(a) ou informado(a) com antecedência sobre mudanças que afetam meu trabalho.", scale: "agree" },
+      { id: "D3", text_pt: "Preciso trabalhar em ritmo muito acelerado para dar conta do volume de trabalho.", scale: "freq" },
+      { id: "R1", text_pt: "Existe tensão ou atrito entre colegas na minha equipe.", scale: "freq" },
+      { id: "C2", text_pt: "Posso escolher o momento de fazer uma pausa quando preciso.", scale: "freq" },
+      { id: "S2", text_pt: "Meu gestor direto está disponível quando preciso conversar sobre um problema de trabalho.", scale: "freq" },
+      { id: "P2", text_pt: "Entendo claramente quais são minhas responsabilidades no dia a dia.", scale: "agree" },
+      { id: "M5", text_pt: "Sinto que consigo me adaptar bem às mudanças na forma como trabalhamos.", scale: "agree" },
+      { id: "R3", text_pt: "Sinto que sou tratado(a) com respeito pelos meus colegas.", scale: "agree" },
+      { id: "C4", text_pt: "Meu horário de trabalho permite alguma flexibilidade quando necessário.", scale: "agree" },
+      { id: "M3", text_pt: "Mudanças recentes na empresa geraram incerteza sobre o meu futuro no trabalho.", scale: "freq" },
+      { id: "S6", text_pt: "Em situações emocionalmente difíceis no trabalho, sinto que tenho apoio suficiente.", scale: "agree" },
+      { id: "D4", text_pt: "Deixo de fazer algumas tarefas porque tenho mais trabalho do que consigo cobrir.", scale: "freq" },
+      { id: "P4", text_pt: "Compreendo como o meu trabalho contribui para os objetivos da empresa.", scale: "agree" },
+      { id: "C3", text_pt: "Tenho voz ativa na forma como as tarefas da minha função são realizadas.", scale: "agree" },
+      { id: "M4", text_pt: "Tenho oportunidade de fazer perguntas sobre mudanças antes que elas aconteçam.", scale: "agree" },
+      { id: "S5", text_pt: "Meus colegas estão dispostos a ouvir quando tenho um problema relacionado ao trabalho.", scale: "agree" },
+      { id: "D6", text_pt: "Sinto pressão para trabalhar além do meu horário habitual.", scale: "freq" },
+      { id: "R4", text_pt: "Já presenciei ou vivenciei situações de intimidação (bullying) no trabalho.", scale: "freq" },
+      { id: "C5", text_pt: "Sinto que minhas ideias sobre como melhorar meu trabalho são levadas em conta.", scale: "agree" },
+      { id: "D5", text_pt: "Consigo fazer pausas adequadas ao longo do meu dia de trabalho.", scale: "freq" },
+      { id: "S3", text_pt: "Recebo retorno (feedback) útil sobre o meu desempenho.", scale: "freq" },
+      { id: "R5", text_pt: "As relações no meu ambiente de trabalho são, de modo geral, saudáveis e de confiança.", scale: "agree" },
+      { id: "S4", text_pt: "Sinto que meu gestor se importa genuinamente com o meu bem-estar.", scale: "agree" },
+      { id: "P5", text_pt: "Sei a quem recorrer quando tenho dúvidas sobre uma tarefa.", scale: "agree" },
+    ],
+  },
+  en: {
+    eyebrow: "Anonymous Wellbeing Survey",
+    welcomeTitleFn: (c) => `${c} wants to hear from you`,
+    welcomeBody: "This survey helps identify how the work environment is doing and where we can improve. Your answers are completely anonymous — no one, not even HR, can see who answered what.",
+    anonymityTitle: "How your anonymity is protected",
+    anonymityPoints: [
+      "We don't collect your name, email, or any personal identifier with your answers.",
+      "Results only appear to the company once there are enough responses from a group — never individually.",
+      "You can pause and continue later; this isn't tracked back to you.",
+    ],
+    estTimeFn: (n) => `Takes about ${Math.max(2, Math.round(n * 0.25))} minutes · ${n} questions`,
+    startBtn: "Start survey",
+    resumeTitle: "You've already started this survey",
+    resumeBodyFn: (n, total) => `You've answered ${n} of ${total} questions. Continue where you left off?`,
+    resumeBtn: "Continue",
+    restartBtn: "Start over",
+    progressLabelFn: (n, total) => `Question ${n} of ${total}`,
+    backBtn: "Back",
+    nextBtn: "Next",
+    submitBtn: "Submit answers",
+    scaleFreq: ["Never", "Seldom", "Sometimes", "Often", "Always"],
+    scaleAgree: ["Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree"],
+    saveNote: "Your answer is saved automatically. You can close this and come back later.",
+    completeTitle: "Thank you for taking part",
+    completeBody: "Your answers were submitted anonymously. They'll be combined with your colleagues' to build a picture of the team — no individual answer is ever visible.",
+    rewardTitle: "A thank-you",
+    rewardBody: "Here's a Starbucks coupon, courtesy of the company:",
+    copyBtn: "Copy code",
+    copiedBtn: "Copied!",
+    noRewardBody: "All coupons for this cycle have been claimed. Thanks all the same for taking part!",
+    doneBtn: "Close",
+    demoFresh: "demo: show fresh visit",
+    demoResume: "demo: show resume state",
+    companyName: "Comércio Alfa Ltda.",
+    lgpdFooter: "Your responses are anonymous and protected under Brazil's General Data Protection Law (LGPD — Lei nº 13.709/2018). No personally identifiable data is collected in this survey.",
+    demoQuestions: [
+      { id: "P1", text_pt: "I know exactly what's expected of me at work.", scale: "agree" },
+      { id: "D1", text_pt: "I'm able to complete my tasks within normal working hours.", scale: "agree" },
+      { id: "C1", text_pt: "I have freedom to decide how to organize my work.", scale: "freq" },
+      { id: "S1", text_pt: "When I face difficulties at work, I can count on help from my colleagues.", scale: "freq" },
+      { id: "M1", text_pt: "When changes happen at the company, I clearly understand the reasons behind them.", scale: "agree" },
+      { id: "R2", text_pt: "I have been the target of disrespectful comments or behavior at work.", scale: "freq" },
+      { id: "D2", text_pt: "I have deadlines I consider impossible to meet.", scale: "freq" },
+      { id: "P3", text_pt: "I receive conflicting instructions about how to do my work.", scale: "freq" },
+      { id: "M2", text_pt: "I'm consulted or informed in advance about changes that affect my work.", scale: "agree" },
+      { id: "D3", text_pt: "I need to work at a very fast pace to keep up with my workload.", scale: "freq" },
+      { id: "R1", text_pt: "There is tension or friction between colleagues on my team.", scale: "freq" },
+      { id: "C2", text_pt: "I can choose when to take a break when I need one.", scale: "freq" },
+      { id: "S2", text_pt: "My direct manager is available when I need to talk about a work problem.", scale: "freq" },
+      { id: "P2", text_pt: "I clearly understand what my day-to-day responsibilities are.", scale: "agree" },
+      { id: "M5", text_pt: "I feel I adapt well to changes in how we work.", scale: "agree" },
+      { id: "R3", text_pt: "I feel treated with respect by my colleagues.", scale: "agree" },
+      { id: "C4", text_pt: "My work schedule allows some flexibility when needed.", scale: "agree" },
+      { id: "M3", text_pt: "Recent changes at the company have created uncertainty about my future there.", scale: "freq" },
+      { id: "S6", text_pt: "In emotionally difficult situations at work, I feel I have enough support.", scale: "agree" },
+      { id: "D4", text_pt: "I skip some tasks because I have more work than I can handle.", scale: "freq" },
+      { id: "P4", text_pt: "I understand how my work contributes to the company's goals.", scale: "agree" },
+      { id: "C3", text_pt: "I have a say in how tasks in my role get done.", scale: "agree" },
+      { id: "M4", text_pt: "I have the opportunity to ask questions about changes before they happen.", scale: "agree" },
+      { id: "S5", text_pt: "My colleagues are willing to listen when I have a work-related problem.", scale: "agree" },
+      { id: "D6", text_pt: "I feel pressure to work beyond my normal hours.", scale: "freq" },
+      { id: "R4", text_pt: "I have witnessed or experienced bullying at work.", scale: "freq" },
+      { id: "C5", text_pt: "I feel my ideas about improving my work are taken into account.", scale: "agree" },
+      { id: "D5", text_pt: "I'm able to take adequate breaks during my workday.", scale: "freq" },
+      { id: "S3", text_pt: "I receive useful feedback on my performance.", scale: "freq" },
+      { id: "R5", text_pt: "Relationships in my workplace are generally healthy and trusting.", scale: "agree" },
+      { id: "S4", text_pt: "I feel my manager genuinely cares about my wellbeing.", scale: "agree" },
+      { id: "P5", text_pt: "I know who to turn to when I have questions about a task.", scale: "agree" },
+    ],
+  },
+};
+
+let lang = "pt";
+let current = 0;
+const answers = {}; // local mirror of answered questions, keyed by question id, for UI state only
+let questions = []; // populated from GET /survey/:token/questions
+let sessionToken = null;
+let answeredQuestionIds = [];
+let hasSavedSession = false;
+let rewardCode = null;
+let submitting = false;
+
+// Point this at your deployed backend once hosted (see README.md in the
+// backend package). Defaults to localhost for local testing.
+const API_BASE_URL = "http://localhost:3000/api/v1";
+
+// The invite token identifies WHICH company's survey this is — read from
+// ?survey=... in the URL. In production each company gets a real link like
+// https://app.2belive.com/survey/{token}; this query-param form just lets
+// one static HTML file be tested against any cycle.
+const urlParams = new URLSearchParams(window.location.search);
+const inviteToken = urlParams.get("survey") || "DEMO_TOKEN_NOT_SET";
+const existingSessionToken = urlParams.get("t") || null;
+
+function t() { return DICT[lang]; }
+function total() { return questions.length; }
+
+// NOTE: question text comes from the server and is Portuguese-only right
+// now (survey_question only has a text_pt column — no text_en yet). The
+// language toggle still translates all surrounding UI chrome, but question
+// wording itself won't change with EN selected until a text_en column and
+// translated content are added server-side.
+
+async function initSurvey() {
+  // If no survey token in URL, or backend unreachable, fall back to demo
+  // mode so the page is always previewable without a running server.
+  const isDemo = inviteToken === "DEMO_TOKEN_NOT_SET";
+
+  if (!isDemo) {
+    try {
+      const sessionRes = await fetch(`${API_BASE_URL}/survey/${inviteToken}/session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ existingToken: existingSessionToken }),
+      });
+
+      if (sessionRes.status === 409) {
+        rewardCode = null;
+        showScreen("complete");
+        return;
+      }
+      if (!sessionRes.ok) throw new Error("session_failed");
+
+      const sessionData = await sessionRes.json();
+      sessionToken = sessionData.sessionToken;
+      answeredQuestionIds = sessionData.answeredQuestionIds || [];
+      hasSavedSession = answeredQuestionIds.length > 0;
+
+      const newUrl = `${window.location.pathname}?survey=${inviteToken}&t=${sessionToken}`;
+      window.history.replaceState({}, "", newUrl);
+
+      const questionsRes = await fetch(`${API_BASE_URL}/survey/${inviteToken}/questions`);
+      if (!questionsRes.ok) throw new Error("questions_failed");
+      questions = await questionsRes.json();
+
+      showScreen("landing");
+      return;
+    } catch (err) {
+      console.warn("Backend unreachable, falling back to demo mode:", err.message);
+      // fall through to demo mode below
+    }
+  }
+
+  // Demo mode: use the bilingual question bank from DICT, no server needed.
+  // This is what the artifact viewer always sees.
+  questions = t().demoQuestions;
+  hasSavedSession = false;
+  sessionToken = "demo-session";
+  showScreen("landing");
+}
+
+function firstUnansweredIndex() {
+  const idx = questions.findIndex(q => !answeredQuestionIds.includes(q.id));
+  return idx === -1 ? 0 : idx;
+}
+
+function renderLanding() {
+  document.getElementById("demoToggle").classList.add("hidden"); // real mode: no demo toggle needed
+  document.getElementById("landingFresh").classList.toggle("hidden", hasSavedSession);
+  document.getElementById("landingResume").classList.toggle("hidden", !hasSavedSession);
+
+  document.getElementById("welcomeTitle").textContent = t().welcomeTitleFn(t().companyName);
+  document.getElementById("anonymityList").innerHTML = t().anonymityPoints.map(p => `<li>${p}</li>`).join("");
+  document.getElementById("estTime").textContent = t().estTimeFn(total());
+
+  if (hasSavedSession) {
+    document.getElementById("resumeBody").textContent =
+      t().resumeBodyFn(answeredQuestionIds.length, total());
+    document.getElementById("resumeProgressFill").style.width =
+      `${(answeredQuestionIds.length / total()) * 100}%`;
+  }
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  const scaleLabels = q.scale === "agree" ? t().scaleAgree : t().scaleFreq;
+
+  document.getElementById("progressLabel").textContent = t().progressLabelFn(current + 1, total());
+  document.getElementById("surveyProgressFill").style.width = `${((current + 1) / total()) * 100}%`;
+  document.getElementById("qText").textContent = q.text_pt;
+
+  const opts = document.getElementById("scaleOptions");
+  opts.innerHTML = scaleLabels.map((label, i) => {
+    const val = i + 1;
+    const selected = answers[q.id] === val;
+    return `
+      <button class="scale-option ${selected ? "selected" : ""}" data-value="${val}">
+        <span class="scale-radio"></span>${label}
+      </button>`;
+  }).join("");
+
+  opts.querySelectorAll(".scale-option").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const value = Number(btn.getAttribute("data-value"));
+      answers[q.id] = value;
+      renderQuestion();
+      // Skip server save in demo mode
+      if (sessionToken === "demo-session") return;
+      try {
+        await fetch(`${API_BASE_URL}/survey/${inviteToken}/answer`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionToken, questionId: q.id, rawAnswer: value }),
+        });
+        if (!answeredQuestionIds.includes(q.id)) answeredQuestionIds.push(q.id);
+      } catch (err) {
+        console.error("answer_save_failed", err);
+      }
+    });
+  });
+
+  document.getElementById("qBackBtn").disabled = current === 0;
+  const nextBtn = document.getElementById("qNextBtn");
+  nextBtn.textContent = (current === total() - 1 ? t().submitBtn : t().nextBtn) + " →";
+  nextBtn.disabled = answers[q.id] === undefined && !answeredQuestionIds.includes(q.id);
+}
+
+function showScreen(name) {
+  ["landingFresh", "landingResume", "surveyScreen", "completeScreen"].forEach(id => {
+    document.getElementById(id).classList.add("hidden");
+  });
+  if (name === "landing") {
+    renderLanding();
+    document.getElementById(hasSavedSession ? "landingResume" : "landingFresh").classList.remove("hidden");
+  } else if (name === "survey") {
+    document.getElementById("surveyScreen").classList.remove("hidden");
+    renderQuestion();
+  } else if (name === "complete") {
+    document.getElementById("completeScreen").classList.remove("hidden");
+    renderComplete();
+  }
+}
+
+function renderComplete() {
+  const hasReward = !!rewardCode;
+  document.getElementById("rewardYes").classList.toggle("hidden", !hasReward);
+  document.getElementById("rewardNo").classList.toggle("hidden", hasReward);
+  if (hasReward) document.getElementById("rewardCode").textContent = rewardCode;
+  document.getElementById("copyCodeBtn").textContent = t().copyBtn;
+}
+
+document.getElementById("startBtn").addEventListener("click", () => {
+  current = 0;
+  showScreen("survey");
+});
+
+document.getElementById("resumeBtn").addEventListener("click", () => {
+  current = firstUnansweredIndex();
+  showScreen("survey");
+});
+document.getElementById("restartBtn").addEventListener("click", () => {
+  current = 0;
+  showScreen("survey");
+});
+
+document.getElementById("qBackBtn").addEventListener("click", () => {
+  if (current > 0) { current--; renderQuestion(); }
+});
+document.getElementById("qNextBtn").addEventListener("click", async () => {
+  if (current < total() - 1) {
+    current++;
+    renderQuestion();
+    return;
+  }
+  if (submitting) return;
+  submitting = true;
+  const nextBtn = document.getElementById("qNextBtn");
+  const originalLabel = nextBtn.textContent;
+  nextBtn.textContent = lang === "pt" ? "Enviando..." : "Submitting...";
+  nextBtn.disabled = true;
+
+  // Demo mode: skip the fetch, show completion screen directly
+  if (sessionToken === "demo-session") {
+    setTimeout(() => { rewardCode = null; showScreen("complete"); submitting = false; }, 600);
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/survey/${inviteToken}/submit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionToken }),
+    });
+    const data = await res.json();
+    rewardCode = data.rewardCode || null;
+    showScreen("complete");
+  } catch (err) {
+    console.error("submit_failed", err);
+    nextBtn.textContent = originalLabel;
+    nextBtn.disabled = false;
+    submitting = false;
+  }
+});
+
+document.getElementById("copyCodeBtn").addEventListener("click", () => {
+  if (!rewardCode) return;
+  navigator.clipboard?.writeText(rewardCode).catch(() => {});
+  const btn = document.getElementById("copyCodeBtn");
+  btn.textContent = t().copiedBtn;
+  btn.classList.add("copied");
+  setTimeout(() => { btn.textContent = t().copyBtn; btn.classList.remove("copied"); }, 1800);
+});
+
+document.querySelectorAll(".lang-toggle button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    lang = btn.getAttribute("data-lang");
+    document.querySelectorAll(".lang-toggle button").forEach(b => b.classList.toggle("active", b === btn));
+    document.querySelectorAll("[data-k]").forEach(el => {
+      const key = el.getAttribute("data-k");
+      const val = t()[key];
+      if (typeof val === "string") el.textContent = val;
+    });
+    document.getElementById("lgpdFooter").textContent = t().lgpdFooter;
+    if (!document.getElementById("landingFresh").classList.contains("hidden") ||
+        !document.getElementById("landingResume").classList.contains("hidden")) renderLanding();
+    if (!document.getElementById("surveyScreen").classList.contains("hidden")) renderQuestion();
+    if (!document.getElementById("completeScreen").classList.contains("hidden")) renderComplete();
+  });
+});
+
+// initial static text pass, then load the real survey
+document.querySelectorAll("[data-k]").forEach(el => {
+  const key = el.getAttribute("data-k");
+  const val = t()[key];
+  if (typeof val === "string") el.textContent = val;
+});
+document.getElementById("lgpdFooter").textContent = t().lgpdFooter;
+initSurvey();
+</script>
+</body>
+</html>
