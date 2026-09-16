@@ -152,6 +152,29 @@
   .suppressed-n { font-family: var(--font); font-size: 18px; color: var(--gauge-empty); }
   .suppressed-msg { font-size: 11.5px; color: var(--muted); line-height: 1.4; }
 
+  /* Survey link card */
+  .survey-link-card {
+    background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow);
+    padding: 16px 18px; margin-bottom: 20px;
+  }
+  .survey-link-label { font-size: 11.5px; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .survey-link-row {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: rgba(255,255,255,0.88); border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md); padding: 10px 14px;
+  }
+  .survey-link-url {
+    flex: 1; font-family: var(--font); font-size: 13px; color: var(--color-primary);
+    word-break: break-all; min-width: 0;
+  }
+  .btn-copy-link {
+    font-family: var(--font); font-size: 12px; font-weight: 700;
+    background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md);
+    padding: 7px 14px; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(235,96,37,0.25);
+  }
+  .btn-copy-link.copied { background: var(--color-tint-blue); color: var(--color-primary); }
+
   /* Reward pool */
   .reward-card {
     background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow);
@@ -287,6 +310,14 @@
     <div class="domain-grid" id="domainGrid"></div>
   </div>
 
+  <div class="survey-link-card" id="surveyLinkCard">
+    <div class="survey-link-label" id="surveyLinkLabel"></div>
+    <div class="survey-link-row">
+      <span class="survey-link-url" id="surveyLinkUrl"></span>
+      <button class="btn-copy-link" id="copySurveyLinkBtn"></button>
+    </div>
+  </div>
+
   <div class="reward-card">
     <div>
       <div class="reward-title" data-k="rewardTitle"></div>
@@ -349,6 +380,9 @@ const DICT = {
     loginErrorNetwork: "Não foi possível conectar ao servidor. Verifique se o backend está rodando.",
     noCycleMsg: "Nenhum ciclo de pesquisa encontrado para esta empresa ainda.",
     actionPlanMockNote: "(dados de exemplo — endpoints de plano de ação ainda não implementados)",
+    surveyLinkLabel: "Link da pesquisa — compartilhe com seus funcionários",
+    copyLinkBtn: "Copiar link",
+    copiedLinkBtn: "Copiado!",
   },
   en: {
     eyebrow: "Psychosocial Diagnostic · NR-1",
@@ -387,6 +421,9 @@ const DICT = {
     loginErrorNetwork: "Couldn't reach the server. Check that the backend is running.",
     noCycleMsg: "No survey cycle found for this company yet.",
     actionPlanMockNote: "(sample data — action-plan endpoints not implemented yet)",
+    surveyLinkLabel: "Survey link — share this with your employees",
+    copyLinkBtn: "Copy link",
+    copiedLinkBtn: "Copied!",
   },
 };
 
@@ -575,6 +612,17 @@ function renderHeaderAndReward() {
   } else if (rewardPoolStatus) {
     rewardCountEl.textContent = "—";
   }
+
+  // Survey link card
+  document.getElementById("surveyLinkLabel").textContent = t().surveyLinkLabel;
+  document.getElementById("copySurveyLinkBtn").textContent = t().copyLinkBtn;
+  if (cycleInfo && cycleInfo.inviteUrlToken) {
+    const surveyUrl = `https://bc2bl.github.io/nr1/frontend/employee-survey.html?survey=${cycleInfo.inviteUrlToken}`;
+    document.getElementById("surveyLinkUrl").textContent = surveyUrl;
+    document.getElementById("surveyLinkCard").style.display = "";
+  } else {
+    document.getElementById("surveyLinkCard").style.display = "none";
+  }
 }
 
 function renderAll() {
@@ -587,6 +635,9 @@ function renderAll() {
   renderDomains();
   renderFilters();
   renderActions();
+  // Refresh survey link label and copy button text on lang switch
+  document.getElementById("surveyLinkLabel").textContent = t().surveyLinkLabel;
+  document.getElementById("copySurveyLinkBtn").textContent = t().copyLinkBtn;
 }
 
 function showLogin() {
@@ -653,6 +704,18 @@ document.querySelectorAll(".lang-toggle button").forEach(btn => {
 
 applyLoginText();
 showLogin();
+
+document.getElementById("copySurveyLinkBtn").addEventListener("click", () => {
+  const url = document.getElementById("surveyLinkUrl").textContent;
+  const btn = document.getElementById("copySurveyLinkBtn");
+  navigator.clipboard?.writeText(url).catch(() => {});
+  btn.textContent = t().copiedLinkBtn;
+  btn.classList.add("copied");
+  setTimeout(() => {
+    btn.textContent = t().copyLinkBtn;
+    btn.classList.remove("copied");
+  }, 2000);
+});
 </script>
 
 <style>
