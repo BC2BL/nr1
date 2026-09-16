@@ -297,8 +297,8 @@ const DICT = {
     saveNote: "Sua resposta é salva automaticamente. Você pode fechar e voltar depois.",
     completeTitle: "Obrigado por participar",
     completeBody: "Suas respostas foram enviadas de forma anônima. Elas serão combinadas com as de outros colegas para gerar um panorama da equipe — nenhuma resposta individual é visível.",
-    rewardTitle: "Um agradecimento",
-    rewardBody: "Aqui está um cupom Starbucks, por gentileza da empresa:",
+    rewardTitle: "Um agradecimento por participar",
+    rewardBody: "Você recebeu um cupom Starbucks. Apresente este código ao RH para resgatá-lo — o RH irá confirmar e entregar o seu vale-presente.",
     copyBtn: "Copiar código",
     copiedBtn: "Copiado!",
     noRewardBody: "Os cupons deste ciclo já foram todos resgatados. Obrigado mesmo assim por participar!",
@@ -367,9 +367,9 @@ const DICT = {
     saveNote: "Your answer is saved automatically. You can close this and come back later.",
     completeTitle: "Thank you for taking part",
     completeBody: "Your answers were submitted anonymously. They'll be combined with your colleagues' to build a picture of the team — no individual answer is ever visible.",
-    rewardTitle: "A thank-you",
-    rewardBody: "Here's a Starbucks coupon, courtesy of the company:",
-    copyBtn: "Copy code",
+    rewardTitle: "A thank-you for participating",
+    rewardBody: "You've received a Starbucks coupon. Present this code to HR to redeem it — HR will confirm and hand over your gift card.",
+    copyBtn: "Copy code to show HR",
     copiedBtn: "Copied!",
     noRewardBody: "All coupons for this cycle have been claimed. Thanks all the same for taking part!",
     doneBtn: "Close",
@@ -521,7 +521,7 @@ function renderQuestion() {
 
   document.getElementById("progressLabel").textContent = t().progressLabelFn(current + 1, total());
   document.getElementById("surveyProgressFill").style.width = `${((current + 1) / total()) * 100}%`;
-  document.getElementById("qText").textContent = (lang === "en" && q.text_en) ? q.text_en : q.text_pt;
+  document.getElementById("qText").textContent = q.text_pt;
 
   const opts = document.getElementById("scaleOptions");
   opts.innerHTML = scaleLabels.map((label, i) => {
@@ -670,6 +670,10 @@ document.querySelectorAll("[data-k]").forEach(el => {
 });
 document.getElementById("lgpdFooter").textContent = t().lgpdFooter;
 initSurvey();
+</script>
+</body>
+</html>
+
 </script>
 </body>
 </html>
