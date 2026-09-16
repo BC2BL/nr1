@@ -432,13 +432,14 @@ const DICT = {
 
 let lang = "pt";
 let current = 0;
-const answers = {}; // local mirror of answered questions, keyed by question id, for UI state only
-let questions = []; // populated from GET /survey/:token/questions
+const answers = {};
+let questions = [];
 let sessionToken = null;
 let answeredQuestionIds = [];
 let hasSavedSession = false;
 let rewardCode = null;
 let submitting = false;
+let companyName = null; // populated from session response
 
 // Point this at your deployed backend once hosted (see README.md in the
 // backend package). Defaults to localhost for local testing.
@@ -497,6 +498,7 @@ async function initSurvey() {
     sessionToken = sessionData.sessionToken;
     answeredQuestionIds = sessionData.answeredQuestionIds || [];
     hasSavedSession = answeredQuestionIds.length > 0;
+    companyName = sessionData.companyName || null;
 
     const newUrl = `${window.location.pathname}?survey=${inviteToken}&t=${sessionToken}`;
     window.history.replaceState({}, "", newUrl);
@@ -522,7 +524,7 @@ function renderLanding() {
   document.getElementById("landingFresh").classList.toggle("hidden", hasSavedSession);
   document.getElementById("landingResume").classList.toggle("hidden", !hasSavedSession);
 
-  document.getElementById("welcomeTitle").textContent = t().welcomeTitleFn(t().companyName);
+  document.getElementById("welcomeTitle").textContent = t().welcomeTitleFn(companyName || t().companyName);
   document.getElementById("anonymityList").innerHTML = t().anonymityPoints.map(p => `<li>${p}</li>`).join("");
   document.getElementById("estTime").textContent = t().estTimeFn(total());
 
