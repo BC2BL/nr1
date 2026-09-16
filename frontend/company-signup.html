@@ -438,6 +438,21 @@ function renderReview() {
 }
 
 function showStep(n) {
+  // Snapshot current input values into form before switching away from a step,
+  // in case the input event didn't fire (e.g. autofill, paste without typing).
+  const snap = {
+    companyName: document.getElementById("companyName"),
+    cnpj:        document.getElementById("cnpj"),
+    adminName:   document.getElementById("adminName"),
+    adminEmail:  document.getElementById("adminEmail"),
+    password:    document.getElementById("password"),
+  };
+  if (snap.companyName) form.companyName = snap.companyName.value;
+  if (snap.cnpj)        form.cnpj        = snap.cnpj.value;
+  if (snap.adminName)   form.adminName   = snap.adminName.value;
+  if (snap.adminEmail)  form.adminEmail  = snap.adminEmail.value;
+  if (snap.password)    form.password    = snap.password.value;
+
   document.querySelectorAll(".step-panel").forEach(p => {
     p.classList.toggle("hidden", Number(p.getAttribute("data-step")) !== n);
   });
@@ -445,6 +460,7 @@ function showStep(n) {
   document.getElementById("nextBtn").textContent = (n === totalSteps - 1 ? t().createBtn : t().nextBtn) + " →";
   renderStepDots();
   renderStepLabel();
+  renderReview();
 }
 
 function clearErrors() {
