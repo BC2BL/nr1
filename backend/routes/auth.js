@@ -65,7 +65,7 @@ router.post("/companies/signup", async (req, res) => {
     const cycleResult = await client.query(
       `INSERT INTO survey_cycle
          (company_id, title, question_set_version, status, invite_url_token, target_seat_count)
-       VALUES ($1, $2, 1, 'draft', $3, $4)
+       VALUES ($1, $2, 2, 'draft', $3, $4)
        RETURNING id, invite_url_token, status`,
       [company.id, `${companyName} — Ciclo 1`, inviteToken, seats]
     );
