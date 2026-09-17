@@ -123,15 +123,16 @@
     background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow);
     padding: 18px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0;
   }
-  .domain-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
-  .domain-label { font-size: 13px; font-weight: 600; }
-  .domain-n { font-family: var(--font); font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+  .domain-card-top { display: flex; flex-direction: column; gap: 6px; }
+  .domain-label { font-size: 13px; font-weight: 600; line-height: 1.25; }
+  .domain-n { font-family: var(--font); font-size: 11px; color: var(--ink-soft); margin-top: 0; }
   .risk-badge {
-    font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 20px;
-    text-transform: uppercase; letter-spacing: 0.3px;
+    display: inline-block; align-self: flex-start;
+    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;
   }
   .risk-badge.green { color: var(--green); background: var(--green-soft); }
-  .risk-badge.amber { color: var(--amber); background: var(--amber-soft); }
+  .risk-badge.amber { color: #92400e; background: #FEF3C7; }
   .risk-badge.red { color: var(--red); background: var(--red-soft); }
 
   .gauge-row { display: flex; align-items: center; gap: 12px; }
@@ -202,10 +203,29 @@
     font-family: var(--font); font-size: 11.5px;
     padding: 5px 10px; border-radius: 20px; cursor: pointer;
     border: 1px solid var(--line); background: rgba(255,255,255,0.70); color: var(--color-text-muted);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .filter-btn .count {
+    font-size: 10px; font-weight: 700; background: rgba(0,0,0,0.08);
+    border-radius: 10px; padding: 1px 6px; min-width: 16px; text-align: center;
   }
   .filter-btn.active { border-color: var(--color-primary); background: var(--color-tint-blue); color: var(--color-primary); }
+  .filter-btn.active .count { background: rgba(48,66,105,0.12); }
 
-  .action-list { background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow); padding: 4px 16px; }
+  /* Training module tag */
+  .training-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600; color: var(--color-primary);
+    background: var(--color-tint-blue); border-radius: 6px; padding: 3px 8px;
+    margin-top: 4px; white-space: nowrap;
+  }
+  .training-tag-icon { font-size: 11px; }
+
+  .action-legend {
+    font-size: 11.5px; color: var(--color-text-muted); margin-bottom: 10px;
+    line-height: 1.6; padding: 0 2px;
+  }
+  .action-legend strong { color: var(--color-primary); } backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow); padding: 4px 16px; }
   .empty-state { padding: 24px 4px; text-align: center; color: var(--muted); font-size: 13px; }
 
   .action-row {
@@ -337,6 +357,7 @@
       <div class="section-title" data-k="actionPlanTitle" style="margin-bottom:0"></div>
       <div class="filter-row" id="filterRow"></div>
     </div>
+    <div class="action-legend" id="actionLegend"></div>
     <div class="action-list" id="actionList"></div>
   </div>
 </div>
@@ -360,10 +381,10 @@ const DICT = {
     redeemed: "resgatados",
     addCodes: "Adicionar códigos",
     actionPlanTitle: "Plano de ação",
-    statusLabels: { all: "Todos", open: "Aberto", in_progress: "Em andamento", completed: "Concluído" },
+    statusLabels: { all: "Todas", open: "A iniciar", in_progress: "Em andamento", completed: "Concluída" },
     deliveryLabels: { on_platform_training: "Treinamento 2BeLive", off_platform: "Ação da empresa" },
     completedWord: "concluído",
-    noActions: "Nenhuma ação neste status.",
+    actionPlanLegend: "📚 <strong>Treinamento 2BeLive</strong> — clique no título para ver o módulo recomendado e atribuí-lo à equipe. &nbsp;🏢 <strong>Ação da empresa</strong> — medida a ser implementada internamente pelo gestor.",
     actions: {
       1: "Treinamento: priorização e gestão de carga de trabalho",
       2: "Revisar distribuição de tarefas nos picos sazonais",
@@ -401,10 +422,10 @@ const DICT = {
     redeemed: "redeemed",
     addCodes: "Add codes",
     actionPlanTitle: "Action plan",
-    statusLabels: { all: "All", open: "Open", in_progress: "In progress", completed: "Completed" },
+    statusLabels: { all: "All", open: "Not started", in_progress: "In progress", completed: "Done" },
     deliveryLabels: { on_platform_training: "2BeLive training", off_platform: "Company action" },
     completedWord: "complete",
-    noActions: "No actions in this status.",
+    actionPlanLegend: "📚 <strong>2BeLive training</strong> — click the title to see the recommended module and assign it to your team. &nbsp;🏢 <strong>Company action</strong> — an internal measure to be implemented by the manager.",
     actions: {
       1: "Training: workload prioritization and management",
       2: "Review task distribution during seasonal peaks",
@@ -440,6 +461,32 @@ let cycleInfo = null;    // { targetSeatCount, completedCount, responseRate, ...
 let domainScores = [];   // real rows from GET /companies/:id/cycles/:id/scores
 let rewardPoolStatus = null;
 let actionPlans = [];    // real rows from GET /companies/:id/cycles/:id/action-plans
+
+// Training module mapping — drawn from HSE Management Standards recommendations
+// per domain. These map to 2BeLive training content collections.
+const TRAINING_MODULES = {
+  pt: {
+    demands:       "Gestão de Carga de Trabalho e Priorização",
+    control:       "Delegação, Autonomia e Liderança de Equipes",
+    support:       "Feedback, Escuta Ativa e Apoio ao Colaborador",
+    relationships: "Prevenção de Assédio e Cultura de Respeito",
+    role:          "Clareza de Papéis e Gestão de Desempenho",
+    change:        "Comunicação e Gestão de Mudanças Organizacionais",
+  },
+  en: {
+    demands:       "Workload Management & Prioritisation",
+    control:       "Delegation, Autonomy & Team Leadership",
+    support:       "Feedback, Active Listening & Employee Support",
+    relationships: "Harassment Prevention & Culture of Respect",
+    role:          "Role Clarity & Performance Management",
+    change:        "Communication & Organisational Change Management",
+  },
+};
+
+function getTrainingModule(domainCode, currentLang) {
+  const modules = TRAINING_MODULES[currentLang] || TRAINING_MODULES.pt;
+  return modules[domainCode] || domainCode;
+}
 
 function t() { return DICT[lang]; }
 
@@ -549,9 +596,15 @@ function renderDomains() {
 function renderFilters() {
   const row = document.getElementById("filterRow");
   const opts = ["all", "open", "in_progress", "completed"];
-  row.innerHTML = opts.map(f =>
-    `<button class="filter-btn ${filter === f ? "active" : ""}" data-filter="${f}">${t().statusLabels[f]}</button>`
-  ).join("");
+  row.innerHTML = opts.map(f => {
+    const count = f === "all"
+      ? actionPlans.length
+      : actionPlans.filter(a => a.status === f).length;
+    const label = t().statusLabels[f];
+    return `<button class="filter-btn ${filter === f ? "active" : ""}" data-filter="${f}">
+      ${label}<span class="count">${count}</span>
+    </button>`;
+  }).join("");
   row.querySelectorAll("button").forEach(btn => {
     btn.addEventListener("click", () => {
       filter = btn.getAttribute("data-filter");
@@ -580,6 +633,7 @@ function renderActions() {
           <div style="flex:1; min-width:0;">
             <div class="action-title">${a.title}</div>
             <div class="action-meta">${t().domains[a.domain_code] || a.domain_code} · ${t().deliveryLabels[a.delivery_type] || a.delivery_type}</div>
+          ${a.delivery_type === 'on_platform_training' ? `<div class="training-tag"><span class="training-tag-icon">📚</span>${getTrainingModule(a.domain_code, lang)}</div>` : ''}
           </div>
           <span class="desktop-only-owner action-owner">${ownerLabel}</span>
           <span class="desktop-only-completion"></span>
@@ -638,6 +692,9 @@ function renderAll() {
   // Refresh survey link label and copy button text on lang switch
   document.getElementById("surveyLinkLabel").textContent = t().surveyLinkLabel;
   document.getElementById("copySurveyLinkBtn").textContent = t().copyLinkBtn;
+  // Render action plan legend
+  const legendEl = document.getElementById("actionLegend");
+  if (legendEl) legendEl.innerHTML = t().actionPlanLegend || "";
 }
 
 function showLogin() {
