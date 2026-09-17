@@ -607,10 +607,32 @@ function renderComplete() {
   document.getElementById("rewardYes").classList.toggle("hidden", !hasReward);
   document.getElementById("rewardNo").classList.toggle("hidden", hasReward);
   if (hasReward) document.getElementById("rewardCode").textContent = rewardCode;
+  // Refresh all text on the complete screen so lang toggle works correctly
   document.getElementById("copyCodeBtn").textContent = t().copyBtn;
+  document.querySelectorAll("#completeScreen [data-k]").forEach(el => {
+    const key = el.getAttribute("data-k");
+    const val = t()[key];
+    if (typeof val === "string") el.textContent = val;
+  });
 }
 
-document.getElementById("startBtn").addEventListener("click", () => {
+document.querySelector(".btn-close").addEventListener("click", () => {
+  // On mobile, window.close() only works if the tab was script-opened.
+  // Best UX: try to close, then show a plain "you can close this tab" message
+  // so the employee isn't left wondering what happened.
+  const btn = document.querySelector(".btn-close");
+  try { window.close(); } catch (e) {}
+  // If we're still here after 100ms, window.close() didn't work — show message
+  setTimeout(() => {
+    btn.textContent = lang === "pt"
+      ? "✓ Pode fechar esta aba"
+      : "✓ You can close this tab";
+    btn.style.background = "var(--color-tint-blue)";
+    btn.style.color = "var(--color-primary)";
+    btn.style.borderColor = "var(--color-primary)";
+    btn.disabled = true;
+  }, 100);
+});
   current = 0;
   showScreen("survey");
 });
@@ -698,3 +720,4 @@ initSurvey();
 </script>
 </body>
 </html>
+
