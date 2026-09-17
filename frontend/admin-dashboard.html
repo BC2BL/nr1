@@ -195,7 +195,7 @@
 
   /* Action plan */
   .action-header {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
     flex-wrap: wrap; gap: 8px;
   }
   .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -211,15 +211,6 @@
   }
   .filter-btn.active { border-color: var(--color-primary); background: var(--color-tint-blue); color: var(--color-primary); }
   .filter-btn.active .count { background: rgba(48,66,105,0.12); }
-
-  /* Training module tag */
-  .training-tag {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 11px; font-weight: 600; color: var(--color-primary);
-    background: var(--color-tint-blue); border-radius: 6px; padding: 3px 8px;
-    margin-top: 4px; white-space: nowrap;
-  }
-
   .action-legend {
     font-size: 11.5px; color: var(--color-text-muted); margin-bottom: 10px;
     line-height: 1.6; padding: 0 2px;
@@ -227,37 +218,141 @@
   .action-legend strong { color: var(--color-primary); }
   .action-list { background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow); padding: 4px 16px; }
   .empty-state { padding: 24px 4px; text-align: center; color: var(--muted); font-size: 13px; }
-
-  .action-row {
-    display: grid; grid-template-columns: auto 1fr auto auto auto; gap: 16px; align-items: center;
-    padding: 14px 4px; border-bottom: 1px solid var(--line-soft);
-  }
-  .action-row:last-child { border-bottom: none; }
-  .action-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-  .action-title { font-size: 13.5px; }
-  .action-meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
-  .action-owner { font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
-  .action-completion { font-family: var(--font); font-size: 12px; white-space: nowrap; }
   .status-pill {
     font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
   }
   .status-pill.open { color: var(--grey); background: var(--grey-soft); }
-  .status-pill.in_progress { color: var(--amber); background: var(--amber-soft); }
-  .status-pill.completed { color: var(--green); background: var(--green-soft); }
-
-  /* Mobile action row: stacked */
-  @media (max-width: 640px) {
-    .action-row { grid-template-columns: unset; display: flex; flex-direction: column; gap: 8px; }
-    .action-row-top { display: flex; align-items: flex-start; gap: 10px; }
-    .action-row-bottom {
-      display: flex; justify-content: space-between; align-items: center; padding-left: 16px; flex-wrap: wrap; gap: 8px;
-    }
-    .action-row-bottom-left { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--ink-soft); }
+  .status-pill.in_progress { color: #92400e; background: #FEF3C7; }
+  .status-pill.completed { color: var(--color-success-text); background: var(--color-success-soft); }
+  /* ── Feature 1: Expanded action card ──────────────────────────────── */
+  .action-card {
+    border-bottom: 1px solid var(--line-soft);
+    padding: 0;
   }
-  .desktop-only { display: contents; }
-  @media (max-width: 640px) { .desktop-only { display: none; } }
-  .mobile-only { display: none; }
-  @media (max-width: 640px) { .mobile-only { display: flex; } }
+  .action-card:last-child { border-bottom: none; }
+
+  .action-card-header {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 16px 4px; cursor: pointer;
+    transition: background 0.12s;
+  }
+  .action-card-header:hover { background: rgba(48,66,105,0.03); border-radius: 8px; }
+
+  .action-card-left { display: flex; align-items: flex-start; gap: 10px; flex: 1; min-width: 0; }
+  .action-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+
+  .action-card-body { flex: 1; min-width: 0; }
+  .action-title { font-size: 14px; font-weight: 600; color: var(--color-dark-blue); line-height: 1.35; }
+  .action-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+  /* Feature 2: Priority badge */
+  .priority-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+    text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; margin-top: 4px; display: inline-block;
+  }
+  .priority-high { color: #B54A3F; background: #FEE2E2; }
+  .priority-medium { color: #92400e; background: #FEF3C7; }
+  .priority-low { color: #1e5f3f; background: #D1FAE5; }
+
+  .action-card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .action-chevron {
+    font-size: 11px; color: var(--muted); transition: transform 0.2s;
+    width: 20px; text-align: center; flex-shrink: 0;
+  }
+  .action-card.open .action-chevron { transform: rotate(180deg); }
+
+  /* Feature 1 + 3: Expanded panel */
+  .action-expand {
+    display: none; padding: 0 4px 16px 30px;
+  }
+  .action-card.open .action-expand { display: block; }
+
+  .expand-section { margin-bottom: 16px; }
+  .expand-section:last-child { margin-bottom: 0; }
+  .expand-label {
+    font-size: 11px; font-weight: 700; color: var(--color-secondary);
+    text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;
+  }
+  .expand-desc {
+    font-size: 13px; color: var(--color-dark-blue); line-height: 1.65;
+    opacity: 0.85;
+  }
+
+  /* Feature 3: Quick-start checklist */
+  .quickstart-list {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .quickstart-list li {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 13px; color: var(--color-dark-blue); line-height: 1.55; opacity: 0.85;
+  }
+  .quickstart-list li::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--color-secondary); flex-shrink: 0; margin-top: 7px;
+  }
+
+  /* Feature 4: Evidence note / progress input */
+  .evidence-section {
+    background: rgba(48,66,105,0.04); border-radius: 10px;
+    padding: 12px 14px; margin-top: 4px;
+  }
+  .evidence-label {
+    font-size: 11px; font-weight: 700; color: var(--color-primary);
+    text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px;
+  }
+  .evidence-textarea {
+    width: 100%; box-sizing: border-box;
+    font-family: var(--font); font-size: 13px; color: var(--color-dark-blue);
+    border: 1.5px solid var(--color-border); border-radius: 8px;
+    padding: 10px 12px; resize: vertical; min-height: 72px; outline: none;
+    background: #fff; line-height: 1.5;
+  }
+  .evidence-textarea:focus { border-color: var(--color-primary); }
+  .evidence-textarea::placeholder { color: var(--muted); }
+  .evidence-row { display: flex; gap: 8px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
+  .btn-evidence-save {
+    font-family: var(--font); font-size: 12px; font-weight: 700;
+    background: var(--color-primary); color: #fff; border: none; border-radius: 7px;
+    padding: 8px 16px; cursor: pointer;
+  }
+  .btn-evidence-save:disabled { background: var(--disabled); cursor: default; }
+  .evidence-saved { font-size: 12px; color: var(--color-success-text); font-weight: 600; }
+
+  .training-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 700; color: var(--color-primary);
+    background: var(--color-tint-blue); border-radius: 6px; padding: 3px 10px;
+    border: 1px solid rgba(48,66,105,0.15);
+  }
+
+  /* ── Feature 5: Worker communication panel ─────────────────────────── */
+  .worker-comms-card {
+    background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur)); border: none;
+    border-radius: var(--radius-lg); box-shadow: var(--card-shadow);
+    padding: 20px 22px; margin-bottom: 32px;
+    border-top: 3px solid var(--color-primary);
+  }
+  .worker-comms-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+  .worker-comms-title { font-size: 14px; font-weight: 700; color: var(--color-dark-blue); }
+  .worker-comms-subtitle { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .btn-copy-comms {
+    font-family: var(--font); font-size: 12px; font-weight: 700;
+    background: var(--color-primary); color: #fff; border: none; border-radius: 8px;
+    padding: 8px 16px; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+  }
+  .btn-copy-comms.copied { background: var(--color-tint-blue); color: var(--color-primary); }
+  .comms-preview {
+    background: #fff; border: 1.5px solid var(--color-border); border-radius: 10px;
+    padding: 16px 18px; font-size: 13px; color: var(--color-dark-blue); line-height: 1.7;
+  }
+  .comms-preview h3 { font-size: 15px; font-weight: 700; margin: 0 0 8px; color: var(--color-dark-blue); }
+  .comms-preview p { margin: 0 0 10px; }
+  .comms-preview ul { margin: 0 0 10px; padding-left: 18px; }
+  .comms-preview li { margin-bottom: 4px; }
+  .comms-preview .comms-footer { font-size: 11.5px; color: var(--muted); margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line-soft); }
+
 
   .hidden { display: none !important; }
 
@@ -353,6 +448,18 @@
   </div>
 
   <div>
+    <!-- Feature 5: Worker communication panel -->
+    <div class="worker-comms-card" id="workerCommsCard" style="display:none">
+      <div class="worker-comms-header">
+        <div>
+          <div class="worker-comms-title" id="commsTitle"></div>
+          <div class="worker-comms-subtitle" id="commsSubtitle"></div>
+        </div>
+        <button class="btn-copy-comms" id="copyCommsBtn"></button>
+      </div>
+      <div class="comms-preview" id="commsPreview"></div>
+    </div>
+
     <div class="action-header">
       <div class="section-title" data-k="actionPlanTitle" style="margin-bottom:0"></div>
       <div class="filter-row" id="filterRow"></div>
@@ -462,8 +569,7 @@ let domainScores = [];   // real rows from GET /companies/:id/cycles/:id/scores
 let rewardPoolStatus = null;
 let actionPlans = [];    // real rows from GET /companies/:id/cycles/:id/action-plans
 
-// Training module mapping — drawn from HSE Management Standards recommendations
-// per domain. These map to 2BeLive training content collections.
+// ── Training module mapping (HSE-sourced) ─────────────────────────────────
 const TRAINING_MODULES = {
   pt: {
     demands:       "Gestão de Carga de Trabalho e Priorização",
@@ -483,7 +589,6 @@ const TRAINING_MODULES = {
   },
 };
 
-
 const ACTION_TITLE_EN = {
   "Revisar prazos e cargas de trabalho com a equipe": "Review deadlines and workload with the team",
   "Revisar distribuição de tarefas nos picos sazonais": "Review task distribution during peak periods",
@@ -501,10 +606,171 @@ function getActionTitle(titlePt) {
   if (lang === "en" && ACTION_TITLE_EN[titlePt]) return ACTION_TITLE_EN[titlePt];
   return titlePt;
 }
-
 function getTrainingModule(domainCode, currentLang) {
   const modules = TRAINING_MODULES[currentLang] || TRAINING_MODULES.pt;
   return modules[domainCode] || domainCode;
+}
+
+// ── Feature 2: Priority scoring based on score vs band boundary ────────────
+function getPriority(domainCode) {
+  const scoreRow = domainScores.find(s => s.domain_code === domainCode);
+  if (!scoreRow || !scoreRow.mean_score) return "medium";
+  const score = Number(scoreRow.mean_score);
+  // Green/amber boundary = 3.5, amber/red boundary = 2.5
+  // Distance from boundary determines urgency
+  if (scoreRow.risk_band === "red")   return score < 2.0 ? "high" : "medium";
+  if (scoreRow.risk_band === "amber") return score < 2.8 ? "high" : "medium";
+  return "low";
+}
+
+// ── Feature 3: HSE quick-start content per domain (bilingual) ─────────────
+const QUICKSTART = {
+  pt: {
+    demands: {
+      what: "Seus funcionários relataram que o volume ou ritmo de trabalho está além do que conseguem gerenciar de forma sustentável.",
+      steps: [
+        "Esta semana: converse individualmente com cada membro da equipe para entender quais tarefas estão sobrecarregando.",
+        "Identifique as 2–3 tarefas que podem ser adiadas, delegadas ou redistribuídas sem impacto crítico.",
+        "Estabeleça um processo claro para notificar a equipe sobre prazos apertados com antecedência.",
+        "Cubra as cargas de trabalho durante ausências — defina quem responde por quê.",
+        "Desenvolva planos de trabalho individuais para que cada pessoa saiba o que é esperado dela.",
+      ],
+    },
+    control: {
+      what: "Funcionários sentem que têm pouca voz sobre como realizam seu trabalho e tomam decisões.",
+      steps: [
+        "Esta semana: em sua próxima reunião de equipe, pergunte explicitamente como cada pessoa prefere organizar seu trabalho.",
+        "Delegue pelo menos uma decisão que você tomaria normalmente — deixe a equipe escolher.",
+        "Defina objetivos claros para cada projeto, mas deixe a equipe decidir o como.",
+        "Reduza check-ins desnecessários — monitore resultados, não presença ou método.",
+        "Pergunte à equipe: onde gostariam de usar mais suas habilidades?",
+      ],
+    },
+    support: {
+      what: "Funcionários não se sentem suficientemente apoiados pelos gestores ou colegas no trabalho.",
+      steps: [
+        "Esta semana: realize um one-on-one com cada membro da equipe — pergunte como estão, não apenas sobre tarefas.",
+        "Adicione 'pressões emergentes' como item fixo nas reuniões de equipe.",
+        "Incentive os funcionários a compartilhar preocupações cedo, antes de virarem problemas maiores.",
+        "Politica de portas abertas: comunique horários específicos em que você está disponível.",
+        "Compartilhe informações sobre recursos de apoio disponíveis (RH, saúde ocupacional).",
+      ],
+    },
+    relationships: {
+      what: "O ambiente interpessoal na equipe apresenta tensões, conflitos ou comportamentos inadequados.",
+      steps: [
+        "Esta semana: verifique se existe um canal confidencial para reportar comportamentos inadequados.",
+        "Revise ou crie uma política clara de convivência e comunicação à equipe.",
+        "Se houver conflito específico, trate-o diretamente e de forma discreta — não deixe acumular.",
+        "Celebre contribuições individuais publicamente — reconhecimento reduz atrito.",
+        "Providencie treinamento em habilidades de comunicação e resolução de conflitos.",
+      ],
+    },
+    role: {
+      what: "Funcionários não têm clareza sobre suas responsabilidades, expectativas ou como seu trabalho se encaixa no todo.",
+      steps: [
+        "Esta semana: certifique-se de que cada pessoa tem uma descrição de cargo atualizada.",
+        "Realize uma reunião de equipe só para clarificar papéis — quem faz o quê e por quê.",
+        "Defina e comunique padrões de desempenho específicos para cada função.",
+        "Novos contratados: elabore um plano de integração estruturado nos primeiros 30 dias.",
+        "Em reuniões one-on-one mensais, pergunte: você sabe exatamente o que se espera de você?",
+      ],
+    },
+    change: {
+      what: "Mudanças recentes na organização estão gerando incerteza e insegurança na equipe.",
+      steps: [
+        "Esta semana: comunique proativamente o que está mudando, por quê e qual será o impacto no dia a dia.",
+        "Crie um canal (pode ser e-mail ou reunião semanal) para perguntas sobre mudanças em andamento.",
+        "Seja honesto sobre o que ainda não está definido — incerteza gerenciada é melhor que rumores.",
+        "Envolva a equipe no processo — peça sugestões de como implementar a mudança.",
+        "Revise descrições de cargo e metas após cada mudança significativa.",
+      ],
+    },
+  },
+  en: {
+    demands: {
+      what: "Your employees reported that the volume or pace of work exceeds what they can sustainably manage.",
+      steps: [
+        "This week: hold individual conversations to understand which tasks are causing overload.",
+        "Identify 2–3 tasks that can be deferred, delegated, or redistributed without critical impact.",
+        "Establish a clear process to notify the team about tight deadlines in advance.",
+        "Cover workloads during absences — define who handles what.",
+        "Develop personal work plans so everyone knows exactly what is expected of them.",
+      ],
+    },
+    control: {
+      what: "Employees feel they have little say over how they do their work and make decisions.",
+      steps: [
+        "This week: in your next team meeting, explicitly ask how each person prefers to organise their work.",
+        "Delegate at least one decision you would normally make — let the team choose.",
+        "Set clear objectives for each project, but let the team decide how to get there.",
+        "Reduce unnecessary check-ins — monitor outcomes, not presence or method.",
+        "Ask the team: where would you like to use your skills more?",
+      ],
+    },
+    support: {
+      what: "Employees do not feel sufficiently supported by managers or colleagues at work.",
+      steps: [
+        "This week: hold a one-on-one with each team member — ask how they are, not just about tasks.",
+        "Add 'emerging pressures' as a standing item on team meeting agendas.",
+        "Encourage employees to raise concerns early, before they become bigger problems.",
+        "Open-door policy: communicate specific times when you are available to talk.",
+        "Share information about available support resources (HR, occupational health).",
+      ],
+    },
+    relationships: {
+      what: "The interpersonal environment in the team shows tension, conflict, or inappropriate behaviour.",
+      steps: [
+        "This week: verify that a confidential channel exists to report inappropriate behaviour.",
+        "Review or create a clear conduct policy and communicate it to the team.",
+        "If there is a specific conflict, address it directly and discreetly — do not let it accumulate.",
+        "Celebrate individual contributions publicly — recognition reduces friction.",
+        "Provide training in communication skills and conflict resolution.",
+      ],
+    },
+    role: {
+      what: "Employees lack clarity about their responsibilities, expectations, or how their work fits the bigger picture.",
+      steps: [
+        "This week: make sure every person has an up-to-date job description.",
+        "Hold a team meeting specifically to clarify roles — who does what and why.",
+        "Define and communicate specific performance standards for each role.",
+        "New hires: build a structured 30-day onboarding plan.",
+        "In monthly one-on-ones, ask: do you know exactly what's expected of you?",
+      ],
+    },
+    change: {
+      what: "Recent organisational changes are generating uncertainty and insecurity in the team.",
+      steps: [
+        "This week: proactively communicate what is changing, why, and the day-to-day impact.",
+        "Create a channel (email or weekly meeting) for questions about ongoing changes.",
+        "Be honest about what is not yet decided — managed uncertainty is better than rumours.",
+        "Involve the team in the process — ask for suggestions on how to implement the change.",
+        "Review job descriptions and goals after each significant change.",
+      ],
+    },
+  },
+};
+
+// ── Feature 4: Evidence note save ─────────────────────────────────────────
+async function saveEvidence(planId, note, btn, savedEl) {
+  btn.disabled = true;
+  try {
+    const res = await apiFetch(`/action-plans/${planId}/complete`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ evidenceNote: note }),
+    });
+    if (res.ok) {
+      savedEl.textContent = lang === "pt" ? "✓ Salvo" : "✓ Saved";
+      savedEl.style.display = "inline";
+      // Update local status so filter counts update
+      const plan = actionPlans.find(p => p.id === planId);
+      if (plan) { plan.status = "completed"; plan.evidence_note = note; }
+      renderFilters();
+      setTimeout(() => { savedEl.style.display = "none"; }, 3000);
+    }
+  } catch (e) { console.error("evidence_save_error", e); }
+  btn.disabled = false;
 }
 
 function t() { return DICT[lang]; }
@@ -640,32 +906,178 @@ function renderActions() {
     list.innerHTML = `<div class="empty-state">${t().noActions}</div>`;
     return;
   }
-  list.innerHTML = filtered.map(a => {
+
+  list.innerHTML = filtered.map((a, idx) => {
     const scoreRow = domainScores.find(s => s.domain_code === a.domain_code);
     const band = scoreRow ? scoreRow.risk_band : null;
-    const dotColor = band === "green" ? "#3F7D5C" : band === "amber" ? "#C98A2C" : band === "red" ? "#B54A3F" : "#B9C2BF";
-    const ownerLabel = a.owner_name || "—";
+    const dotColor = band === "red" ? "#B54A3F" : band === "amber" ? "#C98A2C" : band === "green" ? "#3F7D5C" : "#B9C2BF";
+    const priority = getPriority(a.domain_code);
+    const priorityLabel = {
+      high: lang === "pt" ? "Alta prioridade" : "High priority",
+      medium: lang === "pt" ? "Prioridade média" : "Medium priority",
+      low: lang === "pt" ? "Baixa prioridade" : "Low priority",
+    }[priority];
+    const qs = QUICKSTART[lang]?.[a.domain_code];
+    const isTraining = a.delivery_type === "on_platform_training";
+    const isOffPlatform = a.delivery_type === "off_platform";
+    const evidenceLabel = lang === "pt"
+      ? "Registrar o que foi feito (exigido pelo NR-1 §6 como evidência de conformidade)"
+      : "Record what was done (required by NR-1 §6 as compliance evidence)";
+    const evidencePlaceholder = lang === "pt"
+      ? "Ex: Realizamos reunião de equipe em 15/Set e redistribuímos 3 tarefas..."
+      : "E.g. We held a team meeting on 15 Sep and redistributed 3 tasks...";
+    const saveBtnLabel = lang === "pt" ? "Salvar e marcar como concluída" : "Save & mark as done";
+    const savedLabel = lang === "pt" ? "✓ Salvo" : "✓ Saved";
+
     return `
-      <div class="action-row">
-        <div class="action-row-top">
-          <span class="action-dot" style="background:${dotColor}; margin-top:5px;"></span>
-          <div style="flex:1; min-width:0;">
-            <div class="action-title">${getActionTitle(a.title)}</div>
-            <div class="action-meta">${t().domains[a.domain_code] || a.domain_code} · ${t().deliveryLabels[a.delivery_type] || a.delivery_type}</div>
-          ${a.delivery_type === 'on_platform_training' ? `<div class="training-tag">${getTrainingModule(a.domain_code, lang)}</div>` : ''}
+      <div class="action-card" id="card-${a.id}">
+        <div class="action-card-header" onclick="toggleCard('${a.id}')">
+          <div class="action-card-left">
+            <span class="action-dot" style="background:${dotColor}"></span>
+            <div class="action-card-body">
+              <div class="action-title">${getActionTitle(a.title)}</div>
+              <div class="action-meta">${t().domains[a.domain_code] || a.domain_code} · ${t().deliveryLabels[a.delivery_type] || a.delivery_type}</div>
+              ${isTraining ? `<div class="training-tag" style="margin-top:5px">${getTrainingModule(a.domain_code, lang)}</div>` : ""}
+            </div>
           </div>
-          <span class="desktop-only-owner action-owner">${ownerLabel}</span>
-          <span class="desktop-only-completion"></span>
-          <span class="status-pill ${a.status} desktop-only-pill">${t().statusLabels[a.status]}</span>
+          <div class="action-card-right">
+            <span class="status-pill ${a.status}">${t().statusLabels[a.status]}</span>
+            <span class="priority-badge priority-${priority}">${priorityLabel}</span>
+          </div>
+          <span class="action-chevron">▼</span>
         </div>
-        <div class="action-row-bottom mobile-only">
-          <div class="action-row-bottom-left">
-            <span>${ownerLabel}</span>
+
+        <div class="action-expand">
+          ${qs ? `
+          <div class="expand-section">
+            <div class="expand-label">${lang === "pt" ? "O que isso significa" : "What this means"}</div>
+            <div class="expand-desc">${qs.what}</div>
           </div>
-          <span class="status-pill ${a.status}">${t().statusLabels[a.status]}</span>
+          <div class="expand-section">
+            <div class="expand-label">${lang === "pt" ? "O que fazer esta semana" : "What to do this week"}</div>
+            <ul class="quickstart-list">
+              ${qs.steps.map(s => `<li>${s}</li>`).join("")}
+            </ul>
+          </div>` : ""}
+
+          ${isTraining ? `
+          <div class="expand-section">
+            <div class="expand-label">${lang === "pt" ? "Módulo 2BeLive recomendado" : "Recommended 2BeLive module"}</div>
+            <div class="expand-desc">
+              <strong>${getTrainingModule(a.domain_code, lang)}</strong><br>
+              <span style="font-size:12px;color:var(--muted)">${lang === "pt"
+                ? "Atribua este treinamento à equipe diretamente na plataforma 2BeLive após identificar os participantes."
+                : "Assign this training to your team directly on the 2BeLive platform after identifying participants."}</span>
+            </div>
+          </div>` : ""}
+
+          ${isOffPlatform ? `
+          <div class="evidence-section">
+            <div class="evidence-label">${evidenceLabel}</div>
+            <textarea class="evidence-textarea" id="note-${a.id}"
+              placeholder="${evidencePlaceholder}">${a.evidence_note || ""}</textarea>
+            <div class="evidence-row">
+              <button class="btn-evidence-save" id="save-${a.id}"
+                onclick="handleSaveEvidence('${a.id}')">${saveBtnLabel}</button>
+              <span class="evidence-saved" id="saved-${a.id}" style="display:none">${savedLabel}</span>
+            </div>
+          </div>` : ""}
         </div>
       </div>`;
   }).join("");
+}
+
+function toggleCard(planId) {
+  const card = document.getElementById(`card-${planId}`);
+  if (card) card.classList.toggle("open");
+}
+
+function handleSaveEvidence(planId) {
+  const note = document.getElementById(`note-${planId}`)?.value || "";
+  const btn  = document.getElementById(`save-${planId}`);
+  const saved = document.getElementById(`saved-${planId}`);
+  if (btn && saved) saveEvidence(planId, note, btn, saved);
+}
+
+
+// ── Feature 5: Worker communication module ─────────────────────────────────
+function renderWorkerComms() {
+  const card = document.getElementById("workerCommsCard");
+  if (!card || !domainScores.length || !cycleInfo) { if(card) card.style.display = "none"; return; }
+
+  const isEN = lang === "en";
+  const title = isEN ? "Share results with your team" : "Compartilhe os resultados com sua equipe";
+  const subtitle = isEN
+    ? "NR-1 §6 requires documenting that workers were informed of results. Copy this message and send it to employees."
+    : "O NR-1 §6 exige documentar que os trabalhadores foram informados dos resultados. Copie esta mensagem e envie para os funcionários.";
+
+  document.getElementById("commsTitle").textContent = title;
+  document.getElementById("commsSubtitle").textContent = subtitle;
+  document.getElementById("copyCommsBtn").textContent = isEN ? "Copy message" : "Copiar mensagem";
+
+  // Build the shareable summary — anonymised domain-level results only
+  const companyN = cycleInfo.companyName || "";
+  const completedN = cycleInfo.completedCount || 0;
+  const rateStr = `${Math.round((cycleInfo.responseRate || 0) * 100)}%`;
+
+  const bandLabel = (band) => ({
+    green:  isEN ? "Good" : "Adequado",
+    amber:  isEN ? "Needs attention" : "Precisa de atenção",
+    red:    isEN ? "Priority" : "Prioridade",
+  }[band] || "—");
+
+  const domainRows = domainScores
+    .filter(d => d.mean_score !== null)
+    .map(d => {
+      const name = t().domains[d.domain_code] || d.domain_code;
+      return `<li><strong>${name}:</strong> ${bandLabel(d.risk_band)}</li>`;
+    }).join("");
+
+  const suppressedDomains = domainScores.filter(d => d.mean_score === null);
+
+  const suppressedNote = suppressedDomains.length
+    ? (isEN
+        ? `<p style="font-size:12px;color:#6B7280">${suppressedDomains.length} domain(s) had fewer than 5 responses and are not shown to protect anonymity.</p>`
+        : `<p style="font-size:12px;color:#6B7280">${suppressedDomains.length} domínio(s) tiveram menos de 5 respostas e não são exibidos para preservar o anonimato.</p>`)
+    : "";
+
+  const openActions = actionPlans.filter(a => a.status !== "completed");
+
+  const preview = isEN ? `
+<h3>A message from leadership</h3>
+<p>Thank you to everyone who completed the anonymous wellbeing survey. <strong>${completedN} team members</strong> participated (${rateStr} response rate). Your responses are completely anonymous — no individual answer is ever visible.</p>
+<p><strong>Here is a summary of what we found:</strong></p>
+<ul>${domainRows}</ul>
+${suppressedNote}
+<p><strong>What we are doing about it:</strong> We have ${openActions.length} action${openActions.length !== 1 ? "s" : ""} underway to address the areas that need attention. We will share progress with you regularly.</p>
+<p>If you have questions or concerns, please speak to HR or your manager.</p>
+<div class="comms-footer">This communication fulfils the worker participation requirement under NR-1 §6 (Portaria MTE 1.416/2024).</div>
+` : `
+<h3>Uma mensagem da liderança</h3>
+<p>Obrigado a todos que responderam a pesquisa anônima de bem-estar. <strong>${completedN} membros da equipe</strong> participaram (taxa de resposta: ${rateStr}). Suas respostas são completamente anônimas — nenhuma resposta individual é visível.</p>
+<p><strong>Aqui está um resumo do que encontramos:</strong></p>
+<ul>${domainRows}</ul>
+${suppressedNote}
+<p><strong>O que estamos fazendo:</strong> Temos ${openActions.length} ação${openActions.length !== 1 ? "ões" : ""} em andamento para tratar as áreas que precisam de atenção. Compartilharemos o progresso com vocês regularmente.</p>
+<p>Se tiver dúvidas ou preocupações, fale com o RH ou com seu gestor.</p>
+<div class="comms-footer">Esta comunicação cumpre o requisito de participação dos trabalhadores previsto no NR-1 §6 (Portaria MTE 1.416/2024).</div>
+`;
+
+  document.getElementById("commsPreview").innerHTML = preview;
+  card.style.display = "";
+
+  // Wire copy button
+  const copyBtn = document.getElementById("copyCommsBtn");
+  copyBtn.onclick = () => {
+    const text = document.getElementById("commsPreview").innerText;
+    navigator.clipboard?.writeText(text).catch(() => {});
+    copyBtn.textContent = isEN ? "Copied!" : "Copiado!";
+    copyBtn.classList.add("copied");
+    setTimeout(() => {
+      copyBtn.textContent = isEN ? "Copy message" : "Copiar mensagem";
+      copyBtn.classList.remove("copied");
+    }, 2000);
+  };
 }
 
 function renderHeaderAndReward() {
@@ -711,6 +1123,7 @@ function renderAll() {
   renderDomains();
   renderFilters();
   renderActions();
+  renderWorkerComms();
   // Refresh survey link label and copy button text on lang switch
   document.getElementById("surveyLinkLabel").textContent = t().surveyLinkLabel;
   document.getElementById("copySurveyLinkBtn").textContent = t().copyLinkBtn;
