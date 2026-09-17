@@ -15,7 +15,7 @@
     --color-surface:      #ffffff;
     --color-border:       #D9DEE8;
     --color-text-primary: #0a1744;
-    --color-text-muted:   #6B7280;
+    --color-text-muted:   #4A5568;
     --color-error:        #fe6c5f;
     --color-tint-blue:    #EEF2F8;
     --color-success-text: #2E7D32;
@@ -52,13 +52,13 @@
     color: var(--color-text-primary);
     font-family: var(--font);
     display: flex;
-    justify-content: center;
-    padding: 40px 20px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 24px 16px 48px;
     min-height: 100vh;
   }
-  @media (max-width: 560px) {
-    body { padding: 20px 14px; }
-  }
+  @media (min-width: 600px) { body { justify-content: center; padding: 40px 24px; } }
 
   .wrap { width: 100%; max-width: 520px; }
 
@@ -66,53 +66,51 @@
     display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
   }
   .eyebrow {
-    font-family: var(--font); font-size: 11px; color: var(--color-secondary);
-    letter-spacing: 1px; text-transform: uppercase;
+    font-family: var(--font); font-size: 12px; font-weight: 700; color: var(--color-secondary);
+    letter-spacing: 1.2px; text-transform: uppercase;
   }
 
   .lang-toggle { display: flex; gap: 4px; background: rgba(217,222,232,0.45); border-radius: 20px; padding: 3px; }
   .lang-toggle button {
-    font-family: var(--font); font-size: 11px; font-weight: 500;
-    padding: 5px 11px; border-radius: 16px; cursor: pointer; border: none; background: transparent;
-    color: var(--ink-soft);
+    font-family: var(--font); font-size: 13px; font-weight: 600;
+    padding: 8px 16px; border-radius: 16px; cursor: pointer; border: none; background: transparent;
+    color: var(--ink-soft); min-width: 44px;
   }
   .lang-toggle button.active { background: var(--color-dark-blue); color: #fff; }
 
   .step-dots { display: flex; gap: 6px; margin-bottom: 8px; }
-  .step-dots .dot { flex: 1; height: 3px; border-radius: 2px; background: #E3E8E6; transition: background 0.2s; }
+  .step-dots .dot { flex: 1; height: 4px; border-radius: 2px; background: #E3E8E6; transition: background 0.2s; }
   .step-dots .dot.done { background: var(--color-secondary); }
 
   .step-label {
-    font-family: var(--font); font-size: 11.5px; color: var(--ink-soft); margin-bottom: 20px;
+    font-family: var(--font); font-size: 13px; font-weight: 600; color: var(--ink-soft); margin-bottom: 20px;
   }
 
   .card {
     background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow);
-    padding: 32px 28px;
+    padding: 26px 20px;
   }
-  @media (max-width: 560px) {
-    .card { padding: 24px 20px; }
-  }
+  @media (min-width: 600px) { .card { padding: 36px 32px; } }
 
   .card h1 {
-    font-family: var(--font); font-weight: 600; font-size: 22px; margin: 0 0 8px;
+    font-family: var(--font); font-weight: 600; font-size: 21px; margin: 0 0 10px; color: var(--color-dark-blue);
   }
   .card p.body {
-    font-size: 13.5px; color: var(--ink-soft); line-height: 1.6; margin: 0 0 24px;
+    font-size: 15px; color: var(--ink-soft); line-height: 1.7; margin: 0 0 24px;
   }
 
   .field { margin-bottom: 18px; }
   .field label {
-    display: block; font-family: var(--font); font-size: 13px; font-weight: 600;
-    color: var(--ink); margin-bottom: 6px;
+    display: block; font-family: var(--font); font-size: 14px; font-weight: 700;
+    color: var(--ink); margin-bottom: 7px;
   }
   .field input {
-    width: 100%; padding: 12px 14px; border-radius: 9px; border: 1px solid var(--line);
-    font-family: var(--font); font-size: 14.5px; color: var(--ink); outline: none;
+    width: 100%; padding: 14px 14px; border-radius: 10px; border: 1.5px solid var(--line);
+    font-family: var(--font); font-size: 16px; color: var(--ink); outline: none; min-height: 50px;
   }
   .field input:focus { border-color: var(--color-primary); }
-  .field .hint { font-size: 11.5px; color: var(--muted); margin-top: 5px; }
-  .field .error { font-size: 11.5px; color: var(--red); margin-top: 5px; }
+  .field .hint { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+  .field .error { font-size: 13px; color: var(--red); margin-top: 6px; font-weight: 600; }
 
   .seat-input {
     font-family: var(--font) !important; font-size: 20px !important; font-weight: 500;
@@ -125,30 +123,28 @@
     padding: 12px 0; border-bottom: 1px solid var(--line-soft);
   }
   .review-row:last-child { border-bottom: none; }
-  .review-row .rlabel { font-size: 11.5px; color: var(--muted); margin-bottom: 2px; }
-  .review-row .rvalue { font-size: 14px; color: var(--ink); }
+  .review-row .rlabel { font-size: 13px; color: var(--muted); margin-bottom: 3px; }
+  .review-row .rvalue { font-size: 15px; color: var(--ink); font-weight: 500; }
   .review-row button {
-    font-family: var(--font); font-size: 12px; font-weight: 600;
-    color: var(--color-secondary); background: transparent; border: none; cursor: pointer;
+    font-family: var(--font); font-size: 14px; font-weight: 700;
+    color: var(--color-secondary); background: transparent; border: none; cursor: pointer; padding: 4px 0;
   }
 
   .nav-row { display: flex; justify-content: space-between; margin-top: 20px; }
   .btn-back {
-    font-family: var(--font); font-size: 13.5px; font-weight: 500;
-    background: transparent; color: var(--ink-soft); border: none; cursor: pointer; padding: 10px 4px;
+    font-family: var(--font); font-size: 15px; font-weight: 600;
+    background: transparent; color: var(--ink-soft); border: none; cursor: pointer; padding: 12px 8px; min-height: 48px;
   }
   .btn-back:disabled { color: var(--disabled); cursor: default; }
   .btn-primary {
-    font-family: var(--font); font-size: 14px; font-weight: 600;
-    background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(235,96,37,0.28);
-    padding: 12px 24px; cursor: pointer;
+    font-family: var(--font); font-size: 16px; font-weight: 700;
+    background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(235,96,37,0.30);
+    padding: 14px 28px; cursor: pointer; min-height: 50px;
   }
   .btn-primary:hover { opacity: 0.95; }
 
-  .success-card { text-align: center; padding: 36px 32px; }
-  @media (max-width: 560px) {
-    .success-card { padding: 28px 20px; }
-  }
+  .success-card { text-align: center; padding: 30px 22px; }
+  @media (min-width: 600px) { .success-card { padding: 40px 32px; } }
   .success-icon {
     width: 48px; height: 48px; border-radius: 50%; background: var(--brand-soft);
     display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
@@ -156,7 +152,7 @@
   .link-box {
     background: var(--paper); border-radius: 12px; padding: 18px 18px; margin-bottom: 10px; text-align: left;
   }
-  .link-box .llabel { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 8px; font-weight: 600; }
+  .link-box .llabel { font-size: 13px; color: var(--ink-soft); margin-bottom: 10px; font-weight: 700; }
   .link-inner {
     background: #fff; border: 1px dashed #B9C2BF; border-radius: 8px; padding: 12px 12px;
     display: flex; justify-content: space-between; align-items: center; gap: 10px;
@@ -165,19 +161,19 @@
     .link-inner { flex-direction: column; align-items: stretch; }
   }
   .link-inner span {
-    font-family: var(--font); font-size: 12.5px; word-break: break-all; color: var(--ink);
+    font-family: var(--font); font-size: 13px; word-break: break-all; color: var(--ink); line-height: 1.5;
   }
   .btn-copy {
-    font-family: var(--font); font-size: 12px; font-weight: 600;
-    background: var(--color-secondary); color: #fff; border: none; border-radius: 6px;
-    padding: 8px 14px; cursor: pointer; white-space: nowrap;
+    font-family: var(--font); font-size: 13px; font-weight: 700;
+    background: var(--color-secondary); color: #fff; border: none; border-radius: 8px;
+    padding: 11px 16px; cursor: pointer; white-space: nowrap; min-height: 44px;
   }
   .btn-copy.copied { background: var(--brand-soft); color: var(--color-secondary); }
-  .success-note { font-size: 11.5px; color: var(--muted); margin-bottom: 24px; }
+  .success-note { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
   .btn-full {
-    width: 100%; font-family: var(--font); font-size: 14.5px; font-weight: 600;
-    background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(235,96,37,0.28);
-    padding: 13px 16px; cursor: pointer;
+    width: 100%; font-family: var(--font); font-size: 16px; font-weight: 700;
+    background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(235,96,37,0.30);
+    padding: 16px 16px; cursor: pointer; min-height: 52px;
   }
 
   .hidden { display: none !important; }
