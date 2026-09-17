@@ -154,6 +154,37 @@
   .suppressed-msg { font-size: 11.5px; color: var(--muted); line-height: 1.4; }
 
   /* Survey link card */
+  /* Instrument selector */
+  .instrument-card {
+    background: var(--glass-fill); border: none; border-radius: var(--radius-lg);
+    box-shadow: var(--card-shadow); padding: 18px 22px; margin-bottom: 20px;
+    border-top: 3px solid var(--color-primary);
+  }
+  .instrument-title { font-size: 13px; font-weight: 700; color: var(--color-dark-blue); margin-bottom: 4px; }
+  .instrument-subtitle { font-size: 11.5px; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
+  .instrument-options { display: flex; flex-direction: column; gap: 8px; }
+  .instrument-option {
+    display: flex; align-items: flex-start; gap: 12px;
+    border: 1.5px solid var(--color-border); border-radius: 10px;
+    padding: 12px 14px; cursor: pointer; background: #fff;
+    transition: border-color .15s, background .15s;
+  }
+  .instrument-option.selected { border-color: var(--color-primary); background: var(--color-tint-blue); }
+  .instrument-option input[type="radio"] { margin-top: 2px; accent-color: var(--color-primary); flex-shrink: 0; }
+  .instrument-option-body { flex: 1; }
+  .instrument-option-name { font-size: 13px; font-weight: 700; color: var(--color-dark-blue); margin-bottom: 2px; }
+  .instrument-option-desc { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+  .instrument-option-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px;
+    background: var(--color-secondary); color: #fff; margin-left: 6px; vertical-align: middle;
+  }
+  .instrument-save-btn {
+    font-family: var(--font); font-size: 13px; font-weight: 700;
+    background: var(--color-primary); color: #fff; border: none; border-radius: 8px;
+    padding: 10px 20px; cursor: pointer; margin-top: 12px;
+  }
+  .instrument-saved { font-size: 12px; color: var(--color-success-text); font-weight: 600; margin-left: 10px; display: none; }
+
   .survey-link-card {
     background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow);
     padding: 16px 18px; margin-bottom: 20px;
@@ -448,6 +479,17 @@
   </div>
 
   <div>
+    <!-- Instrument selector — shown before survey link is deployed -->
+    <div class="instrument-card" id="instrumentCard" style="display:none">
+      <div class="instrument-title" id="instrumentTitle"></div>
+      <div class="instrument-subtitle" id="instrumentSubtitle"></div>
+      <div class="instrument-options" id="instrumentOptions"></div>
+      <div style="display:flex;align-items:center;margin-top:4px">
+        <button class="instrument-save-btn" id="instrumentSaveBtn"></button>
+        <span class="instrument-saved" id="instrumentSaved"></span>
+      </div>
+    </div>
+
     <!-- Feature 5: Worker communication panel -->
     <div class="worker-comms-card" id="workerCommsCard" style="display:none">
       <div class="worker-comms-header">
@@ -511,6 +553,14 @@ const DICT = {
     surveyLinkLabel: "Link da pesquisa — compartilhe com seus funcionários",
     copyLinkBtn: "Copiar link",
     copiedLinkBtn: "Copiado!",
+    instrumentTitle: "Escolha o instrumento de avaliação",
+    instrumentSubtitle: "Selecione a ferramenta psicossocial antes de enviar o link aos colaboradores. Esta escolha determina as perguntas e a metodologia citada no laudo.",
+    instrumentSaveBtn: "Confirmar e liberar pesquisa",
+    instrumentSavedMsg: "✓ Instrumento confirmado",
+    instruments: [
+      { code: "hse_it", name: "HSE Management Standards", badge: "Recomendado", desc: "35 itens · 7 domínios · ~8 minutos. Usado por SAFIO e Em Inventários. Os módulos de treinamento 2BeLive foram desenvolvidos para este instrumento. Fonte: UK Health and Safety Executive (Crown Copyright)." },
+      { code: "copsoq_ii", name: "COPSOQ II-Br", badge: null, desc: "31 itens · 11 dimensões · ~10 minutos. Validado para o português brasileiro (Rev. Saúde Pública, 2021; DOI: 10.11606/s1518-8787.2021055003123). Padrão-ouro internacional — recomendado quando seu provedor SST exige instrumento com validação publicada em periódico científico." },
+    ],
   },
   en: {
     eyebrow: "Psychosocial Diagnostic · NR-1",
@@ -552,6 +602,14 @@ const DICT = {
     surveyLinkLabel: "Survey link — share this with your employees",
     copyLinkBtn: "Copy link",
     copiedLinkBtn: "Copied!",
+    instrumentTitle: "Choose your assessment instrument",
+    instrumentSubtitle: "Select the psychosocial risk tool before deploying the survey link. This determines the questions employees see and the methodology cited in the signed report.",
+    instrumentSaveBtn: "Confirm and activate survey",
+    instrumentSavedMsg: "✓ Instrument confirmed",
+    instruments: [
+      { code: "hse_it", name: "HSE Management Standards", badge: "Recommended", desc: "35 items · 7 domains · ~8 minutes. Used by SAFIO and Em Inventários. All 2BeLive training modules are built for this instrument. Source: UK Health and Safety Executive (Crown Copyright, freely available)." },
+      { code: "copsoq_ii", name: "COPSOQ II-Br", badge: null, desc: "31 items · 11 dimensions · ~10 minutes. Validated for Brazilian Portuguese (Rev Saúde Pública, 2021; DOI: 10.11606/s1518-8787.2021055003123). International gold standard — recommended when your SST provider requires an instrument with a peer-reviewed Brazilian validation study." },
+    ],
   },
 };
 
@@ -1080,6 +1138,73 @@ ${suppressedNote}
   };
 }
 
+// ── Instrument selector ──────────────────────────────────────────────────────
+let selectedInstrument = "hse_it"; // default
+
+function renderInstrumentSelector() {
+  const card = document.getElementById("instrumentCard");
+  if (!card || !cycleInfo) { if (card) card.style.display = "none"; return; }
+
+  // Only show if survey hasn't started (no completions yet)
+  if (cycleInfo.completedCount > 0) {
+    card.style.display = "none";
+    return;
+  }
+  card.style.display = "";
+
+  document.getElementById("instrumentTitle").textContent = t().instrumentTitle;
+  document.getElementById("instrumentSubtitle").textContent = t().instrumentSubtitle;
+  document.getElementById("instrumentSaveBtn").textContent = t().instrumentSaveBtn;
+
+  const opts = t().instruments;
+  const current = cycleInfo.instrumentCode || "hse_it";
+  selectedInstrument = current;
+
+  document.getElementById("instrumentOptions").innerHTML = opts.map(o => `
+    <label class="instrument-option ${current === o.code ? "selected" : ""}">
+      <input type="radio" name="instrument" value="${o.code}" ${current === o.code ? "checked" : ""}
+        onchange="selectInstrument('${o.code}')">
+      <div class="instrument-option-body">
+        <div class="instrument-option-name">${o.name}${o.badge
+          ? `<span class="instrument-option-badge">${o.badge}</span>` : ""}</div>
+        <div class="instrument-option-desc">${o.desc}</div>
+      </div>
+    </label>`).join("");
+}
+
+function selectInstrument(code) {
+  selectedInstrument = code;
+  document.querySelectorAll(".instrument-option").forEach(el => {
+    el.classList.toggle("selected", el.querySelector("input").value === code);
+  });
+}
+
+async function saveInstrument() {
+  const btn = document.getElementById("instrumentSaveBtn");
+  const saved = document.getElementById("instrumentSaved");
+  btn.disabled = true;
+  try {
+    const res = await apiFetch(
+      `/companies/${companyId}/cycles/${cycleId}/instrument`,
+      { method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ instrumentCode: selectedInstrument }) }
+    );
+    if (res.ok) {
+      cycleInfo.instrumentCode = selectedInstrument;
+      saved.textContent = t().instrumentSavedMsg;
+      saved.style.display = "inline";
+      setTimeout(() => { saved.style.display = "none"; }, 3000);
+      // Hide selector and show survey link
+      document.getElementById("instrumentCard").style.display = "none";
+      renderHeaderAndReward();
+    }
+  } catch (e) { console.error("instrument_save_error", e); }
+  btn.disabled = false;
+}
+
+document.getElementById("instrumentSaveBtn")?.addEventListener("click", saveInstrument);
+
 function renderHeaderAndReward() {
   if (cycleInfo) {
     // Use real company name from API, not the hardcoded DICT fallback
@@ -1124,6 +1249,7 @@ function renderAll() {
   renderFilters();
   renderActions();
   renderWorkerComms();
+  renderInstrumentSelector();
   // Refresh survey link label and copy button text on lang switch
   document.getElementById("surveyLinkLabel").textContent = t().surveyLinkLabel;
   document.getElementById("copySurveyLinkBtn").textContent = t().copyLinkBtn;
