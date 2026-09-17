@@ -305,7 +305,7 @@
   <div class="header">
     <div>
       <div class="eyebrow" data-k="eyebrow"></div>
-      <h1 class="company-name" data-k="companyName"></h1>
+      <h1 class="company-name" id="companyNameEl"></h1>
       <div class="cycle-label" id="cycleLabel"></div>
     </div>
     <div class="header-right">
@@ -670,6 +670,9 @@ function renderActions() {
 
 function renderHeaderAndReward() {
   if (cycleInfo) {
+    // Use real company name from API, not the hardcoded DICT fallback
+    const nameEl = document.getElementById("companyNameEl") || document.querySelector(".company-name");
+    if (nameEl && cycleInfo.companyName) nameEl.textContent = cycleInfo.companyName;
     document.querySelector(".rate-value").textContent = `${Math.round(cycleInfo.responseRate * 100)}%`;
     document.querySelector(".rate-bar-fill").style.width = `${Math.min(cycleInfo.responseRate * 100, 100)}%`;
     document.getElementById("seatsCompleted").textContent =
