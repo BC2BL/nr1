@@ -88,7 +88,7 @@ router.get("/survey/:token/questions", async (req, res) => {
   if (!cycle) return res.status(404).json({ error: "survey_not_found" });
 
   const result = await pool.query(
-    `SELECT sq.id, sq.text_pt, sq.scale, sq.is_reverse_scored, sq.display_order, sd.code AS domain_code
+    `SELECT sq.id, sq.text_pt, sq.text_en, sq.scale, sq.is_reverse_scored, sq.display_order, sd.code AS domain_code
      FROM survey_question sq
      JOIN survey_domain sd ON sd.id = sq.domain_id
      WHERE sq.version = $1
