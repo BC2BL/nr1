@@ -135,7 +135,7 @@
   .risk-badge.amber { color: #92400e; background: #FEF3C7; }
   .risk-badge.red { color: var(--red); background: var(--red-soft); }
 
-  .gauge-row { display: flex; align-items: center; gap: 12px; }
+  .gauge-row { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
   .gauge-wrap { position: relative; width: 64px; height: 64px; flex-shrink: 0; }
   .gauge-value {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
@@ -219,13 +219,13 @@
     background: var(--color-tint-blue); border-radius: 6px; padding: 3px 8px;
     margin-top: 4px; white-space: nowrap;
   }
-  .training-tag-icon { font-size: 11px; }
 
   .action-legend {
     font-size: 11.5px; color: var(--color-text-muted); margin-bottom: 10px;
     line-height: 1.6; padding: 0 2px;
   }
-  .action-legend strong { color: var(--color-primary); } backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow); padding: 4px 16px; }
+  .action-legend strong { color: var(--color-primary); }
+  .action-list { background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow); padding: 4px 16px; }
   .empty-state { padding: 24px 4px; text-align: center; color: var(--muted); font-size: 13px; }
 
   .action-row {
@@ -384,7 +384,7 @@ const DICT = {
     statusLabels: { all: "Todas", open: "A iniciar", in_progress: "Em andamento", completed: "Concluída" },
     deliveryLabels: { on_platform_training: "Treinamento 2BeLive", off_platform: "Ação da empresa" },
     completedWord: "concluído",
-    actionPlanLegend: "📚 <strong>Treinamento 2BeLive</strong> — clique no título para ver o módulo recomendado e atribuí-lo à equipe. &nbsp;🏢 <strong>Ação da empresa</strong> — medida a ser implementada internamente pelo gestor.",
+    actionPlanLegend: "<strong>Treinamento 2BeLive</strong> — clique no título para ver o módulo recomendado e atribuí-lo à equipe. &nbsp;&nbsp;<strong>Ação da empresa</strong> — medida a ser implementada internamente pelo gestor.",
     actions: {
       1: "Treinamento: priorização e gestão de carga de trabalho",
       2: "Revisar distribuição de tarefas nos picos sazonais",
@@ -425,7 +425,7 @@ const DICT = {
     statusLabels: { all: "All", open: "Not started", in_progress: "In progress", completed: "Done" },
     deliveryLabels: { on_platform_training: "2BeLive training", off_platform: "Company action" },
     completedWord: "complete",
-    actionPlanLegend: "📚 <strong>2BeLive training</strong> — click the title to see the recommended module and assign it to your team. &nbsp;🏢 <strong>Company action</strong> — an internal measure to be implemented by the manager.",
+    actionPlanLegend: "<strong>2BeLive training</strong> — click the title to see the recommended module and assign it to your team. &nbsp;&nbsp;<strong>Company action</strong> — an internal measure to be implemented by the manager.",
     actions: {
       1: "Training: workload prioritization and management",
       2: "Review task distribution during seasonal peaks",
@@ -482,6 +482,25 @@ const TRAINING_MODULES = {
     change:        "Communication & Organisational Change Management",
   },
 };
+
+
+const ACTION_TITLE_EN = {
+  "Revisar prazos e cargas de trabalho com a equipe": "Review deadlines and workload with the team",
+  "Revisar distribuição de tarefas nos picos sazonais": "Review task distribution during peak periods",
+  "Treinamento: priorização e gestão de carga de trabalho": "Training: workload prioritisation and management",
+  "Treinamento: delegação e autonomia da equipe": "Training: team delegation and autonomy",
+  "Ampliar autonomia decisória em reuniões de equipe": "Expand decision-making autonomy in team meetings",
+  "Treinamento: feedback e apoio a equipes": "Training: feedback and team support",
+  "Treinamento: prevenção de assédio e conflitos no trabalho": "Training: harassment prevention and conflict at work",
+  "Revisar canal de denúncias e políticas de convivência": "Review the reporting channel and conduct policies",
+  "Treinamento: clareza de papéis e responsabilidades": "Training: role clarity and responsibilities",
+  "Treinamento: comunicação em períodos de mudança organizacional": "Training: communication during organisational change",
+  "Criar canal de perguntas sobre mudanças em andamento": "Create a Q&A channel for ongoing changes",
+};
+function getActionTitle(titlePt) {
+  if (lang === "en" && ACTION_TITLE_EN[titlePt]) return ACTION_TITLE_EN[titlePt];
+  return titlePt;
+}
 
 function getTrainingModule(domainCode, currentLang) {
   const modules = TRAINING_MODULES[currentLang] || TRAINING_MODULES.pt;
@@ -631,9 +650,9 @@ function renderActions() {
         <div class="action-row-top">
           <span class="action-dot" style="background:${dotColor}; margin-top:5px;"></span>
           <div style="flex:1; min-width:0;">
-            <div class="action-title">${a.title}</div>
+            <div class="action-title">${getActionTitle(a.title)}</div>
             <div class="action-meta">${t().domains[a.domain_code] || a.domain_code} · ${t().deliveryLabels[a.delivery_type] || a.delivery_type}</div>
-          ${a.delivery_type === 'on_platform_training' ? `<div class="training-tag"><span class="training-tag-icon">📚</span>${getTrainingModule(a.domain_code, lang)}</div>` : ''}
+          ${a.delivery_type === 'on_platform_training' ? `<div class="training-tag">${getTrainingModule(a.domain_code, lang)}</div>` : ''}
           </div>
           <span class="desktop-only-owner action-owner">${ownerLabel}</span>
           <span class="desktop-only-completion"></span>
