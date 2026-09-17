@@ -205,6 +205,22 @@
     </div>
   </div>
 
+  <!-- LOADING -->
+  <div id="loadingScreen" class="card complete-card">
+    <div style="margin: 0 auto 20px; width: 44px; height: 44px;">
+      <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="22" cy="22" r="18" fill="none" stroke="#D9DEE8" stroke-width="4"/>
+        <circle cx="22" cy="22" r="18" fill="none" stroke="#eb6025" stroke-width="4"
+          stroke-dasharray="30 84" stroke-linecap="round" transform="rotate(-90 22 22)">
+          <animateTransform attributeName="transform" type="rotate"
+            from="0 22 22" to="360 22 22" dur="1s" repeatCount="indefinite"/>
+        </circle>
+      </svg>
+    </div>
+    <h1 class="compact" id="loadingTitle" style="font-size:18px;"></h1>
+    <p class="body" id="loadingBody" style="padding: 0 8px; font-size:14px;"></p>
+  </div>
+
   <!-- LANDING: fresh -->
   <div id="landingFresh" class="card">
     <div class="eyebrow" data-k="eyebrow"></div>
@@ -323,6 +339,10 @@ const DICT = {
     companyName: "Comércio Alfa Ltda.",
     invalidTitle: "Link inválido",
     invalidBody: "Este link de pesquisa não é válido ou expirou. Verifique com o seu RH ou administrador da empresa para receber o link correto.",
+    loadingTitle: "Carregando sua pesquisa…",
+    loadingBody: "",
+    loadingSlowTitle: "Aguarde um momento",
+    loadingSlowBody: "O servidor está inicializando. Isso pode levar até 60 segundos na primeira vez. Por favor, não feche esta aba.",
     lgpdFooter: "Suas respostas são anônimas e protegidas pela Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018). Nenhum dado pessoal identificável é coletado nesta pesquisa.",
     demoQuestions: [
       { id: "P1", text_pt: "Sei exatamente o que se espera de mim no meu trabalho.", scale: "agree" },
@@ -395,6 +415,10 @@ const DICT = {
     companyName: "Comércio Alfa Ltda.",
     invalidTitle: "Invalid survey link",
     invalidBody: "This survey link is not valid or has expired. Please check with your HR department or company administrator to get the correct link.",
+    loadingTitle: "Loading your survey…",
+    loadingBody: "",
+    loadingSlowTitle: "Just a moment",
+    loadingSlowBody: "The server is starting up. This can take up to 60 seconds the first time. Please don't close this tab.",
     lgpdFooter: "Your responses are anonymous and protected under Brazil's General Data Protection Law (LGPD — Lei nº 13.709/2018). No personally identifiable data is collected in this survey.",
     demoQuestions: [
       { id: "P1", text_pt: "I know exactly what's expected of me at work.", scale: "agree" },
@@ -466,15 +490,23 @@ function total() { return questions.length; }
 // translated content are added server-side.
 
 async function initSurvey() {
-  // No token in URL — show invalid link screen, not demo mode.
-  // Demo mode is only accessible internally (e.g. Claude artifact viewer)
-  // via a hardcoded token path that never reaches production users.
   const isDemo = inviteToken === "DEMO_TOKEN_NOT_SET";
 
   if (isDemo) {
     showScreen("invalid");
     return;
   }
+
+  // Show loading immediately — never leave a blank screen
+  showScreen("loading");
+
+  // After 8 seconds upgrade to a "server is waking up" message
+  const slowTimer = setTimeout(() => {
+    const titleEl = document.getElementById("loadingTitle");
+    const bodyEl = document.getElementById("loadingBody");
+    if (titleEl) titleEl.textContent = t().loadingSlowTitle;
+    if (bodyEl) bodyEl.textContent = t().loadingSlowBody;
+  }, 8000);
 
   try {
     const sessionRes = await fetch(`${API_BASE_URL}/survey/${inviteToken}/session`, {
@@ -483,13 +515,14 @@ async function initSurvey() {
       body: JSON.stringify({ existingToken: existingSessionToken }),
     });
 
+    clearTimeout(slowTimer);
+
     if (sessionRes.status === 409) {
       rewardCode = null;
       showScreen("complete");
       return;
     }
 
-    // 404 means the token doesn't match any real survey cycle
     if (sessionRes.status === 404) {
       showScreen("invalid");
       return;
@@ -512,6 +545,7 @@ async function initSurvey() {
 
     showScreen("landing");
   } catch (err) {
+    clearTimeout(slowTimer);
     console.warn("Survey load failed:", err.message);
     showScreen("invalid");
   }
@@ -583,10 +617,15 @@ function renderQuestion() {
 }
 
 function showScreen(name) {
-  ["landingFresh", "landingResume", "surveyScreen", "completeScreen", "invalidScreen"].forEach(id => {
-    document.getElementById(id).classList.add("hidden");
+  ["loadingScreen", "landingFresh", "landingResume", "surveyScreen", "completeScreen", "invalidScreen"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add("hidden");
   });
-  if (name === "invalid") {
+  if (name === "loading") {
+    document.getElementById("loadingTitle").textContent = t().loadingTitle;
+    document.getElementById("loadingBody").textContent = t().loadingBody;
+    document.getElementById("loadingScreen").classList.remove("hidden");
+  } else if (name === "invalid") {
     document.getElementById("invalidTitle").textContent = t().invalidTitle;
     document.getElementById("invalidBody").textContent = t().invalidBody;
     document.getElementById("invalidScreen").classList.remove("hidden");
@@ -633,6 +672,8 @@ document.querySelector(".btn-close").addEventListener("click", () => {
     btn.disabled = true;
   }, 100);
 });
+
+document.getElementById("startBtn").addEventListener("click", () => {
   current = 0;
   showScreen("survey");
 });
@@ -720,4 +761,3 @@ initSurvey();
 </script>
 </body>
 </html>
-
