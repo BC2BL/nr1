@@ -16,10 +16,12 @@ router.get("/companies/:companyId/cycles/latest", requireAdmin, async (req, res)
 
   try {
     const result = await pool.query(
-      `SELECT id, title, status, target_seat_count, invite_url_token, opens_at, closes_at
-       FROM survey_cycle
-       WHERE company_id = $1
-       ORDER BY created_at DESC
+      `SELECT sc.id, sc.title, sc.status, sc.target_seat_count, sc.invite_url_token,
+              sc.opens_at, sc.closes_at, c.name AS company_name
+       FROM survey_cycle sc
+       JOIN company c ON c.id = sc.company_id
+       WHERE sc.company_id = $1
+       ORDER BY sc.created_at DESC
        LIMIT 1`,
       [companyId]
     );
@@ -37,6 +39,7 @@ router.get("/companies/:companyId/cycles/latest", requireAdmin, async (req, res)
       id: cycle.id,
       title: cycle.title,
       status: cycle.status,
+      companyName: cycle.company_name,
       targetSeatCount: cycle.target_seat_count,
       completedCount: completedResult.rows[0].completed,
       responseRate: cycle.target_seat_count > 0
@@ -134,4 +137,3 @@ router.get("/companies/:companyId/cycles/:cycleId/reward-pool/status", requireAd
 });
 
 module.exports = router;
-
