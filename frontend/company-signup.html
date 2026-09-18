@@ -118,6 +118,31 @@
   }
   input[type="range"] { width: 100%; accent-color: var(--color-secondary); margin-top: 4px; }
 
+  /* ── Instrument selector (Step 3) ─────────────── */
+  .instrument-option {
+    display: flex; align-items: flex-start; gap: 12px;
+    border: 1.5px solid var(--color-border); border-radius: 10px;
+    padding: 14px 16px; cursor: pointer; background: #fff; margin-bottom: 10px;
+    transition: border-color .15s, background .15s;
+  }
+  .instrument-option.selected {
+    border-color: var(--color-primary); background: var(--color-tint-blue);
+  }
+  .instrument-option input[type="radio"] {
+    margin-top: 3px; accent-color: var(--color-primary); flex-shrink: 0;
+  }
+  .instrument-option-body { flex: 1; }
+  .instrument-option-name {
+    font-size: 14px; font-weight: 700; color: var(--color-dark-blue); margin-bottom: 4px;
+  }
+  .instrument-option-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px;
+    background: var(--color-secondary); color: #fff; margin-left: 6px; vertical-align: middle;
+  }
+  .instrument-option-desc { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+  .instrument-err { font-size: 13px; color: var(--red); font-weight: 600; margin-top: 4px; }
+
+  /* ── Review step ─────────────── */
   .review-row {
     display: flex; justify-content: space-between; align-items: center;
     padding: 12px 0; border-bottom: 1px solid var(--line-soft);
@@ -143,12 +168,33 @@
   }
   .btn-primary:hover { opacity: 0.95; }
 
+  /* ── Success screen ─────────────── */
   .success-card { text-align: center; padding: 30px 22px; }
   @media (min-width: 600px) { .success-card { padding: 40px 32px; } }
   .success-icon {
     width: 48px; height: 48px; border-radius: 50%; background: var(--brand-soft);
     display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
   }
+
+  /* instrument locked banner on success screen */
+  .instrument-locked-banner {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--color-tint-blue); border: 1.5px solid #C7D4E9;
+    border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; text-align: left;
+  }
+  .instrument-locked-icon {
+    font-size: 18px; flex-shrink: 0;
+  }
+  .instrument-locked-label {
+    font-size: 11.5px; color: var(--muted); font-weight: 600; margin-bottom: 2px;
+  }
+  .instrument-locked-name {
+    font-size: 14px; font-weight: 700; color: var(--color-dark-blue);
+  }
+  .instrument-locked-note {
+    font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.4;
+  }
+
   .link-box {
     background: var(--paper); border-radius: 12px; padding: 18px 18px; margin-bottom: 10px; text-align: left;
   }
@@ -245,10 +291,18 @@
         <input type="range" id="seatsRange" min="10" max="3500" step="10" value="100" />
       </div>
 
-      <!-- Step 3: Review -->
+      <!-- Step 3: Instrument (NEW) -->
       <div class="step-panel hidden" data-step="3">
         <h1 data-k="s4Title"></h1>
         <p class="body" data-k="s4Body"></p>
+        <div id="instrumentOptions"></div>
+        <div class="instrument-err hidden" id="err-instrument"></div>
+      </div>
+
+      <!-- Step 4: Review -->
+      <div class="step-panel hidden" data-step="4">
+        <h1 data-k="s5Title"></h1>
+        <p class="body" data-k="s5Body"></p>
         <div class="review-row">
           <div><div class="rlabel" data-k="reviewCompany"></div><div class="rvalue" id="rv-company">—</div></div>
           <button data-goto="0" data-k="editLink"></button>
@@ -260,6 +314,10 @@
         <div class="review-row">
           <div><div class="rlabel" data-k="reviewSeats"></div><div class="rvalue" id="rv-seats">—</div></div>
           <button data-goto="2" data-k="editLink"></button>
+        </div>
+        <div class="review-row">
+          <div><div class="rlabel" data-k="reviewInstrument"></div><div class="rvalue" id="rv-instrument">—</div></div>
+          <button data-goto="3" data-k="editLink"></button>
         </div>
       </div>
     </div>
@@ -279,6 +337,17 @@
     </div>
     <h1 data-k="successTitle"></h1>
     <p class="body" data-k="successBody"></p>
+
+    <!-- Locked instrument banner -->
+    <div class="instrument-locked-banner" id="lockedBanner">
+      <div class="instrument-locked-icon">🔒</div>
+      <div>
+        <div class="instrument-locked-label" data-k="lockedLabel"></div>
+        <div class="instrument-locked-name" id="lockedInstrumentName"></div>
+        <div class="instrument-locked-note" data-k="lockedNote"></div>
+      </div>
+    </div>
+
     <div class="link-box">
       <div class="llabel" data-k="linkLabel"></div>
       <div class="link-inner">
@@ -287,15 +356,32 @@
       </div>
     </div>
     <div class="success-note" data-k="successNote"></div>
-    <button class="btn-full" data-k="goDashboard"></button>
+    <button class="btn-full" id="goDashboardBtn" data-k="goDashboard"></button>
   </div>
 </div>
 
 <script>
+const INSTRUMENTS = [
+  {
+    code: "hse_it",
+    pt: { name: "HSE Management Standards", badge: "Recomendado",
+          desc: "35 itens · 7 domínios · ~8 minutos. Padrão internacional validado para o Brasil. Os módulos de treinamento 2BeLive foram desenvolvidos para este instrumento. Fonte: UK Health and Safety Executive (Crown Copyright)." },
+    en: { name: "HSE Management Standards", badge: "Recommended",
+          desc: "35 items · 7 domains · ~8 minutes. Internationally validated standard. All 2BeLive training modules are built for this instrument. Source: UK Health and Safety Executive (Crown Copyright)." },
+  },
+  {
+    code: "copsoq_ii",
+    pt: { name: "COPSOQ II-Br", badge: null,
+          desc: "31 itens · 11 dimensões · ~10 minutos. Validado para o português brasileiro (Rev. Saúde Pública, 2021; DOI: 10.11606/s1518-8787.2021055003123). Recomendado quando seu provedor SST exige validação publicada em periódico científico." },
+    en: { name: "COPSOQ II-Br", badge: null,
+          desc: "31 items · 11 dimensions · ~10 minutes. Validated for Brazilian Portuguese (Rev Saúde Pública, 2021; DOI: 10.11606/s1518-8787.2021055003123). Recommended when your SST provider requires a peer-reviewed validation study." },
+  },
+];
+
 const DICT = {
   pt: {
     eyebrow: "Configuração da Conta",
-    steps: ["Empresa", "Administrador", "Vagas", "Revisão"],
+    steps: ["Empresa", "Administrador", "Vagas", "Instrumento", "Revisão"],
     stepLabel: (n, total) => `Etapa ${n} de ${total}`,
     s1Title: "Sobre a sua empresa",
     s1Body: "Vamos usar essas informações para configurar o painel da sua empresa.",
@@ -322,21 +408,27 @@ const DICT = {
       if (n <= 3000) return "Recomendado: amostra mínima de 700 respondentes.";
       return "Recomendado: amostra mínima de 800 respondentes.";
     },
-    s4Title: "Revise antes de criar",
-    s4Body: "Confira os dados abaixo. Você poderá editar tudo isso depois no painel.",
-    reviewCompany: "Empresa", reviewAdmin: "Administrador", reviewSeats: "Vagas", editLink: "Editar",
+    s4Title: "Escolha o instrumento de avaliação",
+    s4Body: "Esta escolha determina as perguntas da pesquisa e a metodologia citada no laudo técnico. Não é possível alterar após o envio do link.",
+    s5Title: "Revise antes de criar",
+    s5Body: "Confira os dados abaixo. Você poderá editar tudo isso depois no painel.",
+    reviewCompany: "Empresa", reviewAdmin: "Administrador",
+    reviewSeats: "Vagas", reviewInstrument: "Instrumento", editLink: "Editar",
     backBtn: "Voltar", nextBtn: "Continuar", createBtn: "Criar conta",
     successTitle: "Sua conta está pronta",
     successBody: "Compartilhe o link abaixo com seus funcionários para que eles comecem a pesquisa.",
+    lockedLabel: "Instrumento selecionado",
+    lockedNote: "Não pode ser alterado depois que a pesquisa for iniciada.",
     linkLabel: "Link da pesquisa", copyBtn: "Copiar link", copiedBtn: "Copiado!",
     goDashboard: "Ir para o painel",
     successNote: "Qualquer pessoa com este link pode responder — não é necessário criar conta.",
     required: "Campo obrigatório", invalidEmail: "Digite um e-mail válido",
+    instrumentRequired: "Selecione um instrumento para continuar.",
     slugFallback: "sua-empresa",
   },
   en: {
     eyebrow: "Account Setup",
-    steps: ["Company", "Admin", "Seats", "Review"],
+    steps: ["Company", "Admin", "Seats", "Instrument", "Review"],
     stepLabel: (n, total) => `Step ${n} of ${total}`,
     s1Title: "About your company",
     s1Body: "We'll use this to set up your company's dashboard.",
@@ -363,30 +455,47 @@ const DICT = {
       if (n <= 3000) return "Recommended: minimum sample of 700 respondents.";
       return "Recommended: minimum sample of 800 respondents.";
     },
-    s4Title: "Review before creating",
-    s4Body: "Check the details below. You'll be able to edit all of this later from the dashboard.",
-    reviewCompany: "Company", reviewAdmin: "Admin", reviewSeats: "Seats", editLink: "Edit",
+    s4Title: "Choose your assessment instrument",
+    s4Body: "This determines the survey questions and the methodology cited in the signed report. Cannot be changed after the survey link is shared.",
+    s5Title: "Review before creating",
+    s5Body: "Check the details below. You'll be able to edit all of this later from the dashboard.",
+    reviewCompany: "Company", reviewAdmin: "Admin",
+    reviewSeats: "Seats", reviewInstrument: "Instrument", editLink: "Edit",
     backBtn: "Back", nextBtn: "Continue", createBtn: "Create account",
     successTitle: "Your account is ready",
     successBody: "Share the link below with your employees so they can start the survey.",
+    lockedLabel: "Selected instrument",
+    lockedNote: "Cannot be changed once the survey has started.",
     linkLabel: "Survey link", copyBtn: "Copy link", copiedBtn: "Copied!",
     goDashboard: "Go to dashboard",
     successNote: "Anyone with this link can respond — no account needed on their end.",
     required: "This field is required", invalidEmail: "Enter a valid email",
+    instrumentRequired: "Please select an instrument to continue.",
     slugFallback: "your-company",
   },
 };
 
 let lang = "pt";
 let step = 0;
-const totalSteps = 4;
-const form = { companyName: "", cnpj: "", adminName: "", adminEmail: "", password: "", seats: 100 };
+const TOTAL_STEPS = 5;
+const form = {
+  companyName: "", cnpj: "",
+  adminName: "", adminEmail: "", password: "",
+  seats: 100,
+  instrumentCode: "hse_it",   // default — always sent to API
+};
 
-// Point this at your deployed backend once hosted (see README.md in the
-// backend package). Defaults to localhost for local testing.
+// Point this at your deployed backend.
 const API_BASE_URL = "https://nr1-api.onrender.com/api/v1";
 
 function t() { return DICT[lang]; }
+
+function instrumentLabel(code) {
+  const found = INSTRUMENTS.find(i => i.code === code);
+  return found ? found[lang].name : code;
+}
+
+// ── Static text rendering ────────────────────────────────────────────────────
 
 function applyStaticText() {
   document.getElementById("eyebrow").textContent = t().eyebrow;
@@ -398,19 +507,21 @@ function applyStaticText() {
   document.querySelectorAll("[data-placeholder-k]").forEach(el => {
     el.placeholder = t()[el.getAttribute("data-placeholder-k")];
   });
-  document.getElementById("nextBtn").textContent = (step === totalSteps - 1 ? t().createBtn : t().nextBtn) + " →";
+  const isLast = step === TOTAL_STEPS - 1;
+  document.getElementById("nextBtn").textContent = (isLast ? t().createBtn : t().nextBtn) + " →";
   document.getElementById("backBtn").textContent = "← " + t().backBtn;
   document.getElementById("copyBtn").textContent = t().copyBtn;
   renderStepDots();
   renderStepLabel();
   renderSeatHint();
+  renderInstrumentOptions();
   renderReview();
 }
 
 function renderStepDots() {
   const el = document.getElementById("stepDots");
   el.innerHTML = "";
-  for (let i = 0; i < totalSteps; i++) {
+  for (let i = 0; i < TOTAL_STEPS; i++) {
     const d = document.createElement("div");
     d.className = "dot" + (i <= step ? " done" : "");
     el.appendChild(d);
@@ -419,11 +530,38 @@ function renderStepDots() {
 
 function renderStepLabel() {
   document.getElementById("stepLabel").textContent =
-    `${t().stepLabel(step + 1, totalSteps)} · ${t().steps[step]}`;
+    `${t().stepLabel(step + 1, TOTAL_STEPS)} · ${t().steps[step]}`;
 }
 
 function renderSeatHint() {
   document.getElementById("seatHint").textContent = t().seatHint(form.seats);
+}
+
+function renderInstrumentOptions() {
+  const container = document.getElementById("instrumentOptions");
+  if (!container) return;
+  container.innerHTML = INSTRUMENTS.map(ins => {
+    const info = ins[lang];
+    const sel = form.instrumentCode === ins.code;
+    return `
+      <label class="instrument-option${sel ? " selected" : ""}" data-code="${ins.code}">
+        <input type="radio" name="instrument" value="${ins.code}" ${sel ? "checked" : ""}
+          onchange="selectInstrument('${ins.code}')">
+        <div class="instrument-option-body">
+          <div class="instrument-option-name">${info.name}${info.badge
+            ? `<span class="instrument-option-badge">${info.badge}</span>` : ""}</div>
+          <div class="instrument-option-desc">${info.desc}</div>
+        </div>
+      </label>`;
+  }).join("");
+}
+
+function selectInstrument(code) {
+  form.instrumentCode = code;
+  document.querySelectorAll(".instrument-option").forEach(el => {
+    el.classList.toggle("selected", el.getAttribute("data-code") === code);
+  });
+  document.getElementById("err-instrument").classList.add("hidden");
 }
 
 function renderReview() {
@@ -431,11 +569,13 @@ function renderReview() {
   document.getElementById("rv-admin").textContent =
     `${form.adminName || "—"} · ${form.adminEmail || "—"}`;
   document.getElementById("rv-seats").textContent = String(form.seats);
+  document.getElementById("rv-instrument").textContent = instrumentLabel(form.instrumentCode);
 }
 
+// ── Step navigation ──────────────────────────────────────────────────────────
+
 function showStep(n) {
-  // Snapshot current input values into form before switching away from a step,
-  // in case the input event didn't fire (e.g. autofill, paste without typing).
+  // Snapshot current input values into form
   const snap = {
     companyName: document.getElementById("companyName"),
     cnpj:        document.getElementById("cnpj"),
@@ -449,13 +589,16 @@ function showStep(n) {
   if (snap.adminEmail)  form.adminEmail  = snap.adminEmail.value;
   if (snap.password)    form.password    = snap.password.value;
 
+  step = n;
   document.querySelectorAll(".step-panel").forEach(p => {
     p.classList.toggle("hidden", Number(p.getAttribute("data-step")) !== n);
   });
   document.getElementById("backBtn").disabled = n === 0;
-  document.getElementById("nextBtn").textContent = (n === totalSteps - 1 ? t().createBtn : t().nextBtn) + " →";
+  const isLast = n === TOTAL_STEPS - 1;
+  document.getElementById("nextBtn").textContent = (isLast ? t().createBtn : t().nextBtn) + " →";
   renderStepDots();
   renderStepLabel();
+  renderInstrumentOptions();
   renderReview();
 }
 
@@ -465,8 +608,7 @@ function clearErrors() {
 
 function showError(id, msg) {
   const el = document.getElementById("err-" + id);
-  el.textContent = msg;
-  el.classList.remove("hidden");
+  if (el) { el.textContent = msg; el.classList.remove("hidden"); }
 }
 
 function validateStep() {
@@ -481,26 +623,30 @@ function validateStep() {
     else if (!/^\S+@\S+\.\S+$/.test(form.adminEmail)) { showError("adminEmail", t().invalidEmail); ok = false; }
     if (!form.password || form.password.length < 8) { showError("password", t().required); ok = false; }
   }
+  if (step === 3) {
+    if (!form.instrumentCode) {
+      document.getElementById("err-instrument").textContent = t().instrumentRequired;
+      document.getElementById("err-instrument").classList.remove("hidden");
+      ok = false;
+    }
+  }
   return ok;
-}
-
-function slugify(name) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
 function goNext() {
   if (!validateStep()) return;
-  if (step < totalSteps - 1) {
-    step++;
-    showStep(step);
+  if (step < TOTAL_STEPS - 1) {
+    showStep(step + 1);
   } else {
     finish();
   }
 }
 
 function goBack() {
-  if (step > 0) { step--; showStep(step); }
+  if (step > 0) showStep(step - 1);
 }
+
+// ── Account creation ─────────────────────────────────────────────────────────
 
 async function finish() {
   clearErrors();
@@ -514,20 +660,20 @@ async function finish() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        companyName: form.companyName,
-        cnpj: form.cnpj || null,
-        adminName: form.adminName,
-        adminEmail: form.adminEmail,
-        password: form.password,
-        seats: form.seats,
+        companyName:    form.companyName,
+        cnpj:           form.cnpj || null,
+        adminName:      form.adminName,
+        adminEmail:     form.adminEmail,
+        password:       form.password,
+        seats:          form.seats,
+        instrumentCode: form.instrumentCode,   // ← sent to API
       }),
     });
     const data = await response.json();
 
     if (!response.ok) {
       if (data.error === "email_already_registered") {
-        step = 1;
-        showStep(step);
+        showStep(1);
         showError("adminEmail", lang === "pt"
           ? "Este e-mail já está cadastrado."
           : "This email is already registered.");
@@ -539,16 +685,25 @@ async function finish() {
       return;
     }
 
-    // Real signup succeeded — surveyUrl comes from the server, not a
-    // locally-guessed slug, since invite tokens are opaque by design.
+    // Store auth token and company id in memory (not localStorage — avoids XSS exposure)
+    window.__2belive_admin_token = data.token;
+    window.__2belive_company_id  = data.company?.id || data.companyId;
+
+    // Show success screen
     document.getElementById("wizard").classList.add("hidden");
     document.getElementById("success").classList.remove("hidden");
     document.getElementById("surveyUrl").textContent = data.surveyUrl;
 
-    // Keep the admin JWT around in case a "go to dashboard" link should
-    // carry it forward — held in memory only, not localStorage.
-    window.__2belive_admin_token = data.token;
-    window.__2belive_company_id = data.company.id;
+    // Show locked instrument banner
+    document.getElementById("lockedInstrumentName").textContent =
+      instrumentLabel(form.instrumentCode);
+    // Apply translated static text for success screen
+    document.querySelectorAll("[data-k]").forEach(el => {
+      const key = el.getAttribute("data-k");
+      const val = t()[key];
+      if (typeof val === "string") el.textContent = val;
+    });
+
   } catch (err) {
     showError("adminEmail", lang === "pt"
       ? "Erro de conexão com o servidor. Verifique se o backend está rodando."
@@ -559,7 +714,23 @@ async function finish() {
   }
 }
 
-// Field bindings
+// ── Go to Dashboard ──────────────────────────────────────────────────────────
+
+document.getElementById("goDashboardBtn").addEventListener("click", () => {
+  const token = window.__2belive_admin_token;
+  const companyId = window.__2belive_company_id;
+
+  // Build redirect URL with auth token so the dashboard can auto-login
+  const base = "admin-dashboard.html";
+  const params = new URLSearchParams();
+  if (token)     params.set("token", token);
+  if (companyId) params.set("companyId", String(companyId));
+
+  window.location.href = `${base}?${params.toString()}`;
+});
+
+// ── Field bindings ───────────────────────────────────────────────────────────
+
 document.getElementById("companyName").addEventListener("input", e => form.companyName = e.target.value);
 document.getElementById("cnpj").addEventListener("input", e => form.cnpj = e.target.value);
 document.getElementById("adminName").addEventListener("input", e => form.adminName = e.target.value);
@@ -581,13 +752,12 @@ document.getElementById("nextBtn").addEventListener("click", goNext);
 document.getElementById("backBtn").addEventListener("click", goBack);
 
 document.querySelectorAll("[data-goto]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    step = Number(btn.getAttribute("data-goto"));
-    showStep(step);
-  });
+  btn.addEventListener("click", () => showStep(Number(btn.getAttribute("data-goto"))));
 });
 
 document.getElementById("copyBtn").addEventListener("click", () => {
+  const url = document.getElementById("surveyUrl").textContent;
+  if (url) navigator.clipboard.writeText(url).catch(() => {});
   const btn = document.getElementById("copyBtn");
   btn.textContent = t().copiedBtn;
   btn.classList.add("copied");
@@ -602,8 +772,6 @@ document.querySelectorAll(".lang-toggle button").forEach(btn => {
     lang = btn.getAttribute("data-lang");
     document.querySelectorAll(".lang-toggle button").forEach(b => b.classList.toggle("active", b === btn));
     applyStaticText();
-    // Note: surveyUrl is set once from the real server response in finish()
-    // and doesn't change with language, since it's a real opaque token.
   });
 });
 
