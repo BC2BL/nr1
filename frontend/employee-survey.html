@@ -98,6 +98,11 @@
     background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(235,96,37,0.30);
     padding: 17px 16px; cursor: pointer; min-height: 52px;
   }
+  .btn-primary {
+    width: 100%; font-family: var(--font); font-size: 16px; font-weight: 700;
+    background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(235,96,37,0.30);
+    padding: 17px 16px; cursor: pointer; min-height: 52px;
+  }
   .resume-btn-row { display: flex; gap: 10px; margin-top: 24px; flex-direction: column; }
   @media (min-width: 480px) { .resume-btn-row { flex-direction: row; } }
   .btn-resume {
@@ -192,6 +197,41 @@
   }
 
   .hidden { display: none !important; }
+
+  /* GHE Picker */
+  #ghePickerScreen { display: none; }
+  .ghe-picker-title {
+    font-size: 1.4rem; font-weight: 700; color: #0a1744;
+    margin-bottom: 0.4rem;
+  }
+  .ghe-picker-subtitle {
+    font-size: 0.95rem; color: rgba(10,23,68,0.65);
+    margin-bottom: 1.5rem;
+  }
+  .ghe-options { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem; }
+  .ghe-option {
+    display: flex; align-items: center; gap: 0.75rem;
+    background: rgba(10,23,68,0.04); border: 2px solid rgba(10,23,68,0.12);
+    border-radius: 10px; padding: 0.85rem 1rem; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .ghe-option:hover { background: rgba(10,23,68,0.08); border-color: rgba(235,96,37,0.4); }
+  .ghe-option.selected { border-color: #eb6025; background: rgba(235,96,37,0.08); }
+  .ghe-option-radio {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid rgba(10,23,68,0.3); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ghe-option.selected .ghe-option-radio {
+    border-color: #eb6025;
+    background: #eb6025;
+  }
+  .ghe-option.selected .ghe-option-radio::after {
+    content: ""; width: 7px; height: 7px;
+    border-radius: 50%; background: #fff;
+  }
+  .ghe-option-label { font-size: 1rem; color: #0a1744; font-weight: 600; }
+  .ghe-picker-error { color: #ef5350; font-size: 0.88rem; margin-bottom: 0.75rem; display: none; }
 </style>
 </head>
 <body>
@@ -219,6 +259,15 @@
     </div>
     <h1 class="compact" id="loadingTitle" style="font-size:18px;"></h1>
     <p class="body" id="loadingBody" style="padding: 0 8px; font-size:14px;"></p>
+  </div>
+
+  <!-- GHE Picker -->
+  <div id="ghePickerScreen" class="card hidden">
+    <p class="ghe-picker-title" data-k="ghePickerTitle"></p>
+    <p class="ghe-picker-subtitle" data-k="ghePickerSubtitle"></p>
+    <div class="ghe-options" id="gheOptions"></div>
+    <p class="ghe-picker-error" id="ghePickerError" data-k="ghePickerRequired"></p>
+    <button class="btn-primary" id="ghePickerBtn" data-k="ghePickerBtn"></button>
   </div>
 
   <!-- LANDING: fresh -->
@@ -344,6 +393,13 @@ const DICT = {
     loadingSlowTitle: "Aguarde um momento",
     loadingSlowBody: "O servidor está inicializando. Isso pode levar até 60 segundos na primeira vez. Por favor, não feche esta aba.",
     lgpdFooter: "Suas respostas são anônimas e protegidas pela Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018). Nenhum dado pessoal identificável é coletado nesta pesquisa.",
+    ghePickerTitle: "Seu grupo de trabalho",
+    ghePickerSubtitle: "Selecione o grupo ao qual você pertence antes de começar.",
+    ghePickerBtn: "Continuar",
+    ghePickerRequired: "Por favor, selecione seu grupo de trabalho.",
+    ghePickerLoading: "Carregando grupos...",
+    ghePickerError: "Não foi possível carregar os grupos. Tente recarregar a página.",
+    ghePickerSingle: "Geral",
     demoQuestions: [
       { id: "P1", text_pt: "Sei exatamente o que se espera de mim no meu trabalho.", scale: "agree" },
       { id: "D1", text_pt: "Consigo concluir minhas tarefas dentro do horário normal de trabalho.", scale: "agree" },
@@ -420,6 +476,13 @@ const DICT = {
     loadingSlowTitle: "Just a moment",
     loadingSlowBody: "The server is starting up. This can take up to 60 seconds the first time. Please don't close this tab.",
     lgpdFooter: "Your responses are anonymous and protected under Brazil's General Data Protection Law (LGPD — Lei nº 13.709/2018). No personally identifiable data is collected in this survey.",
+    ghePickerTitle: "Your work group",
+    ghePickerSubtitle: "Select the group you belong to before starting.",
+    ghePickerBtn: "Continue",
+    ghePickerRequired: "Please select your work group.",
+    ghePickerLoading: "Loading groups...",
+    ghePickerError: "Could not load groups. Try reloading the page.",
+    ghePickerSingle: "General",
     demoQuestions: [
       { id: "P1", text_pt: "I know exactly what's expected of me at work.", scale: "agree" },
       { id: "D1", text_pt: "I'm able to complete my tasks within normal working hours.", scale: "agree" },
@@ -468,6 +531,10 @@ let rewardCode = null;
 let submitting = false;
 let companyName = null; // populated from session response
 
+// GHE state
+let ghes = [];          // [{id, name}] fetched from /survey/:token/ghes
+let selectedGheId = null;
+
 // Point this at your deployed backend once hosted (see README.md in the
 // backend package). Defaults to localhost for local testing.
 const API_BASE_URL = "https://nr1-api.onrender.com/api/v1";
@@ -489,6 +556,97 @@ function total() { return questions.length; }
 // wording itself won't change with EN selected until a text_en column and
 // translated content are added server-side.
 
+// ── GHE Picker ────────────────────────────────────────────────────
+async function loadAndShowGhePicker() {
+  showScreen("ghePicker");
+  const optionsEl = document.getElementById("gheOptions");
+  optionsEl.innerHTML = `<p style="color:rgba(10,23,68,0.5)">${t().ghePickerLoading || "Loading..."}</p>`;
+
+  try {
+    const resp = await fetch(`${API_BASE_URL}/survey/${inviteToken}/ghes`);
+    if (!resp.ok) throw new Error("fetch_failed");
+    ghes = await resp.json();
+  } catch (e) {
+    optionsEl.innerHTML = `<p style="color:#ef5350">${t().ghePickerError || "Error loading groups."}</p>`;
+    return;
+  }
+
+  // If only one GHE (typically "Geral"), auto-select and skip the picker.
+  if (ghes.length <= 1) {
+    selectedGheId = ghes.length === 1 ? ghes[0].id : null;
+    await createAndProceed();
+    return;
+  }
+
+  optionsEl.innerHTML = ghes.map(g => `
+    <div class="ghe-option" data-ghe-id="${g.id}" onclick="selectGhe(${g.id})">
+      <div class="ghe-option-radio"></div>
+      <span class="ghe-option-label">${g.name}</span>
+    </div>
+  `).join("");
+}
+
+function selectGhe(gheId) {
+  selectedGheId = gheId;
+  document.querySelectorAll(".ghe-option").forEach(el => {
+    el.classList.toggle("selected", Number(el.dataset.gheId) === gheId);
+  });
+  document.getElementById("ghePickerError").style.display = "none";
+}
+
+async function confirmGhePicker() {
+  if (!selectedGheId) {
+    document.getElementById("ghePickerError").style.display = "";
+    return;
+  }
+  await createAndProceed();
+}
+
+async function createAndProceed() {
+  try {
+    const body = { gheId: selectedGheId };
+    // If there's an existing session token in localStorage, try to resume
+    const stored = localStorage.getItem(`session_${inviteToken}`);
+    if (stored) body.existingToken = stored;
+
+    const resp = await fetch(`${API_BASE_URL}/survey/${inviteToken}/session`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await resp.json();
+
+    if (resp.status === 409 && data.error === "already_submitted") {
+      showScreen("complete");
+      return;
+    }
+    if (!resp.ok) throw new Error(data.error || "session_error");
+
+    sessionToken = data.sessionToken;
+    localStorage.setItem(`session_${inviteToken}`, sessionToken);
+    answeredQuestionIds = data.answeredQuestionIds || [];
+    hasSavedSession = answeredQuestionIds.length > 0;
+    companyName = data.companyName || "";
+    // gheId may already be set from picker; if resumed session has it, keep it
+    if (data.gheId) selectedGheId = data.gheId;
+
+    const newUrl = `${window.location.pathname}?survey=${inviteToken}&t=${sessionToken}`;
+    window.history.replaceState({}, "", newUrl);
+
+    await loadQuestionsAndShow();
+  } catch (e) {
+    console.error("session_create_error", e);
+    // Fall back to showing questions anyway if session creation fails gracefully
+  }
+}
+
+async function loadQuestionsAndShow() {
+  const questionsRes = await fetch(`${API_BASE_URL}/survey/${inviteToken}/questions`);
+  if (!questionsRes.ok) throw new Error("questions_failed");
+  questions = await questionsRes.json();
+  showScreen("landing");
+}
+
 async function initSurvey() {
   const isDemo = inviteToken === "DEMO_TOKEN_NOT_SET";
 
@@ -509,41 +667,9 @@ async function initSurvey() {
   }, 8000);
 
   try {
-    const sessionRes = await fetch(`${API_BASE_URL}/survey/${inviteToken}/session`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ existingToken: existingSessionToken }),
-    });
-
+    // Load GHE picker before creating session
     clearTimeout(slowTimer);
-
-    if (sessionRes.status === 409) {
-      rewardCode = null;
-      showScreen("complete");
-      return;
-    }
-
-    if (sessionRes.status === 404) {
-      showScreen("invalid");
-      return;
-    }
-
-    if (!sessionRes.ok) throw new Error("session_failed");
-
-    const sessionData = await sessionRes.json();
-    sessionToken = sessionData.sessionToken;
-    answeredQuestionIds = sessionData.answeredQuestionIds || [];
-    hasSavedSession = answeredQuestionIds.length > 0;
-    companyName = sessionData.companyName || null;
-
-    const newUrl = `${window.location.pathname}?survey=${inviteToken}&t=${sessionToken}`;
-    window.history.replaceState({}, "", newUrl);
-
-    const questionsRes = await fetch(`${API_BASE_URL}/survey/${inviteToken}/questions`);
-    if (!questionsRes.ok) throw new Error("questions_failed");
-    questions = await questionsRes.json();
-
-    showScreen("landing");
+    await loadAndShowGhePicker();
   } catch (err) {
     clearTimeout(slowTimer);
     console.warn("Survey load failed:", err.message);
@@ -617,7 +743,7 @@ function renderQuestion() {
 }
 
 function showScreen(name) {
-  ["loadingScreen", "landingFresh", "landingResume", "surveyScreen", "completeScreen", "invalidScreen"].forEach(id => {
+  ["loadingScreen", "ghePickerScreen", "landingFresh", "landingResume", "surveyScreen", "completeScreen", "invalidScreen"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.add("hidden");
   });
@@ -625,6 +751,14 @@ function showScreen(name) {
     document.getElementById("loadingTitle").textContent = t().loadingTitle;
     document.getElementById("loadingBody").textContent = t().loadingBody;
     document.getElementById("loadingScreen").classList.remove("hidden");
+  } else if (name === "ghePicker") {
+    // Refresh data-k strings for the GHE picker panel
+    document.querySelectorAll("#ghePickerScreen [data-k]").forEach(el => {
+      const key = el.getAttribute("data-k");
+      const val = t()[key];
+      if (typeof val === "string") el.textContent = val;
+    });
+    document.getElementById("ghePickerScreen").classList.remove("hidden");
   } else if (name === "invalid") {
     document.getElementById("invalidTitle").textContent = t().invalidTitle;
     document.getElementById("invalidBody").textContent = t().invalidBody;
@@ -636,6 +770,11 @@ function showScreen(name) {
     document.getElementById("surveyScreen").classList.remove("hidden");
     renderQuestion();
   } else if (name === "complete") {
+    document.getElementById("completeScreen").classList.remove("hidden");
+    renderComplete();
+  } else if (name === "thankYou") {
+    // Alias for complete screen used in createAndProceed already_submitted path
+    rewardCode = null;
     document.getElementById("completeScreen").classList.remove("hidden");
     renderComplete();
   }
@@ -672,6 +811,8 @@ document.querySelector(".btn-close").addEventListener("click", () => {
     btn.disabled = true;
   }, 100);
 });
+
+document.getElementById("ghePickerBtn")?.addEventListener("click", confirmGhePicker);
 
 document.getElementById("startBtn").addEventListener("click", () => {
   current = 0;
