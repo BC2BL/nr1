@@ -1,6 +1,6 @@
 const express = require("express");
 const pool    = require("../db");
-const { verifyToken } = require("../middleware/auth");
+const { requireAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -8,7 +8,7 @@ const router = express.Router();
 
 // GET /api/v1/cycles/:cycleId/ghes
 // Returns the GHE list for a cycle (ordered by display_order).
-router.get("/cycles/:cycleId/ghes", verifyToken, async (req, res) => {
+router.get("/cycles/:cycleId/ghes", requireAdmin, async (req, res) => {
   const { cycleId } = req.params;
   try {
     const result = await pool.query(
@@ -28,7 +28,7 @@ router.get("/cycles/:cycleId/ghes", verifyToken, async (req, res) => {
 // POST /api/v1/cycles/:cycleId/ghes
 // Create a new GHE for a cycle.
 // Body: { name: "Operações" }
-router.post("/cycles/:cycleId/ghes", verifyToken, async (req, res) => {
+router.post("/cycles/:cycleId/ghes", requireAdmin, async (req, res) => {
   const { cycleId } = req.params;
   const { name } = req.body;
   if (!name || !name.trim()) {
@@ -62,7 +62,7 @@ router.post("/cycles/:cycleId/ghes", verifyToken, async (req, res) => {
 // PATCH /api/v1/cycles/:cycleId/ghes/:gheId
 // Rename a GHE.
 // Body: { name: "Administrativo" }
-router.patch("/cycles/:cycleId/ghes/:gheId", verifyToken, async (req, res) => {
+router.patch("/cycles/:cycleId/ghes/:gheId", requireAdmin, async (req, res) => {
   const { cycleId, gheId } = req.params;
   const { name } = req.body;
   if (!name || !name.trim()) {
@@ -92,7 +92,7 @@ router.patch("/cycles/:cycleId/ghes/:gheId", verifyToken, async (req, res) => {
 
 // DELETE /api/v1/cycles/:cycleId/ghes/:gheId
 // Delete a GHE. Blocked if any sessions are already assigned to it.
-router.delete("/cycles/:cycleId/ghes/:gheId", verifyToken, async (req, res) => {
+router.delete("/cycles/:cycleId/ghes/:gheId", requireAdmin, async (req, res) => {
   const { cycleId, gheId } = req.params;
   try {
     const inUse = await pool.query(
