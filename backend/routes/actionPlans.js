@@ -96,6 +96,13 @@ router.patch("/action-plans/:planId", requireAdmin, async (req, res) => {
 // The caller (2BeLive's LMS integration layer) is responsible for actually
 // enrolling the employee in the course; this just tracks the link back to
 // the action plan for completion reporting.
+//
+// Transactional + idempotent: all rows insert in one statement inside one
+// transaction (no partial-batch state if something fails mid-way), and a
+// retried/duplicate request skips employees already assigned instead of
+// erroring or double-counting them. Requires the unique constraint from
+// migration_training_completion_unique.sql on
+// (company_id, employee_id, assigned_action_item_id).
 router.post("/action-plans/:planId/assign-training", requireAdmin, async (req, res) => {
   const { planId } = req.params;
   const { employeeIds } = req.body;
@@ -104,45 +111,90 @@ router.post("/action-plans/:planId/assign-training", requireAdmin, async (req, r
     return res.status(400).json({ error: "employeeIds_required" });
   }
 
-  try {
-    const plan = await getOwnedPlan(planId, req.admin.companyId);
-    if (!plan) return res.status(404).json({ error: "plan_not_found" });
+  // De-dupe the caller's own input so the same id twice in one request
+  // doesn't need special-casing in the report below.
+  const uniqueEmployeeIds = [...new Set(employeeIds)];
 
-    const itemResult = await pool.query(
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    // getOwnedPlan uses the shared `pool`, not this transaction's client —
+    // fine here, it's a read-only ownership check with no side effects to
+    // roll back, and it must still enforce tenant isolation before we touch
+    // anything.
+    const plan = await getOwnedPlan(planId, req.admin.companyId);
+    if (!plan) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "plan_not_found" });
+    }
+
+    const itemResult = await client.query(
       "SELECT delivery_type, linked_training_id FROM action_item WHERE id = $1",
       [plan.action_item_id]
     );
     const item = itemResult.rows[0];
     if (!item || item.delivery_type !== "on_platform_training") {
+      await client.query("ROLLBACK");
       return res.status(400).json({ error: "not_an_on_platform_training_action" });
     }
     if (!item.linked_training_id) {
       // This action_item hasn't been linked to a real 2BeLive LMS course
       // yet — that's a content-setup gap, not something the caller can fix
       // by retrying, so fail clearly instead of inserting a NULL course_id.
+      await client.query("ROLLBACK");
       return res.status(422).json({ error: "action_item_not_linked_to_course" });
     }
 
-    const inserted = [];
-    for (const employeeId of employeeIds) {
-      const result = await pool.query(
-        `INSERT INTO training_completion (company_id, employee_id, course_id, assigned_action_item_id)
-         VALUES ($1, $2, $3, $4)
-         RETURNING id, employee_id`,
-        [req.admin.companyId, employeeId, item.linked_training_id, plan.action_item_id]
-      );
-      inserted.push(result.rows[0]);
-    }
+    // Single multi-row INSERT instead of N round-trips. ON CONFLICT DO
+    // NOTHING relies on the unique constraint on
+    // (company_id, employee_id, assigned_action_item_id) — an employee
+    // already assigned to this action item is silently skipped, not
+    // duplicated and not an error. RETURNING only gives back rows that
+    // were actually newly inserted, so we can diff against the input to
+    // report what was skipped.
+    const values = [];
+    const placeholders = uniqueEmployeeIds.map((employeeId, i) => {
+      const base = i * 4;
+      values.push(req.admin.companyId, employeeId, item.linked_training_id, plan.action_item_id);
+      return `($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4})`;
+    });
 
-    await pool.query(
+    const insertResult = await client.query(
+      `INSERT INTO training_completion (company_id, employee_id, course_id, assigned_action_item_id)
+       VALUES ${placeholders.join(", ")}
+       ON CONFLICT (company_id, employee_id, assigned_action_item_id) DO NOTHING
+       RETURNING id, employee_id`,
+      values
+    );
+
+    const newlyAssigned = insertResult.rows;
+    const newlyAssignedIds = new Set(newlyAssigned.map(r => r.employee_id));
+    const alreadyAssignedIds = uniqueEmployeeIds.filter(id => !newlyAssignedIds.has(id));
+
+    // Flip to in_progress regardless of whether this batch was all-new,
+    // all-duplicate, or a mix — a duplicate call still means the plan is
+    // conceptually in progress. Revisit if you'd rather gate this on
+    // newlyAssigned.length > 0.
+    await client.query(
       "UPDATE company_action_plan SET status = 'in_progress' WHERE id = $1 AND status = 'open'",
       [planId]
     );
 
-    res.status(201).json({ assigned: inserted.length, records: inserted });
+    await client.query("COMMIT");
+
+    res.status(201).json({
+      assigned: newlyAssigned.length,
+      alreadyAssigned: alreadyAssignedIds.length,
+      records: newlyAssigned,
+      alreadyAssignedEmployeeIds: alreadyAssignedIds,
+    });
   } catch (err) {
+    await client.query("ROLLBACK");
     console.error("assign_training_error", err);
     res.status(500).json({ error: "internal_error" });
+  } finally {
+    client.release();
   }
 });
 
