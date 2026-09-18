@@ -185,6 +185,25 @@
   }
   .instrument-saved { font-size: 12px; color: var(--color-success-text); font-weight: 600; margin-left: 10px; display: none; }
 
+  /* Locked instrument badge — shown after instrument is confirmed */
+  .instrument-locked-banner {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--color-tint-blue); border: 1.5px solid #C7D4E9;
+    border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 20px;
+  }
+  .instrument-locked-icon { font-size: 20px; flex-shrink: 0; }
+  .instrument-locked-body { flex: 1; }
+  .instrument-locked-eyebrow {
+    font-size: 10.5px; font-weight: 700; color: var(--color-primary);
+    text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 2px;
+  }
+  .instrument-locked-name {
+    font-size: 15px; font-weight: 700; color: var(--color-dark-blue); margin-bottom: 2px;
+  }
+  .instrument-locked-note {
+    font-size: 11.5px; color: var(--muted); line-height: 1.4;
+  }
+
   .survey-link-card {
     background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow);
     padding: 16px 18px; margin-bottom: 20px;
@@ -479,7 +498,7 @@
   </div>
 
   <div>
-    <!-- Instrument selector — shown before survey link is deployed -->
+    <!-- Instrument selector — shown before survey link is deployed (no responses yet) -->
     <div class="instrument-card" id="instrumentCard" style="display:none">
       <div class="instrument-title" id="instrumentTitle"></div>
       <div class="instrument-subtitle" id="instrumentSubtitle"></div>
@@ -487,6 +506,16 @@
       <div style="display:flex;align-items:center;margin-top:4px">
         <button class="instrument-save-btn" id="instrumentSaveBtn"></button>
         <span class="instrument-saved" id="instrumentSaved"></span>
+      </div>
+    </div>
+
+    <!-- Locked instrument badge — shown once instrument is confirmed or responses have started -->
+    <div class="instrument-locked-banner" id="instrumentLockedBanner" style="display:none">
+      <div class="instrument-locked-icon">🔒</div>
+      <div class="instrument-locked-body">
+        <div class="instrument-locked-eyebrow" id="lockedEyebrow"></div>
+        <div class="instrument-locked-name" id="lockedName"></div>
+        <div class="instrument-locked-note" id="lockedNote"></div>
       </div>
     </div>
 
@@ -561,6 +590,8 @@ const DICT = {
       { code: "hse_it", name: "HSE Management Standards", badge: "Recomendado", desc: "35 itens · 7 domínios · ~8 minutos. Usado por SAFIO e Em Inventários. Os módulos de treinamento 2BeLive foram desenvolvidos para este instrumento. Fonte: UK Health and Safety Executive (Crown Copyright)." },
       { code: "copsoq_ii", name: "COPSOQ II-Br", badge: null, desc: "31 itens · 11 dimensões · ~10 minutos. Validado para o português brasileiro (Rev. Saúde Pública, 2021; DOI: 10.11606/s1518-8787.2021055003123). Padrão-ouro internacional — recomendado quando seu provedor SST exige instrumento com validação publicada em periódico científico." },
     ],
+    lockedEyebrow: "Instrumento ativo",
+    lockedNote: "Não é possível alterar o instrumento após o início da pesquisa.",
   },
   en: {
     eyebrow: "Psychosocial Diagnostic · NR-1",
@@ -610,6 +641,8 @@ const DICT = {
       { code: "hse_it", name: "HSE Management Standards", badge: "Recommended", desc: "35 items · 7 domains · ~8 minutes. Used by SAFIO and Em Inventários. All 2BeLive training modules are built for this instrument. Source: UK Health and Safety Executive (Crown Copyright, freely available)." },
       { code: "copsoq_ii", name: "COPSOQ II-Br", badge: null, desc: "31 items · 11 dimensions · ~10 minutes. Validated for Brazilian Portuguese (Rev Saúde Pública, 2021; DOI: 10.11606/s1518-8787.2021055003123). International gold standard — recommended when your SST provider requires an instrument with a peer-reviewed Brazilian validation study." },
     ],
+    lockedEyebrow: "Active instrument",
+    lockedNote: "The assessment instrument cannot be changed once the survey is underway.",
   },
 };
 
@@ -1141,28 +1174,51 @@ ${suppressedNote}
 // ── Instrument selector ──────────────────────────────────────────────────────
 let selectedInstrument = "hse_it"; // default
 
-function renderInstrumentSelector() {
-  const card = document.getElementById("instrumentCard");
-  if (!card || !cycleInfo) { if (card) card.style.display = "none"; return; }
+function instrumentDisplayName(code) {
+  const found = (t().instruments || []).find(i => i.code === code);
+  return found ? found.name : (code || "HSE Management Standards");
+}
 
-  // Only show if survey hasn't started (no completions yet)
-  if (cycleInfo.completedCount > 0) {
-    card.style.display = "none";
+function renderInstrumentSelector() {
+  const card   = document.getElementById("instrumentCard");
+  const banner = document.getElementById("instrumentLockedBanner");
+
+  // Nothing to render without cycle data
+  if (!cycleInfo) {
+    if (card)   card.style.display   = "none";
+    if (banner) banner.style.display = "none";
     return;
   }
+
+  const code = cycleInfo.instrumentCode || "hse_it";
+  selectedInstrument = code;
+
+  // --- Instrument is already confirmed (instrumentCode set) OR responses have started ---
+  // Show locked badge; hide editable selector
+  if (cycleInfo.instrumentCode || cycleInfo.completedCount > 0) {
+    if (card) card.style.display = "none";
+    if (banner) {
+      banner.style.display = "";
+      document.getElementById("lockedEyebrow").textContent = t().lockedEyebrow || "Active instrument";
+      document.getElementById("lockedName").textContent    = instrumentDisplayName(code);
+      document.getElementById("lockedNote").textContent    = t().lockedNote || "";
+    }
+    return;
+  }
+
+  // --- No instrument confirmed yet and no responses — show editable selector ---
+  if (banner) banner.style.display = "none";
+  if (!card) return;
   card.style.display = "";
 
-  document.getElementById("instrumentTitle").textContent = t().instrumentTitle;
+  document.getElementById("instrumentTitle").textContent    = t().instrumentTitle;
   document.getElementById("instrumentSubtitle").textContent = t().instrumentSubtitle;
-  document.getElementById("instrumentSaveBtn").textContent = t().instrumentSaveBtn;
+  document.getElementById("instrumentSaveBtn").textContent  = t().instrumentSaveBtn;
 
   const opts = t().instruments;
-  const current = cycleInfo.instrumentCode || "hse_it";
-  selectedInstrument = current;
-
   document.getElementById("instrumentOptions").innerHTML = opts.map(o => `
-    <label class="instrument-option ${current === o.code ? "selected" : ""}">
-      <input type="radio" name="instrument" value="${o.code}" ${current === o.code ? "checked" : ""}
+    <label class="instrument-option ${code === o.code ? "selected" : ""}">
+      <input type="radio" name="instrument" value="${o.code}" ${code === o.code ? "checked" : ""}
         onchange="selectInstrument('${o.code}')">
       <div class="instrument-option-body">
         <div class="instrument-option-name">${o.name}${o.badge
@@ -1194,9 +1250,9 @@ async function saveInstrument() {
       cycleInfo.instrumentCode = selectedInstrument;
       saved.textContent = t().instrumentSavedMsg;
       saved.style.display = "inline";
-      setTimeout(() => { saved.style.display = "none"; }, 3000);
-      // Hide selector and show survey link
-      document.getElementById("instrumentCard").style.display = "none";
+      setTimeout(() => { saved.style.display = "none"; }, 2000);
+      // Switch selector → locked banner, then refresh survey link
+      renderInstrumentSelector();
       renderHeaderAndReward();
     }
   } catch (e) { console.error("instrument_save_error", e); }
@@ -1321,7 +1377,28 @@ document.querySelectorAll(".lang-toggle button").forEach(btn => {
 });
 
 applyLoginText();
-showLogin();
+
+// ── Auto-login from signup redirect ─────────────────────────────────────────
+// When the admin arrives from the signup wizard via "Go to Dashboard", the URL
+// carries ?token=...&companyId=... so they don't have to log in again.
+(function autoLoginFromUrl() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const tok = params.get("token");
+    const cid = params.get("companyId");
+    if (tok && cid) {
+      adminToken = tok;
+      companyId  = cid;
+      // Clean the URL so the token isn't visible in the address bar
+      const cleanUrl = window.location.pathname;
+      history.replaceState(null, "", cleanUrl);
+      showDashboard();
+      loadDashboardData();
+      return;
+    }
+  } catch (e) { /* ignore — fall through to manual login */ }
+  showLogin();
+})();
 
 document.getElementById("copySurveyLinkBtn").addEventListener("click", () => {
   const url = document.getElementById("surveyLinkUrl").textContent;
