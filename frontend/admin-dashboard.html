@@ -1193,9 +1193,12 @@ function renderInstrumentSelector() {
   const code = cycleInfo.instrumentCode || "hse_it";
   selectedInstrument = code;
 
-  // --- Instrument is already confirmed (instrumentCode set) OR responses have started ---
-  // Show locked badge; hide editable selector
-  if (cycleInfo.instrumentCode || cycleInfo.completedCount > 0) {
+  // --- Lock whenever a survey cycle exists (invite token issued = instrument baked in at signup)
+  //     OR responses have already started.
+  //     cycleInfo.instrumentCode may be null for older accounts created before this field existed,
+  //     but the cycle existing at all means the instrument was chosen and the link is live.
+  const cycleExists = !!(cycleInfo.inviteUrlToken || cycleInfo.id || cycleInfo.cycleId);
+  if (cycleExists || cycleInfo.completedCount > 0) {
     if (card) card.style.display = "none";
     if (banner) {
       banner.style.display = "";
