@@ -21,10 +21,33 @@ function hashIp(ip, salt) {
   return crypto.createHash("sha256").update(ip + salt).digest("hex");
 }
 
+// GET /api/v1/survey/:token/ghes
+// Returns the GHE list for the survey's cycle so the frontend can render the picker.
+router.get("/survey/:token/ghes", async (req, res) => {
+  const cycle = await getCycleByToken(req.params.token);
+  if (!cycle) return res.status(404).json({ error: "survey_not_found" });
+
+  try {
+    const result = await pool.query(
+      `SELECT id, name, display_order
+       FROM survey_ghe
+       WHERE survey_cycle_id = $1
+       ORDER BY display_order ASC, id ASC`,
+      [cycle.id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("ghe_list_error", err);
+    res.status(500).json({ error: "internal_error" });
+  }
+});
+
 // POST /api/v1/survey/:token/session — create or resume
+// Body: { existingToken?, gheId? }
+// gheId is required for fresh sessions when the cycle has GHEs defined.
 router.post("/survey/:token/session", async (req, res) => {
   const { token } = req.params;
-  const { existingToken } = req.body;
+  const { existingToken, gheId } = req.body;
 
   const cycle = await getCycleByToken(token);
   if (!cycle) return res.status(404).json({ error: "survey_not_found" });
@@ -51,10 +74,24 @@ router.post("/survey/:token/session", async (req, res) => {
         return res.json({
           sessionToken: session.session_token,
           status: session.status,
+          gheId: session.ghe_id,
           answeredQuestionIds: answered.rows.map(r => r.question_id),
           companyName: cycle.company_name,
         });
       }
+    }
+
+    // Validate gheId if provided — must belong to this cycle.
+    let resolvedGheId = null;
+    if (gheId) {
+      const gheCheck = await pool.query(
+        "SELECT id FROM survey_ghe WHERE id = $1 AND survey_cycle_id = $2",
+        [gheId, cycle.id]
+      );
+      if (gheCheck.rows.length === 0) {
+        return res.status(400).json({ error: "invalid_ghe" });
+      }
+      resolvedGheId = gheId;
     }
 
     // Fresh session. ip_hash is salted per-cycle so it can only ever be
@@ -64,15 +101,16 @@ router.post("/survey/:token/session", async (req, res) => {
     const ipHash = hashIp(ip, cycle.id);
 
     const result = await pool.query(
-      `INSERT INTO respondent_session (survey_cycle_id, session_token, ip_hash, status)
-       VALUES ($1, $2, $3, 'in_progress')
-       RETURNING session_token, status`,
-      [cycle.id, newToken, ipHash]
+      `INSERT INTO respondent_session (survey_cycle_id, session_token, ip_hash, status, ghe_id)
+       VALUES ($1, $2, $3, 'in_progress', $4)
+       RETURNING session_token, status, ghe_id`,
+      [cycle.id, newToken, ipHash, resolvedGheId]
     );
 
     res.status(201).json({
       sessionToken: result.rows[0].session_token,
       status: result.rows[0].status,
+      gheId: result.rows[0].ghe_id,
       answeredQuestionIds: [],
       companyName: cycle.company_name,
     });
