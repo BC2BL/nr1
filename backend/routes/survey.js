@@ -87,13 +87,17 @@ router.get("/survey/:token/questions", async (req, res) => {
   const cycle = await getCycleByToken(req.params.token);
   if (!cycle) return res.status(404).json({ error: "survey_not_found" });
 
+  // Filter questions by BOTH version (pinned at cycle creation) AND instrument_code
+  // so HSE-IT v2 and COPSOQ II-Br questions are never mixed in one survey.
   const result = await pool.query(
-    `SELECT sq.id, sq.text_pt, sq.text_en, sq.scale, sq.is_reverse_scored, sq.display_order, sd.code AS domain_code
+    `SELECT sq.id, sq.text_pt, sq.text_en, sq.scale, sq.is_reverse_scored,
+            sq.display_order, sd.code AS domain_code
      FROM survey_question sq
      JOIN survey_domain sd ON sd.id = sq.domain_id
-     WHERE sq.version = $1
+     WHERE sq.version          = $1
+       AND COALESCE(sq.instrument_code, 'hse_it') = $2
      ORDER BY sq.display_order ASC`,
-    [cycle.question_set_version]
+    [cycle.question_set_version, cycle.instrument_code || 'hse_it']
   );
   res.json(result.rows);
 });
