@@ -5,11 +5,11 @@
 
 const express = require("express");
 const pool    = require("../db");
-const { verifyToken } = require("../middleware/auth");
+const { requireAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
-router.get("/cycles/:cycleId/ghe-scores", verifyToken, async (req, res) => {
+router.get("/cycles/:cycleId/ghe-scores", requireAdmin, async (req, res) => {
   const { cycleId } = req.params;
   try {
     const result = await pool.query(
