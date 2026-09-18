@@ -403,6 +403,59 @@
   .comms-preview li { margin-bottom: 4px; }
   .comms-preview .comms-footer { font-size: 11.5px; color: var(--muted); margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line-soft); }
 
+  /* GHE Management */
+  .ghe-section { margin-top: 2rem; }
+  .ghe-list { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; }
+  .ghe-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 0.6rem 1rem;
+  }
+  .ghe-item-name { font-size: 0.95rem; color: #e8eaf6; }
+  .ghe-item-remove {
+    background: none; border: none; color: #ef5350; cursor: pointer;
+    font-size: 0.85rem; padding: 0.25rem 0.5rem; border-radius: 4px;
+    transition: background 0.15s;
+  }
+  .ghe-item-remove:hover { background: rgba(239,83,80,0.15); }
+  .ghe-add-row { display: flex; gap: 0.75rem; }
+  .ghe-add-input {
+    flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px; padding: 0.6rem 1rem; color: #e8eaf6; font-size: 0.9rem;
+  }
+  .ghe-add-input::placeholder { color: rgba(232,234,246,0.4); }
+  .ghe-add-btn {
+    background: #eb6025; color: #fff; border: none; border-radius: 8px;
+    padding: 0.6rem 1.2rem; font-size: 0.9rem; cursor: pointer; white-space: nowrap;
+    transition: opacity 0.15s;
+  }
+  .ghe-add-btn:hover { opacity: 0.85; }
+
+  /* GHE breakdown table */
+  .ghe-breakdown { margin-top: 1.5rem; }
+  .ghe-breakdown-table {
+    width: 100%; border-collapse: collapse; font-size: 0.88rem;
+  }
+  .ghe-breakdown-table th {
+    text-align: left; padding: 0.5rem 0.75rem;
+    color: rgba(232,234,246,0.6); font-weight: 600; font-size: 0.78rem;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .ghe-breakdown-table td {
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: #e8eaf6;
+  }
+  .ghe-breakdown-table tr:last-child td { border-bottom: none; }
+  .band-dot {
+    display: inline-block; width: 10px; height: 10px;
+    border-radius: 50%; margin-right: 6px;
+  }
+  .band-dot.green { background: #4caf50; }
+  .band-dot.amber { background: #ff9800; }
+  .band-dot.red   { background: #ef5350; }
+  .band-dot.none  { background: rgba(255,255,255,0.25); }
 
   .hidden { display: none !important; }
 
@@ -519,6 +572,18 @@
       </div>
     </div>
 
+    <!-- GHE Management -->
+    <div class="card ghe-section" id="gheManagementCard" style="display:none">
+      <h3 class="card-title" data-k="gheSection"></h3>
+      <p class="card-subtitle" data-k="gheSubtitle"></p>
+      <div class="ghe-list" id="gheList"></div>
+      <div class="ghe-add-row">
+        <input class="ghe-add-input" id="gheNameInput" type="text" maxlength="80" />
+        <button class="ghe-add-btn" id="gheAddBtn" data-k="gheAddBtn"></button>
+      </div>
+      <div id="gheError" style="color:#ef5350;font-size:0.85rem;margin-top:0.5rem;display:none"></div>
+    </div>
+
     <!-- Feature 5: Worker communication panel -->
     <div class="worker-comms-card" id="workerCommsCard" style="display:none">
       <div class="worker-comms-header">
@@ -592,6 +657,17 @@ const DICT = {
     ],
     lockedEyebrow: "Instrumento ativo",
     lockedNote: "Não é possível alterar o instrumento após o início da pesquisa.",
+    gheSection: "Grupos Homogêneos de Exposição (GHE)",
+    gheSubtitle: "Defina os grupos de trabalhadores que serão avaliados separadamente.",
+    gheAddPlaceholder: "Nome do grupo, ex: Operações",
+    gheAddBtn: "Adicionar GHE",
+    gheEmpty: "Nenhum GHE definido. Adicione ao menos um grupo ou use 'Geral' como padrão.",
+    gheDeleteConfirm: "Remover este GHE? Isso só é possível se nenhum respondente o selecionou.",
+    gheHasResponses: "Este GHE já possui respostas e não pode ser removido.",
+    gheNameExists: "Já existe um GHE com este nome.",
+    gheBreakdownTitle: "Resultados por GHE",
+    gheBreakdownEmpty: "Nenhum dado por GHE disponível ainda.",
+    suppressed: "Suprimido",
   },
   en: {
     eyebrow: "Psychosocial Diagnostic · NR-1",
@@ -643,6 +719,17 @@ const DICT = {
     ],
     lockedEyebrow: "Active instrument",
     lockedNote: "The assessment instrument cannot be changed once the survey is underway.",
+    gheSection: "Homogeneous Exposure Groups (GHE)",
+    gheSubtitle: "Define the worker groups to be assessed separately.",
+    gheAddPlaceholder: "Group name, e.g. Operations",
+    gheAddBtn: "Add GHE",
+    gheEmpty: "No GHEs defined. Add at least one group or use 'Geral' as default.",
+    gheDeleteConfirm: "Remove this GHE? Only possible if no respondents have selected it.",
+    gheHasResponses: "This GHE already has responses and cannot be removed.",
+    gheNameExists: "A GHE with this name already exists.",
+    gheBreakdownTitle: "Results by GHE",
+    gheBreakdownEmpty: "No per-GHE data available yet.",
+    suppressed: "Suppressed",
   },
 };
 
@@ -659,6 +746,9 @@ let cycleInfo = null;    // { targetSeatCount, completedCount, responseRate, ...
 let domainScores = [];   // real rows from GET /companies/:id/cycles/:id/scores
 let rewardPoolStatus = null;
 let actionPlans = [];    // real rows from GET /companies/:id/cycles/:id/action-plans
+
+let gheList = [];       // [{id, name, display_order}]
+let gheScores = {};     // {domain_code: [{ghe_name, mean_score, respondent_count, risk_band}]}
 
 // ── Training module mapping (HSE-sourced) ─────────────────────────────────
 const TRAINING_MODULES = {
@@ -899,6 +989,9 @@ async function loadDashboardData() {
   rewardPoolStatus = await rewardRes.json();
   actionPlans = await actionsRes.json();
 
+  await loadGhes();
+  await loadGheScores();
+
   renderAll();
 }
 
@@ -950,6 +1043,7 @@ function renderDomains() {
             <div class="suppressed-n">n=${d.respondent_count}</div>
             <div class="suppressed-msg">${t().suppressedMsg}</div>
           </div>
+          <div class="ghe-breakdown" id="gheBreakdown_${domainCode}"></div>
         </div>`;
     }
     return `
@@ -965,6 +1059,7 @@ function renderDomains() {
           ${gaugeSvg(d.mean_score, d.risk_band)}
           <div>${trendHtml(d.mean_score, null)}</div>
         </div>
+        <div class="ghe-breakdown" id="gheBreakdown_${domainCode}"></div>
       </div>`;
   }).join("");
 }
@@ -1264,6 +1359,138 @@ async function saveInstrument() {
 
 document.getElementById("instrumentSaveBtn")?.addEventListener("click", saveInstrument);
 
+// ── GHE Management ────────────────────────────────────────────────
+async function loadGhes() {
+  if (!cycleInfo || !cycleInfo.id) return;
+  try {
+    const data = await apiFetch(`/cycles/${cycleInfo.id}/ghes`);
+    gheList = data || [];
+    renderGheManagement();
+  } catch (e) { console.error("ghe_load_error", e); }
+}
+
+function renderGheManagement() {
+  const card = document.getElementById("gheManagementCard");
+  if (!card) return;
+  card.style.display = cycleInfo ? "" : "none";
+
+  const listEl = document.getElementById("gheList");
+  const d = t();
+  if (gheList.length === 0) {
+    listEl.innerHTML = `<p style="color:rgba(232,234,246,0.5);font-size:0.88rem">${d.gheEmpty || ""}</p>`;
+  } else {
+    listEl.innerHTML = gheList.map(g => `
+      <div class="ghe-item">
+        <span class="ghe-item-name">${g.name}</span>
+        <button class="ghe-item-remove" onclick="removeGhe(${g.id})" title="Remove">✕</button>
+      </div>
+    `).join("");
+  }
+  // localise input placeholder and button
+  const inp = document.getElementById("gheNameInput");
+  if (inp) inp.placeholder = d.gheAddPlaceholder || "Group name";
+  const btn = document.getElementById("gheAddBtn");
+  if (btn) btn.textContent = d.gheAddBtn || "Add GHE";
+}
+
+async function addGhe() {
+  const inp = document.getElementById("gheNameInput");
+  const errEl = document.getElementById("gheError");
+  errEl.style.display = "none";
+  const name = inp.value.trim();
+  if (!name) return;
+
+  try {
+    const created = await apiFetch(`/cycles/${cycleInfo.id}/ghes`, {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    });
+    inp.value = "";
+    gheList.push(created);
+    gheList.sort((a, b) => a.display_order - b.display_order || a.id - b.id);
+    renderGheManagement();
+  } catch (e) {
+    const d = t();
+    if (e.status === 409) errEl.textContent = d.gheNameExists || "Name already exists.";
+    else errEl.textContent = "Error adding GHE.";
+    errEl.style.display = "";
+  }
+}
+
+async function removeGhe(gheId) {
+  const d = t();
+  if (!confirm(d.gheDeleteConfirm || "Remove this GHE?")) return;
+  const errEl = document.getElementById("gheError");
+  errEl.style.display = "none";
+  try {
+    await apiFetch(`/cycles/${cycleInfo.id}/ghes/${gheId}`, { method: "DELETE" });
+    gheList = gheList.filter(g => g.id !== gheId);
+    renderGheManagement();
+  } catch (e) {
+    if (e.status === 409) errEl.textContent = d.gheHasResponses || "GHE has responses.";
+    else errEl.textContent = "Error removing GHE.";
+    errEl.style.display = "";
+  }
+}
+
+// ── GHE Score Breakdown ───────────────────────────────────────────
+// Requires GET /api/v1/cycles/:cycleId/ghe-scores — see backend/routes/admin.js
+async function loadGheScores() {
+  if (!cycleInfo || !cycleInfo.id) return;
+  try {
+    const data = await apiFetch(`/cycles/${cycleInfo.id}/ghe-scores`);
+    gheScores = data || {};
+    renderGheBreakdowns();
+  } catch (e) { console.error("ghe_scores_error", e); }
+}
+
+function renderGheBreakdowns() {
+  const d = t();
+  // For each domain that has a breakdown container, fill it.
+  Object.keys(gheScores).forEach(domainCode => {
+    const el = document.getElementById(`gheBreakdown_${domainCode}`);
+    if (!el) return;
+    const rows = gheScores[domainCode];
+    if (!rows || rows.length === 0) {
+      el.innerHTML = "";
+      return;
+    }
+    const hasAnyGhe = rows.some(r => r.mean_score !== null || r.respondent_count > 0);
+    if (!hasAnyGhe) { el.innerHTML = ""; return; }
+
+    el.innerHTML = `
+      <h4 style="font-size:0.8rem;color:rgba(232,234,246,0.5);text-transform:uppercase;letter-spacing:0.06em;margin:1rem 0 0.5rem">${d.gheBreakdownTitle || "Results by GHE"}</h4>
+      <table class="ghe-breakdown-table">
+        <thead>
+          <tr>
+            <th>GHE</th>
+            <th>Score</th>
+            <th>n</th>
+            <th>Banda</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => {
+            const band = r.risk_band || "none";
+            const score = r.mean_score !== null ? Number(r.mean_score).toFixed(2) : `<span style="opacity:.5">${d.suppressed || "—"}</span>`;
+            return `<tr>
+              <td>${r.ghe_name}</td>
+              <td>${score}</td>
+              <td>${r.respondent_count}</td>
+              <td><span class="band-dot ${band}"></span>${band !== "none" ? band : "—"}</td>
+            </tr>`;
+          }).join("")}
+        </tbody>
+      </table>
+    `;
+  });
+}
+
+document.getElementById("gheAddBtn")?.addEventListener("click", addGhe);
+document.getElementById("gheNameInput")?.addEventListener("keydown", e => {
+  if (e.key === "Enter") addGhe();
+});
+
 function renderHeaderAndReward() {
   if (cycleInfo) {
     // Use real company name from API, not the hardcoded DICT fallback
@@ -1309,6 +1536,8 @@ function renderAll() {
   renderActions();
   renderWorkerComms();
   renderInstrumentSelector();
+  renderGheManagement();
+  renderGheBreakdowns();
   // Refresh survey link label and copy button text on lang switch
   document.getElementById("surveyLinkLabel").textContent = t().surveyLinkLabel;
   document.getElementById("copySurveyLinkBtn").textContent = t().copyLinkBtn;
