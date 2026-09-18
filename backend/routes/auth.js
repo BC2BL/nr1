@@ -62,12 +62,16 @@ router.post("/companies/signup", async (req, res) => {
     // leak which companies are running surveys and let outsiders probe URLs).
     const inviteToken = `${slugify(companyName)}-${crypto.randomBytes(6).toString("hex")}`;
 
+    // question_set_version=2 → Brazilian-adapted HSE-IT bank (seed_hse_it_brasil_v2.sql)
+    // instrument_code → chosen during signup wizard (defaults to 'hse_it')
+    const instrumentCode = req.body.instrumentCode || 'hse_it';
     const cycleResult = await client.query(
       `INSERT INTO survey_cycle
-         (company_id, title, question_set_version, status, invite_url_token, target_seat_count)
-       VALUES ($1, $2, 2, 'draft', $3, $4)
-       RETURNING id, invite_url_token, status`,
-      [company.id, `${companyName} — Ciclo 1`, inviteToken, seats]
+         (company_id, title, question_set_version, status, invite_url_token,
+          target_seat_count, instrument_code)
+       VALUES ($1, $2, 2, 'draft', $3, $4, $5)
+       RETURNING id, invite_url_token, status, instrument_code`,
+      [company.id, `${companyName} — Ciclo 1`, inviteToken, seats, instrumentCode]
     );
     const cycle = cycleResult.rows[0];
 
