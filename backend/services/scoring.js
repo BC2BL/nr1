@@ -35,19 +35,29 @@ async function recomputeDomainScores(surveyCycleId) {
   );
   const ghes = ghesResult.rows;
 
-  // Domain version matches question_set_version pinned on the cycle.
-  // Both HSE-IT v2 and COPSOQ II-Br use question_set_version = 2.
+  // Domain version matches question_set_version pinned on the cycle,
+  // AND domain must belong to the cycle's instrument. HSE-IT v2 and
+  // COPSOQ II-Br both use question_set_version = 2, but their domain/
+  // subscale structures differ, so version alone is not a safe filter —
+  // without the instrument_code clause this would pull in the OTHER
+  // instrument's domains for any cycle sharing that version number.
   const domains = await pool.query(
-    "SELECT id, code FROM survey_domain WHERE version = $1",
-    [cycle.question_set_version]
+    "SELECT id, code FROM survey_domain WHERE version = $1 AND instrument_code = $2",
+    [cycle.question_set_version, cycle.instrument_code]
   );
 
   const results = [];
 
   for (const domain of domains.rows) {
+    // Belt-and-suspenders: domain.id is already instrument-scoped now that
+    // survey_domain carries instrument_code, but survey_question also
+    // carries its own instrument_code — filter on both so a stray question
+    // row miswired to the wrong domain_id can never leak into scoring.
     const questions = await pool.query(
-      "SELECT id, is_reverse_scored FROM survey_question WHERE domain_id = $1 AND version = $2",
-      [domain.id, cycle.question_set_version]
+      `SELECT id, is_reverse_scored FROM survey_question
+       WHERE domain_id = $1 AND version = $2
+         AND COALESCE(instrument_code, 'hse_it') = $3`,
+      [domain.id, cycle.question_set_version, cycle.instrument_code]
     );
     const questionIds = questions.rows.map(q => String(q.id));
     const reverseMap = Object.fromEntries(questions.rows.map(q => [String(q.id), q.is_reverse_scored]));
