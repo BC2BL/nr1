@@ -1,11 +1,15 @@
 const pool = require("../db");
 
 // Recomputes domain_score_cache for one survey_cycle.
-// Mirrors §2 of api-workflow-spec.md: reverse-scoring, 80% per-domain
-// completion threshold per respondent, and suppression below min_respondents_for_report.
+// Instrument-aware: filters questions by the cycle's instrument_code.
+// Supports 'hse_it' (1–5 scale, domain mean) and 'copsoq_ii' (1–5 scale, domain mean).
+// DASS-21 uses a separate scoring function (sum × 2, severity bands) — future roadmap.
 async function recomputeDomainScores(surveyCycleId) {
   const cycleResult = await pool.query(
-    "SELECT id, question_set_version, target_seat_count, min_respondents_for_report FROM survey_cycle WHERE id = $1",
+    `SELECT id, question_set_version, target_seat_count,
+            min_respondents_for_report,
+            COALESCE(instrument_code, 'hse_it') AS instrument_code
+     FROM survey_cycle WHERE id = $1`,
     [surveyCycleId]
   );
   if (cycleResult.rows.length === 0) throw new Error("cycle_not_found");
@@ -17,6 +21,9 @@ async function recomputeDomainScores(surveyCycleId) {
   );
   const sessionIds = completedSessions.rows.map(r => r.id);
 
+  // Domain version matches question_set_version pinned on the cycle.
+  // HSE-IT: version 2 (Brazilian-adapted bank); COPSOQ II-Br: version 2 as well.
+  // Both instruments use survey_domain.version = cycle.question_set_version.
   const domains = await pool.query(
     "SELECT id, code FROM survey_domain WHERE version = $1",
     [cycle.question_set_version]
