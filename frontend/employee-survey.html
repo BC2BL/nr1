@@ -199,6 +199,10 @@
   .hidden { display: none !important; }
 
   /* GHE Picker */
+  .ghe-picker-intro {
+    font-size: 15px; color: var(--color-dark-blue); opacity: 0.80;
+    line-height: 1.7; margin: 0 0 18px;
+  }
   .ghe-picker-title {
     font-size: 1.4rem; font-weight: 700; color: #0a1744;
     margin-bottom: 0.4rem;
@@ -262,6 +266,8 @@
 
   <!-- GHE Picker -->
   <div id="ghePickerScreen" class="card hidden">
+    <div class="eyebrow" data-k="eyebrow"></div>
+    <p class="ghe-picker-intro" id="ghePickerIntro"></p>
     <p class="ghe-picker-title" data-k="ghePickerTitle"></p>
     <p class="ghe-picker-subtitle" data-k="ghePickerSubtitle"></p>
     <div class="ghe-options" id="gheOptions"></div>
@@ -392,6 +398,7 @@ const DICT = {
     loadingSlowTitle: "Aguarde um momento",
     loadingSlowBody: "O servidor está inicializando. Isso pode levar até 60 segundos na primeira vez. Por favor, não feche esta aba.",
     lgpdFooter: "Suas respostas são anônimas e protegidas pela Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018). Nenhum dado pessoal identificável é coletado nesta pesquisa.",
+    ghePickerIntroFn: (c) => `Você foi convidado(a) a participar da pesquisa anônima de bem-estar da ${c}.`,
     ghePickerTitle: "Seu grupo de trabalho",
     ghePickerSubtitle: "Selecione o grupo ao qual você pertence antes de começar.",
     ghePickerBtn: "Continuar",
@@ -475,6 +482,7 @@ const DICT = {
     loadingSlowTitle: "Just a moment",
     loadingSlowBody: "The server is starting up. This can take up to 60 seconds the first time. Please don't close this tab.",
     lgpdFooter: "Your responses are anonymous and protected under Brazil's General Data Protection Law (LGPD — Lei nº 13.709/2018). No personally identifiable data is collected in this survey.",
+    ghePickerIntroFn: (c) => `You've been invited to take ${c}'s anonymous wellbeing survey.`,
     ghePickerTitle: "Your work group",
     ghePickerSubtitle: "Select the group you belong to before starting.",
     ghePickerBtn: "Continue",
@@ -564,11 +572,17 @@ async function loadAndShowGhePicker() {
   try {
     const resp = await fetch(`${API_BASE_URL}/survey/${inviteToken}/ghes`);
     if (!resp.ok) throw new Error("fetch_failed");
-    ghes = await resp.json();
+    const data = await resp.json();
+    ghes = data.ghes || [];
+    // Company name is known this early (before a session exists), so show
+    // it right away instead of leaving the picker screen unbranded.
+    companyName = data.companyName || companyName;
   } catch (e) {
     optionsEl.innerHTML = `<p style="color:#ef5350">${t().ghePickerError || "Error loading groups."}</p>`;
     return;
   }
+
+  renderGhePickerIntro();
 
   // If only one GHE (typically "Geral"), auto-select and skip the picker.
   if (ghes.length <= 1) {
@@ -583,6 +597,11 @@ async function loadAndShowGhePicker() {
       <span class="ghe-option-label">${g.name}</span>
     </div>
   `).join("");
+}
+
+function renderGhePickerIntro() {
+  const el = document.getElementById("ghePickerIntro");
+  if (el) el.textContent = t().ghePickerIntroFn(companyName || t().companyName);
 }
 
 function selectGhe(gheId) {
@@ -883,6 +902,7 @@ document.querySelectorAll(".lang-toggle button").forEach(btn => {
       document.getElementById("invalidTitle").textContent = t().invalidTitle;
       document.getElementById("invalidBody").textContent = t().invalidBody;
     }
+    if (!document.getElementById("ghePickerScreen").classList.contains("hidden")) renderGhePickerIntro();
     if (!document.getElementById("landingFresh").classList.contains("hidden") ||
         !document.getElementById("landingResume").classList.contains("hidden")) renderLanding();
     if (!document.getElementById("surveyScreen").classList.contains("hidden")) renderQuestion();
