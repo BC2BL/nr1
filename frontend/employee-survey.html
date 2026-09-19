@@ -199,7 +199,6 @@
   .hidden { display: none !important; }
 
   /* GHE Picker */
-  #ghePickerScreen { display: none; }
   .ghe-picker-title {
     font-size: 1.4rem; font-weight: 700; color: #0a1744;
     margin-bottom: 0.4rem;
@@ -668,8 +667,8 @@ async function initSurvey() {
 
   try {
     // Load GHE picker before creating session
-    clearTimeout(slowTimer);
     await loadAndShowGhePicker();
+    clearTimeout(slowTimer);
   } catch (err) {
     clearTimeout(slowTimer);
     console.warn("Survey load failed:", err.message);
