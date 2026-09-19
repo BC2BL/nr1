@@ -578,7 +578,7 @@ async function loadAndShowGhePicker() {
   }
 
   optionsEl.innerHTML = ghes.map(g => `
-    <div class="ghe-option" data-ghe-id="${g.id}" onclick="selectGhe(${g.id})">
+    <div class="ghe-option" data-ghe-id="${g.id}" onclick="selectGhe('${g.id}')">
       <div class="ghe-option-radio"></div>
       <span class="ghe-option-label">${g.name}</span>
     </div>
@@ -588,7 +588,7 @@ async function loadAndShowGhePicker() {
 function selectGhe(gheId) {
   selectedGheId = gheId;
   document.querySelectorAll(".ghe-option").forEach(el => {
-    el.classList.toggle("selected", Number(el.dataset.gheId) === gheId);
+    el.classList.toggle("selected", el.dataset.gheId === gheId);
   });
   document.getElementById("ghePickerError").style.display = "none";
 }
