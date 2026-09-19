@@ -35,7 +35,9 @@ router.get("/survey/:token/ghes", async (req, res) => {
        ORDER BY display_order ASC, id ASC`,
       [cycle.id]
     );
-    res.json(result.rows);
+    // Include the company name so the frontend can show it before a
+    // session exists (the picker screen loads before /session is called).
+    res.json({ companyName: cycle.company_name, ghes: result.rows });
   } catch (err) {
     console.error("ghe_list_error", err);
     res.status(500).json({ error: "internal_error" });
