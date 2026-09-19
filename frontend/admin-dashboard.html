@@ -965,7 +965,11 @@ function t() { return DICT[lang]; }
 async function apiFetch(path, opts = {}) {
   const res = await fetch(`${API_BASE_URL}${path}`, {
     ...opts,
-    headers: { ...(opts.headers || {}), Authorization: `Bearer ${adminToken}` },
+    headers: {
+      ...(opts.body ? { "Content-Type": "application/json" } : {}),
+      ...(opts.headers || {}),
+      Authorization: `Bearer ${adminToken}`,
+    },
   });
   if (res.status === 401) {
     // Token expired or invalid — drop back to the login screen rather than
@@ -974,6 +978,21 @@ async function apiFetch(path, opts = {}) {
     throw new Error("unauthorized");
   }
   return res;
+}
+
+// Like apiFetch, but parses the JSON body and throws (with .status set) on
+// any non-2xx response, instead of handing back the raw Response. Use this
+// wherever the caller treats the result as already-parsed data.
+async function apiFetchJson(path, opts = {}) {
+  const res = await apiFetch(path, opts);
+  const body = await res.json().catch(() => null);
+  if (!res.ok) {
+    const err = new Error((body && body.error) || `request_failed_${res.status}`);
+    err.status = res.status;
+    err.body = body;
+    throw err;
+  }
+  return body;
 }
 
 async function loadDashboardData() {
@@ -1369,7 +1388,7 @@ document.getElementById("instrumentSaveBtn")?.addEventListener("click", saveInst
 async function loadGhes() {
   if (!cycleInfo || !cycleInfo.id) return;
   try {
-    const data = await apiFetch(`/cycles/${cycleInfo.id}/ghes`);
+    const data = await apiFetchJson(`/cycles/${cycleInfo.id}/ghes`);
     gheList = data || [];
     renderGheManagement();
   } catch (e) { console.error("ghe_load_error", e); }
@@ -1410,7 +1429,7 @@ async function addGhe() {
   if (!name) return;
 
   try {
-    const created = await apiFetch(`/cycles/${cycleInfo.id}/ghes`, {
+    const created = await apiFetchJson(`/cycles/${cycleInfo.id}/ghes`, {
       method: "POST",
       body: JSON.stringify({ name }),
     });
@@ -1432,7 +1451,7 @@ async function removeGhe(gheId) {
   const errEl = document.getElementById("gheError");
   errEl.style.display = "none";
   try {
-    await apiFetch(`/cycles/${cycleInfo.id}/ghes/${gheId}`, { method: "DELETE" });
+    await apiFetchJson(`/cycles/${cycleInfo.id}/ghes/${gheId}`, { method: "DELETE" });
     gheList = gheList.filter(g => g.id !== gheId);
     renderGheManagement();
   } catch (e) {
@@ -1447,7 +1466,7 @@ async function removeGhe(gheId) {
 async function loadGheScores() {
   if (!cycleInfo || !cycleInfo.id) return;
   try {
-    const data = await apiFetch(`/cycles/${cycleInfo.id}/ghe-scores`);
+    const data = await apiFetchJson(`/cycles/${cycleInfo.id}/ghe-scores`);
     gheScores = data || {};
     renderGheBreakdowns();
   } catch (e) { console.error("ghe_scores_error", e); }
