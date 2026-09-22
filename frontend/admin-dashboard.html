@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>2BeLive · Painel do Administrador</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
   :root {
     /* 2BeLive brand tokens */
@@ -54,7 +54,7 @@
       0 6px 20px rgba(10,23,68,0.09),
       0 20px 44px rgba(10,23,68,0.06);
     /* Font */
-    --font: 'Nunito', -apple-system, 'Segoe UI', sans-serif;
+    --font: 'DM Sans', -apple-system, 'Segoe UI', sans-serif;
     --radius-sm:   4px;
     --radius-md:   8px;
     --radius-lg:   12px;
@@ -99,6 +99,16 @@
     color: var(--ink-soft);
   }
   .lang-toggle button.active { background: var(--color-dark-blue); color: #fff; }
+
+  .header-top-row { display: flex; align-items: center; gap: 10px; align-self: flex-end; }
+  @media (max-width: 640px) { .header-top-row { align-self: flex-start; } }
+  .logout-btn {
+    font-family: var(--font); font-size: 11px; font-weight: 500;
+    padding: 5px 10px; border-radius: 16px; cursor: pointer;
+    border: 1px solid var(--color-border); background: transparent;
+    color: var(--ink-soft); transition: background 0.15s, color 0.15s;
+  }
+  .logout-btn:hover { background: var(--color-error-soft, rgba(254,108,95,0.10)); color: var(--color-error, #fe6c5f); border-color: transparent; }
 
   .rate-card {
     background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow);
@@ -533,14 +543,16 @@
 <div class="wrap hidden" id="dashboardWrap">
   <div class="header">
     <div>
-      <div class="eyebrow" data-k="eyebrow"></div>
       <h1 class="company-name" id="companyNameEl"></h1>
       <div class="cycle-label" id="cycleLabel"></div>
     </div>
     <div class="header-right">
-      <div class="lang-toggle">
-        <button data-lang="pt" class="active">PT</button>
-        <button data-lang="en">EN</button>
+      <div class="header-top-row">
+        <div class="lang-toggle">
+          <button data-lang="pt" class="active">PT</button>
+          <button data-lang="en">EN</button>
+        </div>
+        <button class="logout-btn" id="logoutBtn" data-k="logoutBtn"></button>
       </div>
       <div class="rate-card">
         <div class="rate-label" data-k="responseRate"></div>
@@ -639,7 +651,6 @@
 <script>
 const DICT = {
   pt: {
-    eyebrow: "Diagnóstico Psicossocial · NR-1",
     companyName: "Comércio Alfa Ltda.",
     cycleLabel: "Ciclo: Agosto 2026 · encerrado em 24 ago",
     responseRate: "Taxa de resposta",
@@ -671,6 +682,7 @@ const DICT = {
     loginPasswordLabel: "Senha",
     loginBtn: "Entrar",
     loginBtnLoading: "Entrando...",
+    logoutBtn: "Sair",
     loginErrorInvalid: "E-mail ou senha incorretos.",
     loginErrorNetwork: "Não foi possível conectar ao servidor. Verifique se o backend está rodando.",
     noCycleMsg: "Nenhum ciclo de pesquisa encontrado para esta empresa ainda.",
@@ -696,12 +708,10 @@ const DICT = {
     gheDeleteConfirm: "Remover este GHE? Isso só é possível se nenhum respondente o selecionou.",
     gheHasResponses: "Este GHE já possui respostas e não pode ser removido.",
     gheNameExists: "Já existe um GHE com este nome.",
-    gheBreakdownTitle: "Resultados por GHE",
     gheBreakdownEmpty: "Nenhum dado por GHE disponível ainda.",
     suppressed: "Suprimido",
   },
   en: {
-    eyebrow: "Psychosocial Diagnostic · NR-1",
     companyName: "Comércio Alfa Ltda.",
     cycleLabel: "Cycle: August 2026 · closed Aug 24",
     responseRate: "Response rate",
@@ -733,6 +743,7 @@ const DICT = {
     loginPasswordLabel: "Password",
     loginBtn: "Sign in",
     loginBtnLoading: "Signing in...",
+    logoutBtn: "Log out",
     loginErrorInvalid: "Incorrect email or password.",
     loginErrorNetwork: "Couldn't reach the server. Check that the backend is running.",
     noCycleMsg: "No survey cycle found for this company yet.",
@@ -758,7 +769,6 @@ const DICT = {
     gheDeleteConfirm: "Remove this GHE? Only possible if no respondents have selected it.",
     gheHasResponses: "This GHE already has responses and cannot be removed.",
     gheNameExists: "A GHE with this name already exists.",
-    gheBreakdownTitle: "Results by GHE",
     gheBreakdownEmpty: "No per-GHE data available yet.",
     suppressed: "Suppressed",
   },
@@ -1512,7 +1522,6 @@ function renderGheBreakdowns() {
     if (!hasAnyGhe) { el.innerHTML = ""; return; }
 
     el.innerHTML = `
-      <h4 style="font-size:0.75rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin:1rem 0 0.5rem">${d.gheBreakdownTitle || "Results by GHE"}</h4>
       <table class="ghe-breakdown-table">
         <thead>
           <tr>
@@ -1650,6 +1659,33 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
     btn.textContent = t().loginBtn;
   }
 });
+
+// Enter key in either login field submits, same as clicking the button.
+["loginEmail", "loginPassword"].forEach(id => {
+  document.getElementById(id).addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      document.getElementById("loginBtn").click();
+    }
+  });
+});
+
+function logout() {
+  adminToken = null;
+  companyId = null;
+  cycleId = null;
+  cycleInfo = null;
+  domainScores = [];
+  rewardPoolStatus = null;
+  actionPlans = [];
+  gheList = [];
+  gheScores = {};
+  document.getElementById("loginEmail").value = "";
+  document.getElementById("loginPassword").value = "";
+  document.getElementById("loginError").classList.add("hidden");
+  showLogin();
+}
+document.getElementById("logoutBtn").addEventListener("click", logout);
 
 document.querySelectorAll(".lang-toggle button").forEach(btn => {
   btn.addEventListener("click", () => {
