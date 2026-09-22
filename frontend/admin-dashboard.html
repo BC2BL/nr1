@@ -124,7 +124,10 @@
     padding: 18px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0;
   }
   .domain-card-top { display: flex; flex-direction: column; gap: 6px; }
-  .domain-label { font-size: 13px; font-weight: 600; line-height: 1.25; }
+  /* min-height reserves space for a 2-line title so cards with a short
+     label ("Autonomia") and a long one ("Gestão de Mudanças") still line
+     up at the same starting point across the row. */
+  .domain-label { font-size: 13px; font-weight: 600; line-height: 1.25; min-height: 2.5em; }
   .domain-n { font-family: var(--font); font-size: 11px; color: var(--ink-soft); margin-top: 0; }
   .risk-badge {
     display: inline-block; align-self: flex-start;
@@ -443,23 +446,39 @@
   }
   .ghe-add-btn:hover { opacity: 0.88; }
 
-  /* GHE breakdown table */
+  /* GHE breakdown table — built to fit inside a narrow (~150px) domain
+     card, so this deliberately stays 2 columns, not 4. Score/n/band all
+     collapse into one cell (stacked) rather than each getting their own
+     column, which is what used to force "Suprimido" and the column
+     headers to wrap and break the domain-grid row's alignment. */
   .ghe-breakdown { margin-top: 1.25rem; }
   .ghe-breakdown-table {
-    width: 100%; border-collapse: collapse; font-size: 0.85rem;
+    width: 100%; border-collapse: collapse; font-size: 0.72rem;
+    table-layout: fixed;
   }
+  .ghe-breakdown-table th:first-child,
+  .ghe-breakdown-table td:first-child { width: 56%; }
+  .ghe-breakdown-table th:last-child,
+  .ghe-breakdown-table td:last-child { width: 44%; text-align: right; }
   .ghe-breakdown-table th {
-    text-align: left; padding: 0.4rem 0.75rem;
-    color: var(--color-text-muted); font-weight: 700; font-size: 0.75rem;
-    text-transform: uppercase; letter-spacing: 0.05em;
+    text-align: left; padding: 0.3rem 0.3rem;
+    color: var(--color-text-muted); font-weight: 700; font-size: 0.62rem;
+    text-transform: uppercase; letter-spacing: 0.04em;
     border-bottom: 1.5px solid var(--color-border);
   }
+  .ghe-breakdown-table th:last-child { text-align: right; }
   .ghe-breakdown-table td {
-    padding: 0.5rem 0.75rem;
+    padding: 0.35rem 0.3rem;
     border-bottom: 1px solid var(--line-soft);
     color: var(--color-text-primary);
+    vertical-align: top; word-break: break-word;
   }
   .ghe-breakdown-table tr:last-child td { border-bottom: none; }
+  .ghe-name-cell { line-height: 1.3; }
+  .ghe-score-cell { text-align: right; line-height: 1.3; }
+  .ghe-score-val { white-space: nowrap; }
+  .ghe-score-val.suppressed { opacity: 0.55; font-style: italic; }
+  .ghe-score-n { font-size: 0.62rem; color: var(--color-text-muted); margin-top: 1px; }
   .band-dot {
     display: inline-block; width: 9px; height: 9px;
     border-radius: 50%; margin-right: 5px; vertical-align: middle;
@@ -1499,19 +1518,21 @@ function renderGheBreakdowns() {
           <tr>
             <th>GHE</th>
             <th>Score</th>
-            <th>n</th>
-            <th>Banda</th>
           </tr>
         </thead>
         <tbody>
           ${rows.map(r => {
             const band = r.risk_band || "none";
-            const score = r.mean_score !== null ? Number(r.mean_score).toFixed(2) : `<span style="opacity:.5">${d.suppressed || "—"}</span>`;
+            const suppressed = r.mean_score === null;
+            const scoreContent = suppressed
+              ? (d.suppressed || "—")
+              : `<span class="band-dot ${band}"></span>${Number(r.mean_score).toFixed(2)}`;
             return `<tr>
-              <td>${r.ghe_name}</td>
-              <td>${score}</td>
-              <td>${r.respondent_count}</td>
-              <td><span class="band-dot ${band}"></span>${band !== "none" ? band : "—"}</td>
+              <td class="ghe-name-cell">${r.ghe_name}</td>
+              <td class="ghe-score-cell">
+                <div class="ghe-score-val${suppressed ? " suppressed" : ""}">${scoreContent}</div>
+                <div class="ghe-score-n">n=${r.respondent_count}</div>
+              </td>
             </tr>`;
           }).join("")}
         </tbody>
