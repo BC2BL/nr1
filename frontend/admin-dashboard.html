@@ -1683,7 +1683,9 @@ function logout() {
   document.getElementById("loginEmail").value = "";
   document.getElementById("loginPassword").value = "";
   document.getElementById("loginError").classList.add("hidden");
-  showLogin();
+  // Send the admin back to the main entry page rather than re-showing this
+  // dashboard's own login screen.
+  window.location.href = "https://2blnr1.com/";
 }
 document.getElementById("logoutBtn").addEventListener("click", logout);
 
