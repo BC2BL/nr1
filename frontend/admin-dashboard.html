@@ -500,13 +500,14 @@
 
   .hidden { display: none !important; }
 
-  /* Login gate — matches the 2blnr1.com entry-page brand (navy + orange) */
+  /* Login gate — matches the 2blnr1.com entry-page brand: navy band up top,
+     off-white below, with the card straddling the seam. */
   #loginScreen {
     min-height: 100vh; display: flex; flex-direction: column;
-    background: #0a1744; font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f8; font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
   }
   .login-nav {
-    width: 100%; border-bottom: 1px solid rgba(255,255,255,0.08);
+    width: 100%; background: #0a1744;
   }
   .login-nav-inner {
     max-width: 1120px; margin: 0 auto; padding: 22px 32px;
@@ -523,13 +524,18 @@
     padding: 6px 14px; border-radius: 6px; min-width: 36px;
   }
   .login-lang-toggle button.active { background: #eb6025; }
-  .login-body {
+  /* Navy band continues below the nav — this is what creates the "half navy,
+     half white" split; the card below is pulled up into it with a negative margin. */
+  .login-hero {
+    width: 100%; background: #0a1744; padding: 56px 32px 96px;
+  }
+  .login-card-wrap {
     flex-grow: 1; width: 100%; display: flex; justify-content: center;
-    padding: 72px 24px 96px;
+    margin-top: -64px; padding: 0 24px 80px;
   }
   .login-wrap {
     width: 420px; max-width: 100%; background: #fff; border: 1px solid #e3e5ec;
-    border-radius: 16px; padding: 40px 36px; box-shadow: 0 12px 32px rgba(10,23,68,0.18);
+    border-radius: 16px; padding: 40px 36px; box-shadow: 0 12px 32px rgba(10,23,68,0.14);
     display: flex; flex-direction: column; align-items: center; text-align: center;
     box-sizing: border-box;
   }
@@ -560,12 +566,13 @@
   .login-btn:disabled { background: var(--disabled, #C3CBC9); cursor: default; }
   .login-back-link {
     display: block; margin-top: 20px; text-align: center; font-size: 13px; font-weight: 600;
-    color: rgba(255,255,255,0.75); text-decoration: none;
+    color: #0a1744; text-decoration: none;
   }
   .login-back-link:hover { text-decoration: underline; }
   .login-footer {
-    width: 100%; padding: 20px 32px 28px; text-align: center;
-    font-size: 12px; color: rgba(255,255,255,0.5);
+    width: 100%; margin-top: auto; border-top: 1px solid #e3e5ec;
+    padding: 24px 32px; text-align: center;
+    font-size: 12px; color: #8489a0;
   }
 </style>
 </head>
@@ -582,7 +589,9 @@
     </div>
   </div>
 
-  <div class="login-body">
+  <div class="login-hero"></div>
+
+  <div class="login-card-wrap">
     <div style="width: 420px; max-width: 100%;">
       <div class="login-wrap">
         <div class="login-icon-badge">
