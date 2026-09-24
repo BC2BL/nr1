@@ -500,44 +500,113 @@
 
   .hidden { display: none !important; }
 
-  /* Login gate */
+  /* Login gate — matches the 2blnr1.com entry-page brand (navy + orange) */
+  #loginScreen {
+    min-height: 100vh; display: flex; flex-direction: column;
+    background: #0a1744; font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .login-nav {
+    width: 100%; border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .login-nav-inner {
+    max-width: 1120px; margin: 0 auto; padding: 22px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .login-nav-inner img { height: 32px; width: auto; display: block; }
+  .login-lang-toggle {
+    display: flex; align-items: center; gap: 4px;
+    border: 1px solid rgba(255,255,255,0.4); border-radius: 8px; padding: 4px;
+  }
+  .login-lang-toggle button {
+    border: none; background: transparent; cursor: pointer; color: #ffffff;
+    font-family: inherit; font-size: 13px; font-weight: 700; letter-spacing: 0.03em;
+    padding: 6px 14px; border-radius: 6px; min-width: 36px;
+  }
+  .login-lang-toggle button.active { background: #eb6025; }
+  .login-body {
+    flex-grow: 1; width: 100%; display: flex; justify-content: center;
+    padding: 72px 24px 96px;
+  }
   .login-wrap {
-    max-width: 380px; margin: 80px auto; background: #fff; border: 1px solid var(--line);
-    border-radius: 14px; padding: 32px 28px;
+    width: 420px; max-width: 100%; background: #fff; border: 1px solid #e3e5ec;
+    border-radius: 16px; padding: 40px 36px; box-shadow: 0 12px 32px rgba(10,23,68,0.18);
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    box-sizing: border-box;
   }
-  .login-wrap h1 { font-family: var(--font); font-weight: 600; font-size: 22px; margin: 0 0 8px; }
-  .login-wrap p { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 22px; }
-  .login-field { margin-bottom: 14px; }
-  .login-field label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 6px; }
+  .login-icon-badge {
+    width: 48px; height: 48px; border-radius: 12px; background: rgba(10,23,68,0.06);
+    display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
+  }
+  .login-eyebrow {
+    font-size: 12px; font-weight: 700; color: #0a1744; letter-spacing: 0.06em;
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .login-wrap h1 { font-family: var(--font); font-weight: 700; font-size: 22px; margin: 0 0 8px; color: #0a1744; }
+  .login-wrap p { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 26px; line-height: 1.5; }
+  .login-field { width: 100%; text-align: left; margin-bottom: 14px; }
+  .login-field label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 6px; color: #0a1744; }
   .login-field input {
-    width: 100%; box-sizing: border-box; padding: 11px 13px; border-radius: 8px;
-    border: 1px solid var(--line); font-family: var(--font); font-size: 14px; outline: none;
+    width: 100%; box-sizing: border-box; padding: 11px 13px; border-radius: 10px;
+    border: 1px solid #d7dae3; font-family: var(--font); font-size: 14px; outline: none;
   }
-  .login-field input:focus { border-color: var(--color-primary); }
-  .login-error { font-size: 12px; color: var(--red); margin-bottom: 12px; min-height: 0; }
+  .login-field input:focus { border-color: var(--color-secondary); }
+  .login-error { width: 100%; text-align: left; font-size: 12px; color: var(--red); margin-bottom: 12px; min-height: 0; }
   .login-btn {
-    width: 100%; font-family: var(--font); font-size: 14px; font-weight: 600;
+    width: 100%; font-family: var(--font); font-size: 14px; font-weight: 700;
     background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(235,96,37,0.28);
-    padding: 12px 16px; cursor: pointer; margin-top: 6px;
+    padding: 13px 16px; cursor: pointer; margin-top: 6px;
   }
+  .login-btn:hover { background: #d1531e; }
   .login-btn:disabled { background: var(--disabled, #C3CBC9); cursor: default; }
+  .login-back-link {
+    display: block; margin-top: 20px; text-align: center; font-size: 13px; font-weight: 600;
+    color: rgba(255,255,255,0.75); text-decoration: none;
+  }
+  .login-back-link:hover { text-decoration: underline; }
+  .login-footer {
+    width: 100%; padding: 20px 32px 28px; text-align: center;
+    font-size: 12px; color: rgba(255,255,255,0.5);
+  }
 </style>
 </head>
 <body>
 
-<div class="login-wrap" id="loginScreen">
-  <h1 id="loginTitle">Painel do Administrador</h1>
-  <p id="loginSubtitle">Entre com sua conta para ver os resultados da sua empresa.</p>
-  <div class="login-field">
-    <label id="loginEmailLabel">E-mail</label>
-    <input type="email" id="loginEmail" autocomplete="username" />
+<div id="loginScreen">
+  <div class="login-nav">
+    <div class="login-nav-inner">
+      <img src="/images/2belive-logo.png" alt="2BeLive">
+      <div class="lang-toggle login-lang-toggle">
+        <button data-lang="pt" class="active">PT</button>
+        <button data-lang="en">EN</button>
+      </div>
+    </div>
   </div>
-  <div class="login-field">
-    <label id="loginPasswordLabel">Senha</label>
-    <input type="password" id="loginPassword" autocomplete="current-password" />
+
+  <div class="login-body">
+    <div style="width: 420px; max-width: 100%;">
+      <div class="login-wrap">
+        <div class="login-icon-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0a1744" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>
+        </div>
+        <div class="login-eyebrow" id="loginEyebrow"></div>
+        <h1 id="loginTitle">Painel do Administrador</h1>
+        <p id="loginSubtitle">Entre com sua conta para ver os resultados da sua empresa.</p>
+        <div class="login-field">
+          <label id="loginEmailLabel">E-mail</label>
+          <input type="email" id="loginEmail" autocomplete="username" />
+        </div>
+        <div class="login-field">
+          <label id="loginPasswordLabel">Senha</label>
+          <input type="password" id="loginPassword" autocomplete="current-password" />
+        </div>
+        <div class="login-error hidden" id="loginError"></div>
+        <button class="login-btn" id="loginBtn">Entrar</button>
+      </div>
+      <a href="https://2blnr1.com/" class="login-back-link" id="loginBackLink"></a>
+    </div>
   </div>
-  <div class="login-error hidden" id="loginError"></div>
-  <button class="login-btn" id="loginBtn">Entrar</button>
+
+  <div class="login-footer" id="loginFooter"></div>
 </div>
 
 <div class="wrap hidden" id="dashboardWrap">
@@ -676,12 +745,15 @@ const DICT = {
       3: "Treinamento: comunicação em períodos de mudança organizacional",
       4: "Ampliar autonomia decisória em reuniões de equipe",
     },
+    loginEyebrow: "PAINEL DO ADMINISTRADOR",
     loginTitle: "Painel do Administrador",
     loginSubtitle: "Entre com sua conta para ver os resultados da sua empresa.",
     loginEmailLabel: "E-mail",
     loginPasswordLabel: "Senha",
     loginBtn: "Entrar",
     loginBtnLoading: "Entrando...",
+    loginBackLink: "← Voltar para 2blnr1.com",
+    loginFooter: "© 2026 2BeLive · Todos os direitos reservados mundialmente.",
     logoutBtn: "Sair",
     loginErrorInvalid: "E-mail ou senha incorretos.",
     loginErrorNetwork: "Não foi possível conectar ao servidor. Verifique se o backend está rodando.",
@@ -737,12 +809,15 @@ const DICT = {
       3: "Training: communication during organizational change",
       4: "Expand decision-making autonomy in team meetings",
     },
+    loginEyebrow: "ADMIN DASHBOARD",
     loginTitle: "Admin Dashboard",
     loginSubtitle: "Sign in to see your company's results.",
     loginEmailLabel: "Email",
     loginPasswordLabel: "Password",
     loginBtn: "Sign in",
     loginBtnLoading: "Signing in...",
+    loginBackLink: "← Back to 2blnr1.com",
+    loginFooter: "© 2026 2BeLive · All Rights Reserved Worldwide.",
     logoutBtn: "Log out",
     loginErrorInvalid: "Incorrect email or password.",
     loginErrorNetwork: "Couldn't reach the server. Check that the backend is running.",
@@ -1618,11 +1693,14 @@ function showDashboard() {
 }
 
 function applyLoginText() {
+  document.getElementById("loginEyebrow").textContent = t().loginEyebrow;
   document.getElementById("loginTitle").textContent = t().loginTitle;
   document.getElementById("loginSubtitle").textContent = t().loginSubtitle;
   document.getElementById("loginEmailLabel").textContent = t().loginEmailLabel;
   document.getElementById("loginPasswordLabel").textContent = t().loginPasswordLabel;
   document.getElementById("loginBtn").textContent = t().loginBtn;
+  document.getElementById("loginBackLink").textContent = t().loginBackLink;
+  document.getElementById("loginFooter").textContent = t().loginFooter;
 }
 
 document.getElementById("loginBtn").addEventListener("click", async () => {
