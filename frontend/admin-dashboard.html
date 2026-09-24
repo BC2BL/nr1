@@ -1720,16 +1720,61 @@ applyLoginText();
   showLogin();
 })();
 
-document.getElementById("copySurveyLinkBtn").addEventListener("click", () => {
+// Robust copy: tries the modern Clipboard API first, but falls back to a
+// hidden-textarea + execCommand("copy") trick for mobile browsers / in-app
+// webviews where navigator.clipboard is missing or silently refuses to
+// write (which otherwise leaves whatever was already on the clipboard
+// untouched, with no error and a false "Copied!" message).
+async function copyTextRobust(text) {
+  if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (e) { /* fall through to legacy fallback */ }
+  }
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "0";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+document.getElementById("copySurveyLinkBtn").addEventListener("click", async () => {
   const url = document.getElementById("surveyLinkUrl").textContent;
   const btn = document.getElementById("copySurveyLinkBtn");
-  navigator.clipboard?.writeText(url).catch(() => {});
-  btn.textContent = t().copiedLinkBtn;
-  btn.classList.add("copied");
+  const ok = await copyTextRobust(url);
+  if (ok) {
+    btn.textContent = t().copiedLinkBtn;
+    btn.classList.add("copied");
+  } else {
+    // Couldn't copy programmatically — select the link text so the person
+    // can copy it manually (tap-and-hold → Copy on mobile).
+    const urlEl = document.getElementById("surveyLinkUrl");
+    if (window.getSelection && document.createRange) {
+      const range = document.createRange();
+      range.selectNodeContents(urlEl);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+    btn.textContent = lang === "pt" ? "Toque e copie o link selecionado" : "Tap & copy the selected link";
+  }
   setTimeout(() => {
     btn.textContent = t().copyLinkBtn;
     btn.classList.remove("copied");
-  }, 2000);
+  }, 2500);
 });
 </script>
 
