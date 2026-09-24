@@ -40,12 +40,12 @@
   .lang-btn { transition: opacity 0.15s ease; border: none; cursor: pointer; }
   .lang-btn:hover { opacity: 0.85; }
 
-  .lang-toggle-mobile { display: none; }
+  .lang-toggle-mobile-row { display: none; }
 
   @media (max-width: 720px) {
     .cards-grid { grid-template-columns: 1fr !important; }
     h1 { font-size: 32px !important; }
-    .lang-toggle-mobile { display: flex !important; order: -1; width: 100%; justify-content: flex-end; }
+    .lang-toggle-mobile-row { display: flex !important; order: -1; width: 100%; justify-content: flex-end; }
     .lang-toggle-desktop { display: none !important; }
   }
 </style>
@@ -57,9 +57,11 @@
   <!-- Nav -->
   <div style="width: 100%; background: var(--navy);">
     <div style="max-width: 1120px; margin: 0 auto; padding: 22px 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-      <div class="lang-toggle-mobile" style="align-items: center; gap: 2px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 3px;" role="group" aria-label="Language">
-        <button type="button" id="langPtBtnMobile" class="lang-btn" style="font-size: 12px; font-weight: 700; letter-spacing: 0.03em; padding: 5px 10px; border-radius: 6px;">PT</button>
-        <button type="button" id="langEnBtnMobile" class="lang-btn" style="font-size: 12px; font-weight: 700; letter-spacing: 0.03em; padding: 5px 10px; border-radius: 6px;">EN</button>
+      <div class="lang-toggle-mobile-row">
+        <div style="display: flex; align-items: center; gap: 2px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 3px;" role="group" aria-label="Language">
+          <button type="button" id="langPtBtnMobile" class="lang-btn" style="font-size: 12px; font-weight: 700; letter-spacing: 0.03em; padding: 5px 10px; border-radius: 6px;">PT</button>
+          <button type="button" id="langEnBtnMobile" class="lang-btn" style="font-size: 12px; font-weight: 700; letter-spacing: 0.03em; padding: 5px 10px; border-radius: 6px;">EN</button>
+        </div>
       </div>
       <div style="display: flex; align-items: center; gap: 16px;">
         <div style="display: flex; align-items: center; gap: 12px;">
