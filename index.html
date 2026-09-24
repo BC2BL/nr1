@@ -70,7 +70,6 @@
   <!-- Hero -->
   <div style="width: 100%; background: var(--navy); padding-bottom: 96px;">
     <div style="max-width: 780px; margin: 0 auto; padding: 40px 32px 0; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 18px;">
-      <div id="eyebrow" style="font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase;"></div>
       <h1 id="headline" style="margin: 0; font-size: 42px; line-height: 1.15; font-weight: 700; color: #ffffff; letter-spacing: -0.01em;"></h1>
       <p id="subhead" style="margin: 0; font-size: 17px; line-height: 1.6; color: rgba(255,255,255,0.72); max-width: 560px;"></p>
     </div>
@@ -80,27 +79,27 @@
   <div style="width: 100%; margin-top: -64px; padding: 0 32px 80px;">
     <div class="cards-grid" style="max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px;">
 
-      <a href="/frontend/company-signup.html" class="card-link">
+      <a href="/frontend/company-signup.html" class="card-link" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
         <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(235,96,37,0.12); display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M19 8v6"></path><path d="M22 11h-6"></path></svg>
         </div>
-        <div id="card1Eyebrow" style="font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px;"></div>
+        <div id="card1Eyebrow" style="width: 100%; font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px;"></div>
         <h2 id="card1Title" style="margin: 0 0 10px; font-size: 22px; font-weight: 700; color: var(--navy);"></h2>
         <p id="card1Body" style="margin: 0 0 22px; font-size: 15px; line-height: 1.55; color: #565b6e;"></p>
-        <span class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px; color: #ffffff; font-size: 14px; font-weight: 700; padding: 12px 20px; border-radius: 10px;">
+        <span class="btn-primary" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; color: #ffffff; font-size: 14px; font-weight: 700; padding: 12px 20px; border-radius: 10px;">
           <span id="card1Cta"></span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
         </span>
       </a>
 
-      <a href="/frontend/admin-dashboard.html" class="card-link">
+      <a href="/frontend/admin-dashboard.html" class="card-link" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
         <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(10,23,68,0.06); display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>
         </div>
-        <div id="card2Eyebrow" style="font-size: 12px; font-weight: 700; color: var(--navy); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px;"></div>
+        <div id="card2Eyebrow" style="width: 100%; font-size: 12px; font-weight: 700; color: var(--navy); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px;"></div>
         <h2 id="card2Title" style="margin: 0 0 10px; font-size: 22px; font-weight: 700; color: var(--navy);"></h2>
         <p id="card2Body" style="margin: 0 0 22px; font-size: 15px; line-height: 1.55; color: #565b6e;"></p>
-        <span style="display: inline-flex; align-items: center; gap: 8px; background: var(--navy); color: #ffffff; font-size: 14px; font-weight: 700; padding: 12px 20px; border-radius: 10px;">
+        <span style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--navy); color: #ffffff; font-size: 14px; font-weight: 700; padding: 12px 20px; border-radius: 10px;">
           <span id="card2Cta"></span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
         </span>
@@ -111,9 +110,8 @@
 
   <!-- Footer -->
   <div style="width: 100%; margin-top: auto; border-top: 1px solid #e3e5ec; padding: 24px 32px;">
-    <div style="max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+    <div style="max-width: 1000px; margin: 0 auto; text-align: center;">
       <span id="footerLeft" style="font-size: 13px; color: #8489a0;"></span>
-      <span id="footerRight" style="font-size: 13px; color: #8489a0;"></span>
     </div>
   </div>
 
@@ -123,10 +121,9 @@
   var COPY = {
     pt: {
       navLogin: 'J\u00e1 tem conta? Entrar',
-      eyebrow: 'Portaria MTE 1.416/2024 \u00b7 Cap\u00edtulo 1.5',
-      headline: 'Diagn\u00f3stico, a\u00e7\u00e3o e prova de conformidade com a NR-1',
+      headline: 'Diagn\u00f3stico, a\u00e7\u00e3o e prova de conformidade com a NR\u20111',
       subhead: 'Avalie os riscos psicossociais da sua empresa, gere planos de a\u00e7\u00e3o autom\u00e1ticos e re\u00fana as evid\u00eancias que a fiscaliza\u00e7\u00e3o exige.',
-      card1Eyebrow: 'Sua empresa',
+      card1Eyebrow: 'Adicionar sua empresa',
       card1Title: 'Cadastrar empresa',
       card1Body: 'Crie sua conta, gere o link an\u00f4nimo da pesquisa e comece a coletar respostas dos colaboradores hoje.',
       card1Cta: 'Come\u00e7ar cadastro',
@@ -134,16 +131,14 @@
       card2Title: 'Painel administrativo',
       card2Body: 'Acesse o diagn\u00f3stico dos seus ciclos, acompanhe os planos de a\u00e7\u00e3o e baixe as evid\u00eancias de conformidade.',
       card2Cta: 'Entrar no painel',
-      footerLeft: '\u00a9 2026 2BeLive \u00b7 Ferramenta de tecnologia e aprendizagem, n\u00e3o substitui seu provedor de SST.',
-      footerRight: 'Vig\u00eancia: 26 mai 2026',
+      footerLeft: '\u00a9 2026 2BeLive \u00b7 Todos os direitos reservados mundialmente.',
       htmlLang: 'pt-BR'
     },
     en: {
       navLogin: 'Already have an account? Log in',
-      eyebrow: 'Portaria MTE 1.416/2024 \u00b7 Chapter 1.5',
-      headline: 'Diagnostics, action and proof of NR-1 compliance',
+      headline: 'Diagnostics, action and proof of NR\u20111 compliance',
       subhead: 'Assess your company\u2019s psychosocial risks, generate action plans automatically, and gather the evidence inspectors require.',
-      card1Eyebrow: 'Your company',
+      card1Eyebrow: 'Add your Company',
       card1Title: 'Sign up your company',
       card1Body: 'Create your account, generate the anonymous survey link, and start collecting employee responses today.',
       card1Cta: 'Start sign-up',
@@ -151,8 +146,7 @@
       card2Title: 'Admin dashboard',
       card2Body: 'View your cycle diagnostics, track action plans, and download compliance evidence.',
       card2Cta: 'Go to dashboard',
-      footerLeft: '\u00a9 2026 2BeLive \u00b7 A technology and learning tool \u2014 not a substitute for your occupational health provider.',
-      footerRight: 'In force: 26 May 2026',
+      footerLeft: '\u00a9 2026 2BeLive \u00b7 All Rights Reserved Worldwide.',
       htmlLang: 'en'
     }
   };
@@ -161,7 +155,6 @@
     var t = COPY[lang];
     document.documentElement.lang = t.htmlLang;
     document.getElementById('navLoginLink').textContent = t.navLogin;
-    document.getElementById('eyebrow').textContent = t.eyebrow;
     document.getElementById('headline').textContent = t.headline;
     document.getElementById('subhead').textContent = t.subhead;
     document.getElementById('card1Eyebrow').textContent = t.card1Eyebrow;
@@ -173,7 +166,6 @@
     document.getElementById('card2Body').textContent = t.card2Body;
     document.getElementById('card2Cta').textContent = t.card2Cta;
     document.getElementById('footerLeft').textContent = t.footerLeft;
-    document.getElementById('footerRight').textContent = t.footerRight;
 
     var ptBtn = document.getElementById('langPtBtn');
     var enBtn = document.getElementById('langEnBtn');
