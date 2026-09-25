@@ -88,7 +88,7 @@ router.post("/companies/signup", async (req, res) => {
       admin: { id: admin.id, name: admin.name, email: admin.email },
       company: { id: company.id, name: company.name },
       surveyCycle: { id: cycle.id, inviteUrlToken: cycle.invite_url_token, status: cycle.status },
-      surveyUrl: `https://bc2bl.github.io/nr1/frontend/employee-survey.html?survey=${cycle.invite_url_token}`,
+      surveyUrl: `https://2blnr1.com/frontend/employee-survey.html?survey=${cycle.invite_url_token}`,
     });
   } catch (err) {
     await client.query("ROLLBACK");
