@@ -154,7 +154,9 @@
       card2Body: 'Acesse o diagn\u00f3stico dos seus ciclos, acompanhe os planos de a\u00e7\u00e3o e baixe as evid\u00eancias de conformidade.',
       card2Cta: 'Entrar no painel',
       footerLeft: '\u00a9 2026 2BeLive \u00b7 Todos os direitos reservados mundialmente.',
-      htmlLang: 'pt-BR'
+      htmlLang: 'pt-BR',
+      nr1Url: 'https://www.2belive.net/br/nr-1-services',
+      partnerUrl: 'https://www.2belive.net/br/nr-1-partner-program'
     },
     en: {
       navLogin: 'Already have an account? Log in',
@@ -173,7 +175,9 @@
       card2Body: 'View your cycle diagnostics, track action plans, and download compliance evidence.',
       card2Cta: 'Go to dashboard',
       footerLeft: '\u00a9 2026 2BeLive \u00b7 All Rights Reserved Worldwide.',
-      htmlLang: 'en'
+      htmlLang: 'en',
+      nr1Url: 'https://www.2belive.net/nr-1-services',
+      partnerUrl: 'https://www.2belive.net/nr-1-partner-program'
     }
   };
 
@@ -182,9 +186,13 @@
     document.documentElement.lang = t.htmlLang;
     document.getElementById('navLoginLink').textContent = t.navLogin;
     document.getElementById('navNr1Link').textContent = t.navNr1Link;
+    document.getElementById('navNr1Link').href = t.nr1Url;
     document.getElementById('navPartnerLink').textContent = t.navPartner;
+    document.getElementById('navPartnerLink').href = t.partnerUrl;
     document.getElementById('footerLearnMoreLink').textContent = t.footerLearnMoreNr1;
+    document.getElementById('footerLearnMoreLink').href = t.nr1Url;
     document.getElementById('footerPartnerLink').textContent = t.footerBecomePartner;
+    document.getElementById('footerPartnerLink').href = t.partnerUrl;
     document.getElementById('headline').textContent = t.headline;
     document.getElementById('subhead').textContent = t.subhead;
     document.getElementById('card1Eyebrow').textContent = t.card1Eyebrow;
