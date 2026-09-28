@@ -225,10 +225,30 @@
   document.getElementById('langPtBtnMobile').addEventListener('click', function () { applyLang('pt'); });
   document.getElementById('langEnBtnMobile').addEventListener('click', function () { applyLang('en'); });
 
+  // Auto-detect from the browser/OS language, but only when the visitor
+  // hasn't already picked a language on this site before — an explicit
+  // choice (saved in localStorage) always wins over detection.
+  function detectBrowserLang() {
+    try {
+      var langs = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || navigator.userLanguage || ''];
+      for (var i = 0; i < langs.length; i++) {
+        var l = (langs[i] || '').toLowerCase();
+        if (l.indexOf('pt') === 0) return 'pt';
+        if (l.indexOf('en') === 0) return 'en';
+      }
+    } catch (e) {}
+    return null;
+  }
+
   var initialLang = 'pt';
   try {
     var saved = localStorage.getItem('nr1_lang');
-    if (saved === 'pt' || saved === 'en') initialLang = saved;
+    if (saved === 'pt' || saved === 'en') {
+      initialLang = saved;
+    } else {
+      var detected = detectBrowserLang();
+      if (detected) initialLang = detected;
+    }
   } catch (e) {}
   applyLang(initialLang);
 </script>
