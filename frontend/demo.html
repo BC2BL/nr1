@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NR-1 · Test Drive</title>
+<link rel="icon" type="image/png" href="images/2belive-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -23,13 +24,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1
 button{font-family:inherit;cursor:pointer}
 
 /* top bar + demo banner */
-.topbar{background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;position:sticky;top:0;z-index:10}
-.brand{font-weight:700;letter-spacing:.2px}
-.brand span{color:var(--orange)}
+.topbar{background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;height:52px;padding:0 20px;position:sticky;top:0;z-index:10}
+.brand{display:flex;align-items:center;font-weight:700;letter-spacing:.2px}
+.brand img{height:30px;width:auto;display:block}
 .topbar-right{display:flex;gap:8px;align-items:center}
 .pill-btn{background:transparent;border:1px solid rgba(255,255,255,.45);color:#fff;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:500}
 .pill-btn:hover{background:rgba(255,255,255,.12)}
-.demo-banner{background:var(--orange-soft);color:#8a3512;font-size:13px;font-weight:600;text-align:center;padding:7px 16px;border-bottom:1px solid #f6d3c3;position:sticky;top:50px;z-index:9}
+.demo-banner{background:var(--orange-soft);color:#8a3512;font-size:13px;font-weight:600;text-align:center;padding:7px 16px;border-bottom:1px solid #f6d3c3;position:sticky;top:52px;z-index:9}
 
 /* stepper */
 .stepper{max-width:880px;margin:22px auto 0;padding:0 16px;display:flex;gap:8px}
@@ -147,7 +148,9 @@ a.btn{text-decoration:none;display:inline-block}
 <body>
 
 <div class="topbar">
-  <div class="brand">2Be<span>Live</span> · NR-1</div>
+  <div class="brand">
+    <img src="images/2belive-logo.png" alt="2BeLive">
+  </div>
   <div class="topbar-right">
     <button class="pill-btn" data-act="restart" id="btnRestart"></button>
     <button class="pill-btn" data-act="lang" id="btnLang"></button>
@@ -207,7 +210,7 @@ const DICT = {
     ctaTitle:'Gostou do test drive?',
     ctaBody:'Com os seus dados reais, o mesmo fluxo vira diagnóstico, plano de ação e registro por GHE, sem esforço de planilha.',
     ctaSignup:'Criar minha conta', ctaAgain:'Refazer a demo',
-    foot:'2BeLive · Demonstração com dados fictícios. A 2BeLive oferece tecnologia e apoio de aprendizagem; a interpretação técnica dos riscos cabe ao seu profissional de SST.',
+    foot:'Demonstração com dados fictícios. A 2BeLive oferece tecnologia e apoio de aprendizagem; a interpretação técnica dos riscos cabe ao seu profissional de SST.',
     cur:'Retomar'
   },
   en: {
@@ -251,7 +254,7 @@ const DICT = {
     ctaTitle:'Enjoyed the test drive?',
     ctaBody:'With your real data, the same flow becomes diagnostic, action plan and a per-GHE record, with no spreadsheet effort.',
     ctaSignup:'Create my account', ctaAgain:'Run the demo again',
-    foot:'2BeLive · Demo with fictional data. 2BeLive provides technology and learning support; technical interpretation of risks belongs to your SST professional.',
+    foot:'Demo with fictional data. 2BeLive provides technology and learning support; technical interpretation of risks belongs to your SST professional.',
     cur:'Resume'
   }
 };
