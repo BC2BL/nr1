@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NR-1 · Test Drive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --font:'DM Sans',system-ui,-apple-system,Segoe UI,sans-serif;
+  --navy:#0a1744; --orange:#eb6025; --orange-soft:#fdeee7;
+  --bg:#f5f6fb; --card:#ffffff; --ink:#14183a; --muted:#5b6180; --line:#e2e5f0;
+  --green:#1f9d63; --amber:#d99a00; --red:#d6403a;
+  --green-bg:#e6f5ee; --amber-bg:#fdf3d9; --red-bg:#fbe7e6;
+  --radius:16px; --shadow:0 2px 10px rgba(10,23,68,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.45;-webkit-font-smoothing:antialiased}
+.hidden{display:none!important}
+button{font-family:inherit;cursor:pointer}
+
+/* top bar + demo banner */
+.topbar{background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;position:sticky;top:0;z-index:10}
+.brand{font-weight:700;letter-spacing:.2px}
+.brand span{color:var(--orange)}
+.topbar-right{display:flex;gap:8px;align-items:center}
+.pill-btn{background:transparent;border:1px solid rgba(255,255,255,.45);color:#fff;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:500}
+.pill-btn:hover{background:rgba(255,255,255,.12)}
+.demo-banner{background:var(--orange-soft);color:#8a3512;font-size:13px;font-weight:600;text-align:center;padding:7px 16px;border-bottom:1px solid #f6d3c3;position:sticky;top:50px;z-index:9}
+
+/* stepper */
+.stepper{max-width:880px;margin:22px auto 0;padding:0 16px;display:flex;gap:8px}
+.step{flex:1;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:500;padding:8px 10px;border-radius:12px;border:1px solid transparent;background:transparent;text-align:left}
+.step .n{width:24px;height:24px;border-radius:50%;background:var(--line);color:var(--muted);display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+.step.done .n{background:var(--green);color:#fff}
+.step.current{background:var(--card);border-color:var(--line);color:var(--ink);box-shadow:var(--shadow)}
+.step.current .n{background:var(--orange);color:#fff}
+.step.clickable{cursor:pointer}
+@media(max-width:560px){.step .lbl{display:none}.step{justify-content:center}}
+
+main{max-width:880px;margin:0 auto;padding:18px 16px 60px}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px}
+.eyebrow{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--orange);font-weight:700;margin:0 0 6px}
+h1{font-size:26px;line-height:1.2;margin:0 0 8px;color:var(--navy)}
+h2{font-size:20px;margin:0 0 6px;color:var(--navy)}
+h3{font-size:15px;margin:0 0 4px}
+p.lead{color:var(--muted);margin:0 0 18px}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+
+.btn{border:0;border-radius:12px;padding:12px 20px;font-size:15px;font-weight:600}
+.btn.primary{background:var(--orange);color:#fff}
+.btn.primary:hover{filter:brightness(.95)}
+.btn.ghost{background:transparent;color:var(--navy);border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--bg)}
+.link-btn{background:none;border:0;color:var(--muted);text-decoration:underline;font-size:13.5px;padding:6px 0}
+
+/* GHE picker */
+.opts{display:grid;gap:10px;margin:16px 0 18px}
+.opt{background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;font-size:15px;font-weight:500;text-align:left;color:var(--ink)}
+.opt:hover{border-color:var(--orange)}
+.opt.sel{border-color:var(--orange);background:var(--orange-soft)}
+.actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+
+/* quiz */
+.progress{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:6px}
+.progress>i{display:block;height:100%;background:var(--orange);transition:width .25s}
+.qtext{font-size:21px;font-weight:600;color:var(--navy);margin:20px 0 22px;line-height:1.3}
+.likert{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.lk{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:14px 4px;font-size:12.5px;font-weight:500;color:var(--ink);display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center}
+.lk b{font-size:18px;color:var(--navy)}
+.lk:hover{border-color:var(--orange)}
+.lk.sel{border-color:var(--orange);background:var(--orange-soft)}
+@media(max-width:560px){.likert{grid-template-columns:1fr}.lk{flex-direction:row;justify-content:flex-start;padding:12px 14px;gap:12px}}
+.note{background:var(--bg);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--muted);margin-top:18px}
+
+/* dashboard */
+.dash-head{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:flex-start;margin-bottom:14px}
+.kpis{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 16px}
+.kpi{background:var(--bg);border-radius:12px;padding:10px 14px;font-size:13px}
+.kpi b{display:block;font-size:20px;color:var(--navy)}
+.slider-box{background:var(--bg);border-radius:12px;padding:12px 14px;margin-bottom:16px}
+.slider-row{display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600}
+.slider-row input{flex:1;accent-color:var(--orange)}
+.slider-row output{min-width:24px;text-align:center;color:var(--orange);font-size:18px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:2px 0 14px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:baseline}
+.dot.green{background:var(--green)}.dot.amber{background:var(--amber)}.dot.red{background:var(--red)}.dot.none{background:#b8bdd1}
+.domain-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.dcard{background:var(--card);border:1.5px solid var(--line);border-top-width:5px;border-radius:14px;padding:12px;text-align:left;font-family:inherit;color:inherit;display:flex;flex-direction:column}
+.dcard.green{border-top-color:var(--green)}.dcard.amber{border-top-color:var(--amber)}.dcard.red{border-top-color:var(--red)}
+.dcard:hover{box-shadow:var(--shadow);border-color:var(--line)}
+.domain-label{font-size:13px;font-weight:600;min-height:2.6em;color:var(--navy)}
+.domain-score{font-size:30px;font-weight:700;line-height:1.1;margin:2px 0 2px}
+.domain-score.green{color:var(--green)}.domain-score.amber{color:var(--amber)}.domain-score.red{color:var(--red)}
+.domain-n{font-size:11.5px;color:var(--muted);margin-bottom:8px}
+table.ghe{width:100%;table-layout:fixed;border-collapse:collapse;border-top:1px solid var(--line)}
+table.ghe td{padding:6px 0;vertical-align:top;border-bottom:1px solid var(--line);font-size:12px}
+table.ghe tr:last-child td{border-bottom:0}
+table.ghe .gname{word-break:break-word;padding-right:6px}
+table.ghe .gscore{text-align:right;font-weight:700}
+table.ghe .gscore small{display:block;font-weight:500;color:var(--muted);font-size:10.5px}
+.you-tag{background:var(--orange);color:#fff;border-radius:6px;font-size:9.5px;font-weight:700;padding:1px 5px;margin-left:3px}
+.cta-row{display:flex;justify-content:flex-end;margin-top:20px}
+
+/* action plan */
+.tabs{display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--line)}
+.tab{background:none;border:0;padding:10px 14px;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;font-size:14.5px}
+.tab.on{color:var(--navy);border-bottom-color:var(--orange)}
+details.plan{border:1.5px solid var(--line);border-radius:14px;margin-bottom:12px;background:#fff;overflow:hidden}
+details.plan summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;justify-content:space-between;gap:10px;align-items:center;font-weight:600}
+details.plan summary::-webkit-details-marker{display:none}
+.badge{font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.badge.red{background:var(--red-bg);color:var(--red)}.badge.amber{background:var(--amber-bg);color:#8a6200}.badge.green{background:var(--green-bg);color:var(--green)}
+.plan-body{padding:0 16px 16px;display:grid;gap:12px}
+.plan-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(max-width:620px){.plan-grid{grid-template-columns:1fr}}
+.field{background:var(--bg);border-radius:12px;padding:10px 12px;font-size:13.5px}
+.field .k{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700;margin-bottom:3px}
+.field ul{margin:0;padding-left:18px}
+.field.wide{grid-column:1/-1}
+.assign{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13.5px}
+.assign .btn{padding:9px 14px;font-size:14px}
+.assigned{color:var(--green);font-weight:700}
+.evi-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:14px}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table.evi{border-collapse:collapse;width:100%;min-width:680px;font-size:13px}
+table.evi th,table.evi td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:center}
+table.evi th{background:var(--bg);font-size:12px;color:var(--navy)}
+table.evi td:first-child,table.evi th:first-child{text-align:left;font-weight:600}
+table.evi tr.total td{background:var(--bg)}
+table.evi td small{display:block;color:var(--muted);font-size:10.5px}
+.disclaimer{background:var(--amber-bg);color:#6e4d00;border-radius:12px;padding:12px 14px;font-size:13px;margin-top:14px}
+.final-cta{background:var(--navy);color:#fff;border-radius:var(--radius);padding:26px;margin-top:22px;text-align:center}
+.final-cta h2{color:#fff}
+.final-cta p{color:#c9d0ee;margin:0 0 16px}
+.final-cta .actions{justify-content:center}
+.final-cta .btn.ghost{color:#fff;border-color:rgba(255,255,255,.4)}
+.final-cta .btn.ghost:hover{background:rgba(255,255,255,.1)}
+footer{max-width:880px;margin:0 auto;padding:0 16px 40px;text-align:center;font-size:12px;color:var(--muted)}
+a.btn{text-decoration:none;display:inline-block}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">2Be<span>Live</span> · NR-1</div>
+  <div class="topbar-right">
+    <button class="pill-btn" data-act="restart" id="btnRestart"></button>
+    <button class="pill-btn" data-act="lang" id="btnLang"></button>
+  </div>
+</div>
+<div class="demo-banner" id="banner"></div>
+<div class="stepper" id="stepper"></div>
+<main id="app"></main>
+<footer id="foot"></footer>
+
+<script>
+/* ============================================================
+   NR-1 Test Drive — fully client-side. No network calls, no storage.
+   Everything lives in the S object below and disappears on refresh.
+   ============================================================ */
+
+/* ---------- i18n ---------- */
+const DICT = {
+  pt: {
+    restart:'Reiniciar', langBtn:'EN',
+    banner:'DEMO · dados fictícios · nada do que você responde é enviado ou salvo',
+    step1:'Colaborador', step2:'Painel do gestor', step3:'Ação e evidência',
+    eyebrow:'Pesquisa Anônima de Bem-Estar',
+    intro:'Você foi convidado(a) a responder a pesquisa anônima de bem-estar da {co}.',
+    pickTitle:'Seu grupo de trabalho',
+    pickHint:'Escolha o grupo que melhor descreve onde você atua. Os resultados só aparecem para grupos com respondentes suficientes, para proteger o anonimato.',
+    start:'Começar', skip:'Pular e ir direto ao painel do gestor',
+    qOf:'Pergunta {i} de {n}', back:'Voltar',
+    quizNote:'Nesta demo você responde 7 perguntas de exemplo, uma por fator do HSE-IT. A pesquisa completa tem 35 perguntas e leva cerca de 10 minutos.',
+    freq:['Nunca','Raramente','Às vezes','Frequentemente','Sempre'],
+    agree:['Discordo totalmente','Discordo','Neutro','Concordo','Concordo totalmente'],
+    thanksTitle:'Obrigado! Suas respostas foram registradas.',
+    thanksBody:'Foi isso que o colaborador vê: simples, rápido e anônimo. Agora veja o outro lado: o que o gestor enxerga depois que {n} pessoas responderam. As suas respostas entraram nessa conta.',
+    seeDash:'Ver o painel do gestor',
+    dashTitle:'Painel do gestor',
+    dashSub:'Ciclo de demonstração · HSE-IT · escala 1 a 5 (maior = melhor)',
+    kRespondents:'Respondentes', kInvited:'de {n} convidados', kRate:'Taxa de resposta',
+    minTitle:'Mínimo de respondentes para exibir um grupo',
+    minHint:'Arraste para baixo e veja grupos pequenos serem expostos. Por isso o padrão protege o anonimato: abaixo do mínimo, o grupo aparece como “Suprimido”.',
+    lgGreen:'Verde ≥ 3,5', lgAmber:'Âmbar ≥ 2,5', lgRed:'Vermelho < 2,5', lgNone:'Suprimido',
+    companyAll:'Empresa toda', nResp:'n={n}', suppressed:'Suprimido', you:'você',
+    dashHint:'Clique em um fator para ver o plano de ação sugerido.',
+    toAction:'Ver plano de ação',
+    tabPlan:'Plano de ação', tabEvi:'Evidência para inspeção',
+    planIntro:'Fatores que pedem atenção, do mais crítico ao menos crítico. Em produção, os planos são gerados a partir dos resultados; aqui são exemplos pré-escritos.',
+    noPlan:'Nenhum fator em faixa de atenção. Tente subir o mínimo de respondentes ou responder de forma diferente.',
+    worst:'Grupo mais afetado', current:'Situação atual', desired:'Estado desejado',
+    solutions:'Soluções práticas', who:'Quem conduz', when:'Quando', feedback:'Como a equipe recebe retorno',
+    currentTxt:'Pontuação {s} na empresa ({b}).',
+    bandName:{green:'verde', amber:'âmbar', red:'vermelho'},
+    bandBadge:{green:'Verde', amber:'Âmbar', red:'Vermelho'},
+    assign:'Atribuir treinamento', assigned:'Atribuído a 12 gestores', course:'Curso sugerido',
+    eviTitle:'Registro por grupo (GHE)',
+    eviCompany:'Empresa', eviInstrument:'Instrumento', eviInstrumentV:'HSE-IT (35 itens)', eviCycle:'Ciclo', eviCycleV:'Demonstração',
+    eviMin:'Mínimo para exibir', eviDate:'Gerado em', eviMethod:'Método', eviMethodV:'Média por respondente; respondentes com ≥ 80% das perguntas do fator',
+    eviDisc:'Amostra ilustrativa com dados fictícios. Não constitui registro de inspeção nem atesta conformidade com a NR-1. Na plataforma real, o registro reúne os resultados por Grupo Homogêneo de Exposição do seu ciclo.',
+    ctaTitle:'Gostou do test drive?',
+    ctaBody:'Com os seus dados reais, o mesmo fluxo vira diagnóstico, plano de ação e registro por GHE, sem esforço de planilha.',
+    ctaSignup:'Criar minha conta', ctaAgain:'Refazer a demo',
+    foot:'2BeLive · Demonstração com dados fictícios. A 2BeLive oferece tecnologia e apoio de aprendizagem; a interpretação técnica dos riscos cabe ao seu profissional de SST.',
+    cur:'Retomar'
+  },
+  en: {
+    restart:'Restart', langBtn:'PT',
+    banner:'DEMO · fictional data · nothing you answer is sent or saved',
+    step1:'Employee', step2:'Manager dashboard', step3:'Action & evidence',
+    eyebrow:'Anonymous Wellbeing Survey',
+    intro:'You\'ve been invited to take {co}\'s anonymous wellbeing survey.',
+    pickTitle:'Your work group',
+    pickHint:'Pick the group that best describes where you work. Results are only shown for groups with enough respondents, to protect anonymity.',
+    start:'Start', skip:'Skip and go straight to the manager dashboard',
+    qOf:'Question {i} of {n}', back:'Back',
+    quizNote:'In this demo you answer 7 sample questions, one per HSE-IT factor. The full survey has 35 questions and takes about 10 minutes.',
+    freq:['Never','Seldom','Sometimes','Often','Always'],
+    agree:['Strongly disagree','Disagree','Neutral','Agree','Strongly agree'],
+    thanksTitle:'Thank you! Your answers were recorded.',
+    thanksBody:'That is what an employee sees: simple, quick and anonymous. Now see the other side: what the manager sees once {n} people have responded. Your answers are included in the numbers.',
+    seeDash:'See the manager dashboard',
+    dashTitle:'Manager dashboard',
+    dashSub:'Demo cycle · HSE-IT · 1 to 5 scale (higher = better)',
+    kRespondents:'Respondents', kInvited:'of {n} invited', kRate:'Response rate',
+    minTitle:'Minimum respondents to show a group',
+    minHint:'Drag it down and watch small groups get exposed. That is why the default protects anonymity: below the minimum, a group shows as “Suppressed”.',
+    lgGreen:'Green ≥ 3.5', lgAmber:'Amber ≥ 2.5', lgRed:'Red < 2.5', lgNone:'Suppressed',
+    companyAll:'Whole company', nResp:'n={n}', suppressed:'Suppressed', you:'you',
+    dashHint:'Click a factor to see its suggested action plan.',
+    toAction:'See action plan',
+    tabPlan:'Action plan', tabEvi:'Inspection evidence',
+    planIntro:'Factors needing attention, most critical first. In production, plans are generated from your results; here they are pre-written examples.',
+    noPlan:'No factor is in an attention band. Try raising the minimum respondents or answering differently.',
+    worst:'Most affected group', current:'Current state', desired:'Desired state',
+    solutions:'Practical solutions', who:'Who leads', when:'When', feedback:'How staff receive feedback',
+    currentTxt:'Company score {s} ({b}).',
+    bandName:{green:'green', amber:'amber', red:'red'},
+    bandBadge:{green:'Green', amber:'Amber', red:'Red'},
+    assign:'Assign training', assigned:'Assigned to 12 managers', course:'Suggested course',
+    eviTitle:'Record by group (GHE)',
+    eviCompany:'Company', eviInstrument:'Instrument', eviInstrumentV:'HSE-IT (35 items)', eviCycle:'Cycle', eviCycleV:'Demonstration',
+    eviMin:'Minimum to display', eviDate:'Generated on', eviMethod:'Method', eviMethodV:'Per-respondent mean; respondents with ≥ 80% of the factor\'s questions',
+    eviDisc:'Illustrative sample with fictional data. It is not an inspection record and does not attest NR-1 compliance. In the real platform, the record gathers your cycle\'s results by Homogeneous Exposure Group.',
+    ctaTitle:'Enjoyed the test drive?',
+    ctaBody:'With your real data, the same flow becomes diagnostic, action plan and a per-GHE record, with no spreadsheet effort.',
+    ctaSignup:'Create my account', ctaAgain:'Run the demo again',
+    foot:'2BeLive · Demo with fictional data. 2BeLive provides technology and learning support; technical interpretation of risks belongs to your SST professional.',
+    cur:'Resume'
+  }
+};
+
+/* ---------- demo content ---------- */
+const COMPANY = { pt:'Acme Logística', en:'Acme Logistics' };
+const SEATS = 60;
+
+const DOMAINS = [
+  { id:'demands',       pt:'Demandas',            en:'Demands' },
+  { id:'control',       pt:'Controle',            en:'Control' },
+  { id:'mgr_support',   pt:'Apoio da chefia',     en:'Managers\' support' },
+  { id:'peer_support',  pt:'Apoio dos colegas',   en:'Peer support' },
+  { id:'relationships', pt:'Relacionamentos',     en:'Relationships' },
+  { id:'role',          pt:'Papel',               en:'Role' },
+  { id:'change',        pt:'Mudança',             en:'Change' }
+];
+
+const GHES = [
+  { id:'ghe-ops', pt:'Operações',      en:'Operations',  synthN:17 },
+  { id:'ghe-adm', pt:'Administrativo', en:'Admin',       synthN:12 },
+  { id:'ghe-atd', pt:'Atendimento',    en:'Customer care', synthN:7 },
+  { id:'ghe-man', pt:'Manutenção',     en:'Maintenance', synthN:3 }
+];
+
+/* target means per GHE per domain (higher = better) */
+const TARGETS = {
+  'ghe-ops': { demands:1.9, control:2.9, mgr_support:3.1, peer_support:3.9, relationships:3.1, role:3.9, change:1.9 },
+  'ghe-adm': { demands:2.7, control:3.9, mgr_support:3.9, peer_support:4.1, relationships:3.9, role:4.2, change:3.0 },
+  'ghe-atd': { demands:2.0, control:2.3, mgr_support:3.0, peer_support:3.7, relationships:2.8, role:3.2, change:2.2 },
+  'ghe-man': { demands:2.6, control:3.0, mgr_support:3.1, peer_support:3.8, relationships:3.2, role:3.7, change:2.8 }
+};
+
+/* Real HSE-IT items (one per factor). reverse = negatively worded item. */
+const QUESTIONS = [
+  { id:'q-role',   domain:'role',          reverse:false, scale:'freq',  pt:'Tenho clareza do que se espera de mim no trabalho.', en:'I am clear what is expected of me at work' },
+  { id:'q-dem',    domain:'demands',       reverse:true,  scale:'freq',  pt:'Tenho prazos impossíveis de cumprir.', en:'I have unachievable deadlines' },
+  { id:'q-ctl',    domain:'control',       reverse:false, scale:'freq',  pt:'Posso decidir quando fazer uma pausa.', en:'I can decide when to take a break' },
+  { id:'q-mgr',    domain:'mgr_support',   reverse:false, scale:'freq',  pt:'Posso contar com minha chefia imediata para me ajudar com um problema de trabalho.', en:'I can rely on my line manager to help me out with a work problem' },
+  { id:'q-peer',   domain:'peer_support',  reverse:false, scale:'freq',  pt:'Quando o trabalho fica difícil, meus colegas me ajudam.', en:'If work gets difficult, my colleagues will help me' },
+  { id:'q-rel',    domain:'relationships', reverse:true,  scale:'freq',  pt:'Há atrito ou raiva entre colegas.', en:'There is friction or anger between colleagues' },
+  { id:'q-chg',    domain:'change',        reverse:false, scale:'agree', pt:'Quando há mudanças no trabalho, tenho clareza de como elas vão funcionar na prática.', en:'When changes are made at work, I am clear how they will work out in practice' }
+];
+
+/* Pre-written example plans, paraphrasing HSE Management Standards guidance */
+const PLANS = {
+  demands: {
+    course:{ pt:'Gestão de carga de trabalho e prioridades para líderes', en:'Workload and priority management for leaders' },
+    pt:{ desired:'Cargas e prazos adequados e viáveis dentro da jornada acordada.',
+      solutions:['Planejar a carga com antecedência e prever picos (como períodos de férias), pedindo reforço temporário a outras áreas quando preciso.','Ajudar a equipe a priorizar ou renegociar prazos e combinar ajustes de escala nos picos.'],
+      who:'Gestores de linha, com apoio da direção', when:'Levar à próxima reunião de lideranças; revisão mensal', feedback:'Resumo na reunião de equipe e no canal interno' },
+    en:{ desired:'Workloads and deadlines are adequate and achievable within the agreed hours.',
+      solutions:['Plan workloads ahead and anticipate peaks (such as holiday periods), asking other teams for temporary resources when needed.','Help the team prioritise or renegotiate deadlines and agree rota adjustments for peaks.'],
+      who:'Line managers, supported by senior leadership', when:'Raise at the next leadership meeting; review monthly', feedback:'Summary at team meetings and on the internal channel' }
+  },
+  control: {
+    course:{ pt:'Autonomia e delegação na prática', en:'Autonomy and delegation in practice' },
+    pt:{ desired:'Colaboradores têm voz sobre como, quando e em que ritmo realizam o trabalho.',
+      solutions:['Permitir que a equipe planeje o próprio trabalho e decida como resolver problemas (reuniões 1:1, revisões de projeto).','Revisar quanta supervisão é realmente necessária e ampliar o uso das habilidades de cada pessoa.'],
+      who:'Gestores de linha e RH', when:'Piloto em um grupo em até 60 dias', feedback:'Pesquisa-relâmpago ao fim do piloto' },
+    en:{ desired:'Employees have a say in how, when and at what pace they do their work.',
+      solutions:['Let teams plan their own work and decide how to tackle problems (1:1s, project reviews).','Review how much supervision is really needed and make fuller use of each person\'s skills.'],
+      who:'Line managers and HR', when:'Pilot with one group within 60 days', feedback:'Quick pulse survey at the end of the pilot' }
+  },
+  mgr_support: {
+    course:{ pt:'Liderança que escuta e apoia', en:'Leading with listening and support' },
+    pt:{ desired:'Chefias oferecem apoio e incentivo, inclusive quando algo dá errado.',
+      solutions:['Realizar reuniões 1:1 regulares para tratar pressões que estão surgindo.','Capacitar lideranças em escuta ativa e apoio à equipe.'],
+      who:'RH e gestores de linha', when:'1:1s mensais a partir do próximo mês', feedback:'Tema fixo nas reuniões de equipe' },
+    en:{ desired:'Managers give support and encouragement, even when things go wrong.',
+      solutions:['Hold regular 1:1s to discuss emerging pressures.','Train leaders in active listening and team support.'],
+      who:'HR and line managers', when:'Monthly 1:1s starting next month', feedback:'Standing item at team meetings' }
+  },
+  peer_support: {
+    course:{ pt:'Colaboração e comunicação entre colegas', en:'Collaboration and peer communication' },
+    pt:{ desired:'Colegas se ajudam e se escutam quando o trabalho aperta.',
+      solutions:['Criar encontros regulares de equipe para falar das pressões da unidade.','Reconhecer contribuições individuais e boas práticas de colaboração.'],
+      who:'Gestores de linha', when:'Encontros quinzenais', feedback:'Reconhecimentos divulgados ao time' },
+    en:{ desired:'Colleagues help and listen to each other when work gets tough.',
+      solutions:['Create regular team sessions to discuss unit pressures.','Recognise individual contributions and good collaboration practices.'],
+      who:'Line managers', when:'Fortnightly sessions', feedback:'Recognition shared with the team' }
+  },
+  relationships: {
+    course:{ pt:'Convivência respeitosa e prevenção de assédio', en:'Respectful workplaces and harassment prevention' },
+    pt:{ desired:'Ambiente de confiança, sem assédio, com conflitos resolvidos rapidamente.',
+      solutions:['Revisar a política contra assédio e conflitos e comunicar o apoio explícito da direção.','Manter um canal confidencial de denúncia e capacitar equipes para lidar com situações difíceis.'],
+      who:'Direção, RH e comitê responsável', when:'Política revisada em 45 dias', feedback:'Comunicado a todos e relatório anual agregado' },
+    en:{ desired:'A trusting workplace without harassment, where conflict is resolved quickly.',
+      solutions:['Review the harassment and conflict policy and communicate leadership\'s clear support.','Keep a confidential reporting channel and train teams to handle difficult situations.'],
+      who:'Leadership, HR and the responsible committee', when:'Policy reviewed within 45 days', feedback:'Announcement to all and an aggregated annual report' }
+  },
+  role: {
+    course:{ pt:'Clareza de papéis e expectativas', en:'Role clarity and expectations' },
+    pt:{ desired:'Cada pessoa entende suas responsabilidades e como seu trabalho contribui para a organização.',
+      solutions:['Atualizar descrições de cargo e planos individuais de trabalho.','Reforçar a integração de novos colaboradores e conversar sobre expectativas nos 1:1.'],
+      who:'RH e gestores de linha', when:'Próximo trimestre', feedback:'Descrições publicadas e revisadas anualmente' },
+    en:{ desired:'Everyone understands their responsibilities and how their work fits the organisation.',
+      solutions:['Update job descriptions and personal work plans.','Strengthen onboarding for new staff and discuss expectations in 1:1s.'],
+      who:'HR and line managers', when:'Next quarter', feedback:'Descriptions published and reviewed annually' }
+  },
+  change: {
+    course:{ pt:'Comunicando mudanças com transparência', en:'Communicating change transparently' },
+    pt:{ desired:'Colaboradores entendem os motivos das mudanças e participam delas.',
+      solutions:['Comunicar mudanças cedo, explicando motivos, cronograma e impacto no dia a dia.','Abrir um canal para dúvidas e envolver a equipe antes, durante e depois da mudança.'],
+      who:'Direção e gestores de linha', when:'A cada mudança relevante', feedback:'Reunião de esclarecimento e canal de perguntas' },
+    en:{ desired:'Employees understand the reasons for change and take part in it.',
+      solutions:['Communicate changes early, explaining the reasons, timetable and day-to-day impact.','Open a channel for questions and involve the team before, during and after the change.'],
+      who:'Leadership and line managers', when:'Whenever a significant change is planned', feedback:'Briefing session and a question channel' }
+  }
+};
+
+/* ---------- scoring (mirrors production rules) ---------- */
+function itemScore(q, raw){ return q.reverse ? 6 - raw : raw; }          // reverse-scored: 6 - raw
+function bandOf(m){ return m >= 3.5 ? 'green' : (m >= 2.5 ? 'amber' : 'red'); }
+
+function visitorScores(){
+  const out = {};
+  DOMAINS.forEach(d=>{
+    const qs = QUESTIONS.filter(q=>q.domain===d.id);
+    const answered = qs.filter(q=>S.answers[q.id]!=null);
+    if (qs.length && answered.length/qs.length >= 0.8){                    // >= 80% rule
+      out[d.id] = answered.reduce((s,q)=>s+itemScore(q,S.answers[q.id]),0)/answered.length;
+    }
+  });
+  return out;
+}
+
+function agg(list, d){
+  const v = list.map(r=>r.scores[d]).filter(x=>x!=null);
+  const n = v.length;
+  if (n < S.minResp) return { n, mean:null, band:null, sup:true };         // suppression
+  const m = v.reduce((a,b)=>a+b,0)/n;
+  return { n, mean:m, band:bandOf(m), sup:false };
+}
+
+/* deterministic synthetic respondents */
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+const SYNTH = (function(){
+  const rnd = mulberry32(20261009), out = [];
+  GHES.forEach(g=>{
+    for (let i=0;i<g.synthN;i++){
+      const scores = {};
+      DOMAINS.forEach(d=>{
+        const v = TARGETS[g.id][d.id] + (rnd()-0.5)*1.4;
+        scores[d.id] = Math.round(Math.min(5,Math.max(1,v))*100)/100;
+      });
+      out.push({ ghe:g.id, scores, you:false });
+    }
+  });
+  return out;
+})();
+
+function allRespondents(){
+  const list = SYNTH.slice();
+  if (S.completed && S.gheId) list.push({ ghe:S.gheId, scores:visitorScores(), you:true });
+  return list;
+}
+
+/* ---------- state ---------- */
+const S = { lang:'pt', screen:'picker', gheId:null, qi:0, answers:{}, completed:false, minResp:5, tab:'plan', open:null, assigned:{} };
+
+/* ---------- helpers ---------- */
+const t = (k, p) => { let s = DICT[S.lang][k]; if (typeof s==='string' && p) Object.keys(p).forEach(x=>{ s = s.replace('{'+x+'}', p[x]); }); return s; };
+const L = o => o[S.lang];
+const fmt = n => n.toFixed(1).replace('.', S.lang==='pt' ? ',' : '.');
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const app = document.getElementById('app');
+
+/* ---------- screens ---------- */
+function renderChrome(){
+  document.documentElement.lang = S.lang==='pt' ? 'pt-BR' : 'en';
+  document.getElementById('btnLang').textContent = t('langBtn');
+  document.getElementById('btnRestart').textContent = t('restart');
+  document.getElementById('banner').textContent = t('banner');
+  document.getElementById('foot').textContent = t('foot');
+  const idx = S.screen==='dash' ? 1 : (S.screen==='action' ? 2 : 0);
+  const reached = (S.screen==='dash'||S.screen==='action');
+  const names = [t('step1'), t('step2'), t('step3')];
+  document.getElementById('stepper').innerHTML = names.map((n,i)=>{
+    const cls = i===idx ? 'current' : (i<idx ? 'done' : '');
+    const click = (reached && i>0 && i!==idx) ? ' clickable' : '';
+    const target = i===1 ? 'dash' : 'action';
+    return `<button class="step ${cls}${click}" ${click?`data-act="go" data-screen="${target}"`:'disabled'}><span class="n">${i<idx?'✓':i+1}</span><span class="lbl">${esc(n)}</span></button>`;
+  }).join('');
+}
+
+function renderPicker(){
+  app.innerHTML = `<div class="card">
+    <p class="eyebrow">${esc(t('eyebrow'))}</p>
+    <h1>${esc(t('pickTitle'))}</h1>
+    <p class="lead">${esc(t('intro',{co:L(COMPANY)}))}</p>
+    <p class="muted small" style="margin:0">${esc(t('pickHint'))}</p>
+    <div class="opts">${GHES.map(g=>`<button class="opt ${S.gheId===g.id?'sel':''}" data-act="pick" data-ghe="${g.id}">${esc(L(g))}</button>`).join('')}</div>
+    <div class="actions">
+      <button class="btn primary" data-act="start" ${S.gheId?'':'disabled style="opacity:.45;cursor:not-allowed"'}>${esc(t('start'))}</button>
+      <button class="link-btn" data-act="skip">${esc(t('skip'))}</button>
+    </div></div>`;
+}
+
+function renderQuiz(){
+  const q = QUESTIONS[S.qi], n = QUESTIONS.length;
+  const labels = DICT[S.lang][q.scale];
+  app.innerHTML = `<div class="card">
+    <div class="progress"><i style="width:${(S.qi/n)*100}%"></i></div>
+    <div class="muted small">${esc(t('qOf',{i:S.qi+1,n}))}</div>
+    <div class="qtext">${esc(L(q))}</div>
+    <div class="likert">${labels.map((lab,i)=>`<button class="lk ${S.answers[q.id]===i+1?'sel':''}" data-act="answer" data-v="${i+1}"><b>${i+1}</b>${esc(lab)}</button>`).join('')}</div>
+    <div class="actions" style="margin-top:18px">${S.qi>0?`<button class="btn ghost" data-act="prev">${esc(t('back'))}</button>`:''}</div>
+    <div class="note">${esc(t('quizNote'))}</div></div>`;
+}
+
+function renderThanks(){
+  const n = allRespondents().length;
+  app.innerHTML = `<div class="card" style="text-align:center">
+    <p class="eyebrow">${esc(t('eyebrow'))}</p>
+    <h1>${esc(t('thanksTitle'))}</h1>
+    <p class="lead" style="max-width:560px;margin:0 auto 22px">${esc(t('thanksBody',{n}))}</p>
+    <button class="btn primary" data-act="go" data-screen="dash">${esc(t('seeDash'))}</button></div>`;
+}
+
+function dashBody(){
+  const list = allRespondents();
+  const total = list.length;
+  const cards = DOMAINS.map(d=>{
+    const c = agg(list, d.id);
+    const rows = GHES.map(g=>{
+      const gl = list.filter(r=>r.ghe===g.id);
+      const a = agg(gl, d.id);
+      const mine = gl.some(r=>r.you) ? `<span class="you-tag">${esc(t('you'))}</span>` : '';
+      const cell = a.sup
+        ? `<td class="gscore">—<small><i class="dot none"></i>${esc(t('suppressed'))}</small></td>`
+        : `<td class="gscore">${fmt(a.mean)}<small><i class="dot ${a.band}"></i>${esc(t('nResp',{n:a.n}))}</small></td>`;
+      return `<tr><td class="gname">${esc(L(g))}${mine}</td>${cell}</tr>`;
+    }).join('');
+    const band = c.sup ? 'none' : c.band;
+    return `<button class="dcard ${band}" data-act="open" data-domain="${d.id}">
+      <div class="domain-label">${esc(L(d))}</div>
+      <div class="domain-score ${band}">${c.sup?'—':fmt(c.mean)}</div>
+      <div class="domain-n">${esc(t('nResp',{n:c.n}))}</div>
+      <table class="ghe"><colgroup><col style="width:56%"><col style="width:44%"></colgroup>${rows}</table>
+    </button>`;
+  }).join('');
+  return { total, cards };
+}
+
+function renderDash(){
+  const b = dashBody();
+  app.innerHTML = `<div class="card">
+    <div class="dash-head"><div>
+      <p class="eyebrow">${esc(L(COMPANY))}</p>
+      <h1 style="margin:0">${esc(t('dashTitle'))}</h1>
+      <div class="muted small">${esc(t('dashSub'))}</div></div>
+      <button class="btn primary" data-act="go" data-screen="action">${esc(t('toAction'))} →</button></div>
+    <div class="kpis" id="kpis"></div>
+    <div class="slider-box">
+      <div class="slider-row"><label for="minr">${esc(t('minTitle'))}</label>
+        <input id="minr" type="range" min="2" max="10" step="1" value="${S.minResp}"><output id="minv">${S.minResp}</output></div>
+      <div class="muted small" style="margin-top:6px">${esc(t('minHint'))}</div></div>
+    <div class="legend"><span><i class="dot green"></i>${esc(t('lgGreen'))}</span><span><i class="dot amber"></i>${esc(t('lgAmber'))}</span><span><i class="dot red"></i>${esc(t('lgRed'))}</span><span><i class="dot none"></i>${esc(t('lgNone'))}</span></div>
+    <div class="domain-grid" id="grid">${b.cards}</div>
+    <p class="muted small" style="margin:14px 0 0">${esc(t('dashHint'))}</p></div>`;
+  updateKpis(b.total);
+}
+
+function updateKpis(total){
+  const rate = Math.round(total/SEATS*100);
+  document.getElementById('kpis').innerHTML =
+    `<div class="kpi"><b>${total}</b>${esc(t('kRespondents'))} · ${esc(t('kInvited',{n:SEATS}))}</div>
+     <div class="kpi"><b>${rate}%</b>${esc(t('kRate'))}</div>`;
+}
+
+function companyStats(){
+  const list = allRespondents();
+  return DOMAINS.map(d=>({ d, c:agg(list,d.id) })).filter(x=>!x.c.sup);
+}
+
+function renderAction(){
+  app.innerHTML = `<div class="card">
+    <div class="tabs">
+      <button class="tab ${S.tab==='plan'?'on':''}" data-act="tab" data-tab="plan">${esc(t('tabPlan'))}</button>
+      <button class="tab ${S.tab==='evi'?'on':''}" data-act="tab" data-tab="evi">${esc(t('tabEvi'))}</button></div>
+    <div id="tabBody">${S.tab==='plan'?planHtml():eviHtml()}</div></div>
+    <div class="final-cta"><h2>${esc(t('ctaTitle'))}</h2><p>${esc(t('ctaBody'))}</p>
+      <div class="actions"><a class="btn primary" href="company-signup.html">${esc(t('ctaSignup'))}</a>
+      <button class="btn ghost" data-act="restart">${esc(t('ctaAgain'))}</button></div></div>`;
+}
+
+function planHtml(){
+  const list = allRespondents();
+  const items = companyStats().filter(x=>x.c.band!=='green').sort((a,b)=>a.c.mean-b.c.mean);
+  if (!items.length) return `<p class="muted">${esc(t('noPlan'))}</p>`;
+  const openId = S.open && items.some(x=>x.d.id===S.open) ? S.open : items[0].d.id;
+  return `<p class="muted small" style="margin:0 0 14px">${esc(t('planIntro'))}</p>` + items.map(({d,c})=>{
+    const p = PLANS[d.id], pl = L(p);
+    let worst = null;
+    GHES.forEach(g=>{ const a = agg(list.filter(r=>r.ghe===g.id), d.id); if(!a.sup && (!worst || a.mean<worst.a.mean)) worst={g,a}; });
+    const done = S.assigned[d.id];
+    return `<details class="plan" ${d.id===openId?'open':''}>
+      <summary><span>${esc(L(d))} · ${fmt(c.mean)}</span><span class="badge ${c.band}">${esc(t('bandBadge')[c.band])}</span></summary>
+      <div class="plan-body"><div class="plan-grid">
+        <div class="field"><div class="k">${esc(t('current'))}</div>${esc(t('currentTxt',{s:fmt(c.mean),b:t('bandName')[c.band]}))}${worst?`<br><span class="muted">${esc(t('worst'))}: ${esc(L(worst.g))} (${fmt(worst.a.mean)})</span>`:''}</div>
+        <div class="field"><div class="k">${esc(t('desired'))}</div>${esc(pl.desired)}</div>
+        <div class="field wide"><div class="k">${esc(t('solutions'))}</div><ul>${pl.solutions.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>
+        <div class="field"><div class="k">${esc(t('who'))}</div>${esc(pl.who)}</div>
+        <div class="field"><div class="k">${esc(t('when'))}</div>${esc(pl.when)}</div>
+        <div class="field wide"><div class="k">${esc(t('feedback'))}</div>${esc(pl.feedback)}</div></div>
+        <div class="assign"><span class="muted">${esc(t('course'))}: <b style="color:var(--ink)">${esc(L(p.course))}</b></span>
+          ${done?`<span class="assigned">✓ ${esc(t('assigned'))}</span>`:`<button class="btn primary" data-act="assign" data-domain="${d.id}">${esc(t('assign'))}</button>`}</div>
+      </div></details>`;
+  }).join('');
+}
+
+function eviHtml(){
+  const list = allRespondents();
+  const cell = a => a.sup ? `—<small>${esc(t('suppressed'))}</small>` : `<i class="dot ${a.band}"></i>${fmt(a.mean)}<small>${esc(t('nResp',{n:a.n}))}</small>`;
+  const head = DOMAINS.map(d=>`<th>${esc(L(d))}</th>`).join('');
+  const rowFor = (label, rs, cls) => `<tr class="${cls||''}"><td>${esc(label)}</td>${DOMAINS.map(d=>`<td>${cell(agg(rs,d.id))}</td>`).join('')}</tr>`;
+  const rows = GHES.map(g=>rowFor(L(g), list.filter(r=>r.ghe===g.id))).join('') + rowFor(t('companyAll'), list, 'total');
+  const date = new Date().toLocaleDateString(S.lang==='pt'?'pt-BR':'en-GB');
+  const meta = [[t('eviCompany'),L(COMPANY)],[t('eviInstrument'),t('eviInstrumentV')],[t('eviCycle'),t('eviCycleV')],[t('eviMin'),String(S.minResp)],[t('eviDate'),date],[t('eviMethod'),t('eviMethodV')]];
+  return `<h2>${esc(t('eviTitle'))}</h2>
+    <div class="evi-meta">${meta.map(([k,v])=>`<div class="field"><div class="k">${esc(k)}</div>${esc(v)}</div>`).join('')}</div>
+    <div class="table-wrap"><table class="evi"><thead><tr><th>GHE</th>${head}</tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="disclaimer">${esc(t('eviDisc'))}</div>`;
+}
+
+/* ---------- controller ---------- */
+function render(){
+  renderChrome();
+  ({ picker:renderPicker, quiz:renderQuiz, thanks:renderThanks, dash:renderDash, action:renderAction })[S.screen]();
+  window.scrollTo({ top:0 });
+}
+
+function reset(){
+  Object.assign(S, { screen:'picker', gheId:null, qi:0, answers:{}, completed:false, minResp:5, tab:'plan', open:null, assigned:{} });
+}
+
+document.addEventListener('click', e=>{
+  const el = e.target.closest('[data-act]'); if(!el || el.disabled) return;
+  const a = el.dataset.act;
+  if (a==='lang'){ S.lang = S.lang==='pt' ? 'en' : 'pt'; render(); }
+  else if (a==='restart'){ reset(); render(); }
+  else if (a==='pick'){ S.gheId = String(el.dataset.ghe); renderPicker(); }
+  else if (a==='start'){ if(S.gheId){ S.qi=0; S.answers={}; S.screen='quiz'; render(); } }
+  else if (a==='skip'){ S.gheId=null; S.completed=false; S.screen='dash'; render(); }
+  else if (a==='answer'){
+    S.answers[QUESTIONS[S.qi].id] = Number(el.dataset.v);
+    renderQuiz();
+    setTimeout(()=>{
+      if (S.screen!=='quiz') return;
+      if (S.qi < QUESTIONS.length-1){ S.qi++; renderQuiz(); }
+      else { S.completed = true; S.screen='thanks'; render(); }
+    }, 250);
+  }
+  else if (a==='prev'){ if(S.qi>0){ S.qi--; renderQuiz(); } }
+  else if (a==='go'){ S.screen = String(el.dataset.screen); render(); }
+  else if (a==='open'){ S.open = String(el.dataset.domain); S.tab='plan'; S.screen='action'; render(); }
+  else if (a==='tab'){ S.tab = String(el.dataset.tab); renderAction(); }
+  else if (a==='assign'){ S.assigned[String(el.dataset.domain)] = true; S.open = String(el.dataset.domain); renderAction(); }
+});
+
+document.addEventListener('input', e=>{
+  if (e.target.id==='minr'){
+    S.minResp = Number(e.target.value);
+    document.getElementById('minv').textContent = S.minResp;
+    const b = dashBody();
+    document.getElementById('grid').innerHTML = b.cards;
+    updateKpis(b.total);
+  }
+});
+
+render();
+</script>
+</body>
+</html>
