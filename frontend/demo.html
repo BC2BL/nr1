@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NR-1 · Test Drive</title>
-<link rel="icon" type="image/png" href="images/2belive-logo.png">
+<link rel="icon" type="image/png" href="/images/2belive-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -26,6 +26,7 @@ button{font-family:inherit;cursor:pointer}
 /* top bar + demo banner */
 .topbar{background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;height:52px;padding:0 20px;position:sticky;top:0;z-index:10}
 .brand{display:flex;align-items:center;font-weight:700;letter-spacing:.2px}
+.brand a{display:flex;align-items:center}
 .brand img{height:30px;width:auto;display:block}
 .topbar-right{display:flex;gap:8px;align-items:center}
 .pill-btn{background:transparent;border:1px solid rgba(255,255,255,.45);color:#fff;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:500}
@@ -149,7 +150,7 @@ a.btn{text-decoration:none;display:inline-block}
 
 <div class="topbar">
   <div class="brand">
-    <img src="images/2belive-logo.png" alt="2BeLive">
+    <a href="/index.html" aria-label="2BeLive"><img src="/images/2belive-logo.png" alt=""></a>
   </div>
   <div class="topbar-right">
     <button class="pill-btn" data-act="restart" id="btnRestart"></button>
