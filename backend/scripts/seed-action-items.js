@@ -10,66 +10,83 @@ const ACTION_ITEMS = [
     title: "Treinamento: priorização e gestão de carga de trabalho",
     description: "Treinamento para gestores sobre como priorizar tarefas da equipe e renegociar prazos em picos de demanda.",
     delivery: "on_platform_training",
+    course_module: "Module 2 — Planning Work Demands, Deadlines, and Workload",
+    course_url: null, // set once 2BeLive course URL is available
   },
   {
     domain: "demands", trigger: "red",
     title: "Revisar distribuição de tarefas nos picos sazonais",
     description: "Avaliar se a carga de trabalho está distribuída de forma justa durante períodos de pico, e ajustar recursos conforme necessário.",
     delivery: "off_platform",
+    course_module: null, course_url: null,
   },
   {
     domain: "demands", trigger: "amber",
     title: "Revisar prazos e cargas de trabalho com a equipe",
     description: "Sessão com a equipe para identificar tarefas que podem ser redistribuídas ou adiadas.",
     delivery: "off_platform",
+    course_module: null, course_url: null,
   },
   {
     domain: "control", trigger: "amber",
     title: "Treinamento: delegação e autonomia da equipe",
     description: "Treinamento para gestores sobre como dar mais autonomia às equipes na forma como o trabalho é realizado.",
     delivery: "on_platform_training",
+    course_module: "Module 2 — Planning Work Demands, Deadlines, and Workload",
+    course_url: null,
   },
   {
     domain: "control", trigger: "red",
     title: "Ampliar autonomia decisória em reuniões de equipe",
     description: "Revisar processos de decisão para incluir mais participação da equipe nas escolhas do dia a dia.",
     delivery: "off_platform",
+    course_module: null, course_url: null,
   },
   {
     domain: "support", trigger: "amber",
     title: "Treinamento: feedback e apoio a equipes",
     description: "Treinamento para gestores sobre como dar feedback construtivo e oferecer apoio consistente.",
     delivery: "on_platform_training",
+    course_module: "Module 1 — Supportive Leadership: Listening, Guidance, and Follow-Through",
+    course_url: null,
   },
   {
     domain: "relationships", trigger: "red",
     title: "Treinamento: prevenção de assédio e conflitos no trabalho",
     description: "Treinamento obrigatório sobre políticas de combate ao assédio e resolução de conflitos entre colegas.",
     delivery: "on_platform_training",
+    course_module: "Module 5 & 7 — Respect, Healthy Relationships & Harassment Prevention",
+    course_url: null,
   },
   {
     domain: "relationships", trigger: "amber",
     title: "Revisar canal de denúncias e políticas de convivência",
     description: "Confirmar que a equipe conhece o canal de denúncias confidencial e as políticas de conduta.",
     delivery: "off_platform",
+    course_module: null, course_url: null,
   },
   {
     domain: "role", trigger: "amber",
     title: "Treinamento: clareza de papéis e responsabilidades",
     description: "Treinamento para gestores sobre como definir e comunicar responsabilidades claras para a equipe.",
     delivery: "on_platform_training",
+    course_module: "Module 4 — Role Clarity and Responsibilities",
+    course_url: null,
   },
   {
     domain: "change", trigger: "red",
     title: "Treinamento: comunicação em períodos de mudança organizacional",
     description: "Treinamento para gestores sobre como comunicar mudanças de forma clara e reduzir incerteza na equipe.",
     delivery: "on_platform_training",
+    course_module: "Module 3 — Clear Communication During Periods of Change",
+    course_url: null,
   },
   {
     domain: "change", trigger: "amber",
     title: "Criar canal de perguntas sobre mudanças em andamento",
     description: "Estabelecer um canal onde a equipe pode fazer perguntas sobre mudanças antes que elas aconteçam.",
     delivery: "off_platform",
+    course_module: null, course_url: null,
   },
 ];
 
@@ -89,9 +106,9 @@ async function seed() {
         continue;
       }
       await client.query(
-        `INSERT INTO action_item (domain_id, risk_band_trigger, title, description, delivery_type, active)
-         VALUES ($1, $2, $3, $4, $5, true)`,
-        [domainId, item.trigger, item.title, item.description, item.delivery]
+        `INSERT INTO action_item (domain_id, risk_band_trigger, title, description, delivery_type, course_module, course_url, active)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, true)`,
+        [domainId, item.trigger, item.title, item.description, item.delivery, item.course_module || null, item.course_url || null]
       );
       inserted++;
     }
