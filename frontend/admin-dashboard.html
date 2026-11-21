@@ -512,6 +512,16 @@
     padding: 12px 16px; cursor: pointer; margin-top: 6px;
   }
   .login-btn:disabled { background: var(--disabled, #C3CBC9); cursor: default; }
+  .login-link {
+    display: block; text-align: center; margin-top: 14px;
+    font-size: 12.5px; color: var(--color-primary); text-decoration: none; cursor: pointer;
+  }
+  .login-link:hover { text-decoration: underline; }
+  .login-success {
+    font-size: 13px; color: var(--color-success-text); background: var(--color-success-soft);
+    border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: none;
+  }
+  .login-success.visible { display: block; }
 </style>
 </head>
 <body>
@@ -529,6 +539,39 @@
   </div>
   <div class="login-error hidden" id="loginError"></div>
   <button class="login-btn" id="loginBtn">Entrar</button>
+  <a class="login-link" id="forgotPasswordLink">Esqueceu a senha?</a>
+</div>
+
+<!-- Forgot password screen -->
+<div class="login-wrap hidden" id="forgotScreen">
+  <h1 id="forgotTitle">Esqueceu a senha?</h1>
+  <p id="forgotSubtitle">Informe seu e-mail e enviaremos um link para redefinir sua senha.</p>
+  <div class="login-success" id="forgotSuccess"></div>
+  <div class="login-field" id="forgotEmailField">
+    <label id="forgotEmailLabel">E-mail</label>
+    <input type="email" id="forgotEmail" autocomplete="email" />
+  </div>
+  <div class="login-error hidden" id="forgotError"></div>
+  <button class="login-btn" id="forgotBtn" style="display:block">Enviar link</button>
+  <a class="login-link" id="backToLoginLink">← Voltar para o login</a>
+</div>
+
+<!-- Reset password screen (shown when ?reset_token= is in the URL) -->
+<div class="login-wrap hidden" id="resetScreen">
+  <h1 id="resetTitle">Nova senha</h1>
+  <p id="resetSubtitle">Escolha uma senha com pelo menos 8 caracteres.</p>
+  <div class="login-success" id="resetSuccess"></div>
+  <div class="login-field" id="resetPasswordField">
+    <label id="resetPasswordLabel">Nova senha</label>
+    <input type="password" id="resetPassword" autocomplete="new-password" />
+  </div>
+  <div class="login-field" id="resetConfirmField">
+    <label id="resetConfirmLabel">Confirmar senha</label>
+    <input type="password" id="resetConfirm" autocomplete="new-password" />
+  </div>
+  <div class="login-error hidden" id="resetError"></div>
+  <button class="login-btn" id="resetBtn">Redefinir senha</button>
+  <a class="login-link" id="backToLoginLink2">← Voltar para o login</a>
 </div>
 
 <div class="wrap hidden" id="dashboardWrap">
@@ -693,6 +736,26 @@ const DICT = {
     loginBtnLoading: "Entrando...",
     loginErrorInvalid: "E-mail ou senha incorretos.",
     loginErrorNetwork: "Não foi possível conectar ao servidor. Verifique se o backend está rodando.",
+    forgotLink: "Esqueceu a senha?",
+    forgotTitle: "Esqueceu a senha?",
+    forgotSubtitle: "Informe seu e-mail e enviaremos um link para redefinir sua senha.",
+    forgotEmailLabel: "E-mail",
+    forgotBtn: "Enviar link",
+    forgotBtnLoading: "Enviando...",
+    forgotSuccess: "Se este e-mail estiver cadastrado, você receberá um link em instantes. Verifique sua caixa de entrada.",
+    forgotErrorNetwork: "Não foi possível enviar. Tente novamente.",
+    backToLogin: "← Voltar para o login",
+    resetTitle: "Nova senha",
+    resetSubtitle: "Escolha uma senha com pelo menos 8 caracteres.",
+    resetPasswordLabel: "Nova senha",
+    resetConfirmLabel: "Confirmar senha",
+    resetBtn: "Redefinir senha",
+    resetBtnLoading: "Salvando...",
+    resetSuccess: "Senha redefinida com sucesso! Você já pode fazer login.",
+    resetErrorMismatch: "As senhas não coincidem.",
+    resetErrorShort: "A senha deve ter pelo menos 8 caracteres.",
+    resetErrorInvalid: "Link inválido ou expirado. Solicite um novo.",
+    resetErrorNetwork: "Erro ao redefinir. Tente novamente.",
     noCycleMsg: "Nenhum ciclo de pesquisa encontrado para esta empresa ainda.",
     actionPlanMockNote: "(dados de exemplo — endpoints de plano de ação ainda não implementados)",
     noActions: "Nenhuma ação ainda — os planos são gerados automaticamente após as respostas serem processadas.",
@@ -756,6 +819,26 @@ const DICT = {
     loginBtnLoading: "Signing in...",
     loginErrorInvalid: "Incorrect email or password.",
     loginErrorNetwork: "Couldn't reach the server. Check that the backend is running.",
+    forgotLink: "Forgot your password?",
+    forgotTitle: "Forgot your password?",
+    forgotSubtitle: "Enter your email and we'll send you a reset link.",
+    forgotEmailLabel: "Email",
+    forgotBtn: "Send reset link",
+    forgotBtnLoading: "Sending...",
+    forgotSuccess: "If this email is registered, you'll receive a link shortly. Check your inbox.",
+    forgotErrorNetwork: "Couldn't send the email. Please try again.",
+    backToLogin: "← Back to login",
+    resetTitle: "Set new password",
+    resetSubtitle: "Choose a password with at least 8 characters.",
+    resetPasswordLabel: "New password",
+    resetConfirmLabel: "Confirm password",
+    resetBtn: "Reset password",
+    resetBtnLoading: "Saving...",
+    resetSuccess: "Password reset successfully! You can now sign in.",
+    resetErrorMismatch: "Passwords don't match.",
+    resetErrorShort: "Password must be at least 8 characters.",
+    resetErrorInvalid: "Invalid or expired link. Please request a new one.",
+    resetErrorNetwork: "Reset failed. Please try again.",
     noCycleMsg: "No survey cycle found for this company yet.",
     actionPlanMockNote: "(sample data — action-plan endpoints not implemented yet)",
     noActions: "No actions yet — plans are generated automatically after responses are processed.",
@@ -1037,29 +1120,44 @@ async function apiFetch(path, opts = {}) {
   return res;
 }
 
+function revealDashboard() {
+  const loading = document.getElementById("dashboardLoading");
+  const content = document.getElementById("dashboardContent");
+  if (loading) loading.classList.add("hidden");
+  if (content) content.classList.remove("hidden");
+}
+
 async function loadDashboardData() {
-  const latestRes = await apiFetch(`/companies/${companyId}/cycles/latest`);
-  if (latestRes.status === 404) {
-    document.getElementById("domainGrid").innerHTML =
-      `<div class="empty-state">${t().noCycleMsg}</div>`;
-    return;
+  try {
+    const latestRes = await apiFetch(`/companies/${companyId}/cycles/latest`);
+    if (latestRes.status === 404) {
+      document.getElementById("domainGrid").innerHTML =
+        `<div class="empty-state">${t().noCycleMsg}</div>`;
+      revealDashboard();
+      return;
+    }
+    cycleInfo = await latestRes.json();
+    cycleId = cycleInfo.id;
+
+    const [scoresRes, rewardRes, actionsRes] = await Promise.all([
+      apiFetch(`/companies/${companyId}/cycles/${cycleId}/scores`),
+      apiFetch(`/companies/${companyId}/cycles/${cycleId}/reward-pool/status`),
+      apiFetch(`/companies/${companyId}/cycles/${cycleId}/action-plans`),
+    ]);
+    domainScores = await scoresRes.json();
+    rewardPoolStatus = await rewardRes.json();
+    ({ actionPlans } = await actionsRes.json());
+
+    await loadGhes();
+    await loadGheScores();
+
+    renderAll();
+  } catch (err) {
+    if (err.message === "unauthorized") return; // showLogin() already called
+    console.error("loadDashboardData error:", err);
+    // Still reveal the dashboard shell so the page isn't stuck on skeleton
+    revealDashboard();
   }
-  cycleInfo = await latestRes.json();
-  cycleId = cycleInfo.id;
-
-  const [scoresRes, rewardRes, actionsRes] = await Promise.all([
-    apiFetch(`/companies/${companyId}/cycles/${cycleId}/scores`),
-    apiFetch(`/companies/${companyId}/cycles/${cycleId}/reward-pool/status`),
-    apiFetch(`/companies/${companyId}/cycles/${cycleId}/action-plans`),
-  ]);
-  domainScores = await scoresRes.json();
-  rewardPoolStatus = await rewardRes.json();
-  ({ actionPlans } = await actionsRes.json());
-
-  await loadGhes();
-  await loadGheScores();
-
-  renderAll();
 }
 
 function gaugeSvg(score, band) {
@@ -1615,11 +1713,7 @@ function renderAll() {
   // Render action plan legend
   const legendEl = document.getElementById("actionLegend");
   if (legendEl) legendEl.innerHTML = t().actionPlanLegend || "";
-  // Swap skeleton → real content on first render
-  const loading = document.getElementById("dashboardLoading");
-  const content = document.getElementById("dashboardContent");
-  if (loading) loading.classList.add("hidden");
-  if (content) content.classList.remove("hidden");
+  revealDashboard();
 }
 
 function showLogin() {
@@ -1635,6 +1729,9 @@ function showLogin() {
   const content = document.getElementById("dashboardContent");
   if (loading) loading.classList.remove("hidden");
   if (content) content.classList.add("hidden");
+  // Also hide the forgot/reset screens in case they were open
+  document.getElementById("forgotScreen").classList.add("hidden");
+  document.getElementById("resetScreen").classList.add("hidden");
   document.getElementById("loginScreen").classList.remove("hidden");
   document.getElementById("dashboardWrap").classList.add("hidden");
 }
@@ -1650,7 +1747,139 @@ function applyLoginText() {
   document.getElementById("loginEmailLabel").textContent = t().loginEmailLabel;
   document.getElementById("loginPasswordLabel").textContent = t().loginPasswordLabel;
   document.getElementById("loginBtn").textContent = t().loginBtn;
+  document.getElementById("forgotPasswordLink").textContent = t().forgotLink;
+  // Forgot screen
+  document.getElementById("forgotTitle").textContent = t().forgotTitle;
+  document.getElementById("forgotSubtitle").textContent = t().forgotSubtitle;
+  document.getElementById("forgotEmailLabel").textContent = t().forgotEmailLabel;
+  document.getElementById("forgotBtn").textContent = t().forgotBtn;
+  document.getElementById("backToLoginLink").textContent = t().backToLogin;
+  // Reset screen
+  document.getElementById("resetTitle").textContent = t().resetTitle;
+  document.getElementById("resetSubtitle").textContent = t().resetSubtitle;
+  document.getElementById("resetPasswordLabel").textContent = t().resetPasswordLabel;
+  document.getElementById("resetConfirmLabel").textContent = t().resetConfirmLabel;
+  document.getElementById("resetBtn").textContent = t().resetBtn;
+  document.getElementById("backToLoginLink2").textContent = t().backToLogin;
 }
+
+// ── Helpers to switch between login / forgot / reset screens ─────────────────
+function showForgot() {
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("forgotScreen").classList.remove("hidden");
+  document.getElementById("resetScreen").classList.add("hidden");
+  document.getElementById("forgotEmail").value = "";
+  document.getElementById("forgotError").classList.add("hidden");
+  document.getElementById("forgotSuccess").classList.remove("visible");
+  document.getElementById("forgotEmailField").style.display = "";
+  document.getElementById("forgotBtn").style.display = "";
+}
+
+function showReset() {
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("forgotScreen").classList.add("hidden");
+  document.getElementById("resetScreen").classList.remove("hidden");
+}
+
+function goBackToLogin() {
+  document.getElementById("forgotScreen").classList.add("hidden");
+  document.getElementById("resetScreen").classList.add("hidden");
+  // Also clear the ?reset_token= from the URL so the token isn't reused
+  history.replaceState(null, "", window.location.pathname);
+  document.getElementById("loginScreen").classList.remove("hidden");
+}
+
+// Forgot password link on login form
+document.getElementById("forgotPasswordLink").addEventListener("click", showForgot);
+
+// Back-to-login links
+document.getElementById("backToLoginLink").addEventListener("click", goBackToLogin);
+document.getElementById("backToLoginLink2").addEventListener("click", goBackToLogin);
+
+// ── Forgot password submit ────────────────────────────────────────────────────
+document.getElementById("forgotBtn").addEventListener("click", async () => {
+  const email = document.getElementById("forgotEmail").value.trim();
+  const errorEl = document.getElementById("forgotError");
+  const successEl = document.getElementById("forgotSuccess");
+  errorEl.classList.add("hidden");
+  successEl.classList.remove("visible");
+
+  const btn = document.getElementById("forgotBtn");
+  btn.disabled = true;
+  btn.textContent = t().forgotBtnLoading;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    // Always show the same success message regardless of whether email exists
+    successEl.textContent = t().forgotSuccess;
+    successEl.classList.add("visible");
+    document.getElementById("forgotEmailField").style.display = "none";
+    btn.style.display = "none";
+  } catch (e) {
+    errorEl.textContent = t().forgotErrorNetwork;
+    errorEl.classList.remove("hidden");
+  } finally {
+    btn.disabled = false;
+    if (btn.style.display !== "none") btn.textContent = t().forgotBtn;
+  }
+});
+
+// ── Reset password submit ─────────────────────────────────────────────────────
+document.getElementById("resetBtn").addEventListener("click", async () => {
+  const password = document.getElementById("resetPassword").value;
+  const confirm  = document.getElementById("resetConfirm").value;
+  const errorEl  = document.getElementById("resetError");
+  const successEl = document.getElementById("resetSuccess");
+  errorEl.classList.add("hidden");
+
+  if (password.length < 8) {
+    errorEl.textContent = t().resetErrorShort;
+    errorEl.classList.remove("hidden");
+    return;
+  }
+  if (password !== confirm) {
+    errorEl.textContent = t().resetErrorMismatch;
+    errorEl.classList.remove("hidden");
+    return;
+  }
+
+  const resetToken = new URLSearchParams(window.location.search).get("reset_token");
+  const btn = document.getElementById("resetBtn");
+  btn.disabled = true;
+  btn.textContent = t().resetBtnLoading;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: resetToken, password }),
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      errorEl.textContent = data.error === "password_too_short"
+        ? t().resetErrorShort : t().resetErrorInvalid;
+      errorEl.classList.remove("hidden");
+      return;
+    }
+    successEl.textContent = t().resetSuccess;
+    successEl.classList.add("visible");
+    document.getElementById("resetPasswordField").style.display = "none";
+    document.getElementById("resetConfirmField").style.display  = "none";
+    btn.style.display = "none";
+    // After 3 s, go back to the login screen
+    setTimeout(goBackToLogin, 3000);
+  } catch (e) {
+    errorEl.textContent = t().resetErrorNetwork;
+    errorEl.classList.remove("hidden");
+  } finally {
+    btn.disabled = false;
+    if (btn.style.display !== "none") btn.textContent = t().resetBtn;
+  }
+});
 
 document.getElementById("loginBtn").addEventListener("click", async () => {
   const email = document.getElementById("loginEmail").value.trim();
@@ -1708,6 +1937,14 @@ applyLoginText();
 (function autoLoginFromUrl() {
   try {
     const params = new URLSearchParams(window.location.search);
+
+    // ── Password reset link (?reset_token=...) ───────────────────────────────
+    const resetTok = params.get("reset_token");
+    if (resetTok) {
+      showReset();
+      return;
+    }
+
     const tok = params.get("token");
     const cid = params.get("companyId");
     if (tok && cid) {
