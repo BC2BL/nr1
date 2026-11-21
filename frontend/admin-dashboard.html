@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>2BeLive · Painel do Administrador</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap');
 
   :root {
     /* 2BeLive brand tokens */
@@ -54,7 +54,7 @@
       0 6px 20px rgba(10,23,68,0.09),
       0 20px 44px rgba(10,23,68,0.06);
     /* Font */
-    --font: 'DM Sans', -apple-system, 'Segoe UI', sans-serif;
+    --font: 'Nunito', -apple-system, 'Segoe UI', sans-serif;
     --radius-sm:   4px;
     --radius-md:   8px;
     --radius-lg:   12px;
@@ -100,16 +100,6 @@
   }
   .lang-toggle button.active { background: var(--color-dark-blue); color: #fff; }
 
-  .header-top-row { display: flex; align-items: center; gap: 10px; align-self: flex-end; }
-  @media (max-width: 640px) { .header-top-row { align-self: flex-start; } }
-  .logout-btn {
-    font-family: var(--font); font-size: 11px; font-weight: 500;
-    padding: 5px 10px; border-radius: 16px; cursor: pointer;
-    border: 1px solid var(--color-border); background: transparent;
-    color: var(--ink-soft); transition: background 0.15s, color 0.15s;
-  }
-  .logout-btn:hover { background: var(--color-error-soft, rgba(254,108,95,0.10)); color: var(--color-error, #fe6c5f); border-color: transparent; }
-
   .rate-card {
     background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow);
     padding: 12px 18px; min-width: 200px;
@@ -134,10 +124,7 @@
     padding: 18px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0;
   }
   .domain-card-top { display: flex; flex-direction: column; gap: 6px; }
-  /* min-height reserves space for a 2-line title so cards with a short
-     label ("Autonomia") and a long one ("Gestão de Mudanças") still line
-     up at the same starting point across the row. */
-  .domain-label { font-size: 13px; font-weight: 600; line-height: 1.25; min-height: 2.5em; }
+  .domain-label { font-size: 13px; font-weight: 600; line-height: 1.25; }
   .domain-n { font-family: var(--font); font-size: 11px; color: var(--ink-soft); margin-top: 0; }
   .risk-badge {
     display: inline-block; align-self: flex-start;
@@ -417,13 +404,7 @@
   .comms-preview .comms-footer { font-size: 11.5px; color: var(--muted); margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line-soft); }
 
   /* GHE Management */
-  .ghe-card {
-    background: var(--glass-fill); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: none; border-radius: var(--radius-lg); box-shadow: var(--card-shadow);
-    padding: 18px 22px; margin-bottom: 20px;
-  }
-  .ghe-card .card-title { font-size: 13px; font-weight: 700; color: var(--color-dark-blue); margin: 0 0 4px; }
-  .ghe-card .card-subtitle { font-size: 11.5px; color: var(--muted); margin: 0 0 10px; line-height: 1.5; }
+  .ghe-section { margin-top: 0; }
   .ghe-list { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; min-height: 0; }
   .ghe-item {
     display: flex; align-items: center; justify-content: space-between;
@@ -456,39 +437,23 @@
   }
   .ghe-add-btn:hover { opacity: 0.88; }
 
-  /* GHE breakdown table — built to fit inside a narrow (~150px) domain
-     card, so this deliberately stays 2 columns, not 4. Score/n/band all
-     collapse into one cell (stacked) rather than each getting their own
-     column, which is what used to force "Suprimido" and the column
-     headers to wrap and break the domain-grid row's alignment. */
+  /* GHE breakdown table */
   .ghe-breakdown { margin-top: 1.25rem; }
   .ghe-breakdown-table {
-    width: 100%; border-collapse: collapse; font-size: 0.72rem;
-    table-layout: fixed;
+    width: 100%; border-collapse: collapse; font-size: 0.85rem;
   }
-  .ghe-breakdown-table th:first-child,
-  .ghe-breakdown-table td:first-child { width: 56%; }
-  .ghe-breakdown-table th:last-child,
-  .ghe-breakdown-table td:last-child { width: 44%; text-align: right; }
   .ghe-breakdown-table th {
-    text-align: left; padding: 0.3rem 0.3rem;
-    color: var(--color-text-muted); font-weight: 700; font-size: 0.62rem;
-    text-transform: uppercase; letter-spacing: 0.04em;
+    text-align: left; padding: 0.4rem 0.75rem;
+    color: var(--color-text-muted); font-weight: 700; font-size: 0.75rem;
+    text-transform: uppercase; letter-spacing: 0.05em;
     border-bottom: 1.5px solid var(--color-border);
   }
-  .ghe-breakdown-table th:last-child { text-align: right; }
   .ghe-breakdown-table td {
-    padding: 0.35rem 0.3rem;
+    padding: 0.5rem 0.75rem;
     border-bottom: 1px solid var(--line-soft);
     color: var(--color-text-primary);
-    vertical-align: top; word-break: break-word;
   }
   .ghe-breakdown-table tr:last-child td { border-bottom: none; }
-  .ghe-name-cell { line-height: 1.3; }
-  .ghe-score-cell { text-align: right; line-height: 1.3; }
-  .ghe-score-val { white-space: nowrap; }
-  .ghe-score-val.suppressed { opacity: 0.55; font-style: italic; }
-  .ghe-score-n { font-size: 0.62rem; color: var(--color-text-muted); margin-top: 1px; }
   .band-dot {
     display: inline-block; width: 9px; height: 9px;
     border-radius: 50%; margin-right: 5px; vertical-align: middle;
@@ -500,137 +465,57 @@
 
   .hidden { display: none !important; }
 
-  /* Login gate — matches the 2blnr1.com entry-page brand: navy band up top,
-     off-white below, with the card straddling the seam. */
-  #loginScreen {
-    min-height: 100vh; display: flex; flex-direction: column;
-    background: #f4f5f8; font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-  }
-  .login-nav {
-    width: 100%; background: #0a1744;
-  }
-  .login-nav-inner {
-    max-width: 1120px; margin: 0 auto; padding: 22px 32px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .login-nav-inner img { height: 32px; width: auto; display: block; }
-  .login-lang-toggle {
-    display: flex; align-items: center; gap: 4px;
-    border: 1px solid rgba(255,255,255,0.4); border-radius: 8px; padding: 4px;
-  }
-  .login-lang-toggle button {
-    border: none; background: transparent; cursor: pointer; color: #ffffff;
-    font-family: inherit; font-size: 13px; font-weight: 700; letter-spacing: 0.03em;
-    padding: 6px 14px; border-radius: 6px; min-width: 36px;
-  }
-  .login-lang-toggle button.active { background: #eb6025; }
-  /* Navy band continues below the nav — this is what creates the "half navy,
-     half white" split; the card below is pulled up into it with a negative margin. */
-  .login-hero {
-    width: 100%; background: #0a1744; padding: 56px 32px 96px;
-  }
-  .login-card-wrap {
-    flex-grow: 1; width: 100%; display: flex; justify-content: center;
-    margin-top: -64px; padding: 0 24px 80px;
-  }
+  /* Login gate */
   .login-wrap {
-    width: 420px; max-width: 100%; background: #fff; border: 1px solid #e3e5ec;
-    border-radius: 16px; padding: 40px 36px; box-shadow: 0 12px 32px rgba(10,23,68,0.14);
-    display: flex; flex-direction: column; align-items: center; text-align: center;
-    box-sizing: border-box;
+    max-width: 380px; margin: 80px auto; background: #fff; border: 1px solid var(--line);
+    border-radius: 14px; padding: 32px 28px;
   }
-  .login-icon-badge {
-    width: 48px; height: 48px; border-radius: 12px; background: rgba(10,23,68,0.06);
-    display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
-  }
-  .login-eyebrow {
-    font-size: 12px; font-weight: 700; color: #0a1744; letter-spacing: 0.06em;
-    text-transform: uppercase; margin-bottom: 8px;
-  }
-  .login-wrap h1 { font-family: var(--font); font-weight: 700; font-size: 22px; margin: 0 0 8px; color: #0a1744; }
-  .login-wrap p { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 26px; line-height: 1.5; }
-  .login-field { width: 100%; text-align: left; margin-bottom: 14px; }
-  .login-field label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 6px; color: #0a1744; }
+  .login-wrap h1 { font-family: var(--font); font-weight: 600; font-size: 22px; margin: 0 0 8px; }
+  .login-wrap p { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 22px; }
+  .login-field { margin-bottom: 14px; }
+  .login-field label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 6px; }
   .login-field input {
-    width: 100%; box-sizing: border-box; padding: 11px 13px; border-radius: 10px;
-    border: 1px solid #d7dae3; font-family: var(--font); font-size: 14px; outline: none;
+    width: 100%; box-sizing: border-box; padding: 11px 13px; border-radius: 8px;
+    border: 1px solid var(--line); font-family: var(--font); font-size: 14px; outline: none;
   }
-  .login-field input:focus { border-color: var(--color-secondary); }
-  .login-error { width: 100%; text-align: left; font-size: 12px; color: var(--red); margin-bottom: 12px; min-height: 0; }
+  .login-field input:focus { border-color: var(--color-primary); }
+  .login-error { font-size: 12px; color: var(--red); margin-bottom: 12px; min-height: 0; }
   .login-btn {
-    width: 100%; font-family: var(--font); font-size: 14px; font-weight: 700;
+    width: 100%; font-family: var(--font); font-size: 14px; font-weight: 600;
     background: var(--color-secondary); color: #fff; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(235,96,37,0.28);
-    padding: 13px 16px; cursor: pointer; margin-top: 6px;
+    padding: 12px 16px; cursor: pointer; margin-top: 6px;
   }
-  .login-btn:hover { background: #d1531e; }
   .login-btn:disabled { background: var(--disabled, #C3CBC9); cursor: default; }
-  .login-back-link {
-    display: block; margin-top: 20px; text-align: center; font-size: 13px; font-weight: 600;
-    color: #0a1744; text-decoration: none;
-  }
-  .login-back-link:hover { text-decoration: underline; }
-  .login-footer {
-    width: 100%; margin-top: auto; border-top: 1px solid #e3e5ec;
-    padding: 24px 32px; text-align: center;
-    font-size: 12px; color: #8489a0;
-  }
 </style>
 </head>
 <body>
 
-<div id="loginScreen">
-  <div class="login-nav">
-    <div class="login-nav-inner">
-      <img src="/images/2belive-logo.png" alt="2BeLive">
-      <div class="lang-toggle login-lang-toggle">
-        <button data-lang="pt" class="active">PT</button>
-        <button data-lang="en">EN</button>
-      </div>
-    </div>
+<div class="login-wrap" id="loginScreen">
+  <h1 id="loginTitle">Painel do Administrador</h1>
+  <p id="loginSubtitle">Entre com sua conta para ver os resultados da sua empresa.</p>
+  <div class="login-field">
+    <label id="loginEmailLabel">E-mail</label>
+    <input type="email" id="loginEmail" autocomplete="username" />
   </div>
-
-  <div class="login-hero"></div>
-
-  <div class="login-card-wrap">
-    <div style="width: 420px; max-width: 100%;">
-      <div class="login-wrap">
-        <div class="login-icon-badge">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0a1744" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>
-        </div>
-        <div class="login-eyebrow" id="loginEyebrow"></div>
-        <h1 id="loginTitle">Painel do Administrador</h1>
-        <p id="loginSubtitle">Entre com sua conta para ver os resultados da sua empresa.</p>
-        <div class="login-field">
-          <label id="loginEmailLabel">E-mail</label>
-          <input type="email" id="loginEmail" autocomplete="username" />
-        </div>
-        <div class="login-field">
-          <label id="loginPasswordLabel">Senha</label>
-          <input type="password" id="loginPassword" autocomplete="current-password" />
-        </div>
-        <div class="login-error hidden" id="loginError"></div>
-        <button class="login-btn" id="loginBtn">Entrar</button>
-      </div>
-      <a href="https://2blnr1.com/" class="login-back-link" id="loginBackLink"></a>
-    </div>
+  <div class="login-field">
+    <label id="loginPasswordLabel">Senha</label>
+    <input type="password" id="loginPassword" autocomplete="current-password" />
   </div>
-
-  <div class="login-footer" id="loginFooter"></div>
+  <div class="login-error hidden" id="loginError"></div>
+  <button class="login-btn" id="loginBtn">Entrar</button>
 </div>
 
 <div class="wrap hidden" id="dashboardWrap">
   <div class="header">
     <div>
+      <div class="eyebrow" data-k="eyebrow"></div>
       <h1 class="company-name" id="companyNameEl"></h1>
       <div class="cycle-label" id="cycleLabel"></div>
     </div>
     <div class="header-right">
-      <div class="header-top-row">
-        <div class="lang-toggle">
-          <button data-lang="pt" class="active">PT</button>
-          <button data-lang="en">EN</button>
-        </div>
-        <button class="logout-btn" id="logoutBtn" data-k="logoutBtn"></button>
+      <div class="lang-toggle">
+        <button data-lang="pt" class="active">PT</button>
+        <button data-lang="en">EN</button>
       </div>
       <div class="rate-card">
         <div class="rate-label" data-k="responseRate"></div>
@@ -694,7 +579,7 @@
     </div>
 
     <!-- GHE Management -->
-    <div class="ghe-card" id="gheManagementCard" style="display:none">
+    <div class="card ghe-section" id="gheManagementCard" style="display:none">
       <h3 class="card-title" data-k="gheSection"></h3>
       <p class="card-subtitle" data-k="gheSubtitle"></p>
       <div class="ghe-list" id="gheList"></div>
@@ -729,6 +614,7 @@
 <script>
 const DICT = {
   pt: {
+    eyebrow: "Diagnóstico Psicossocial · NR-1",
     companyName: "Comércio Alfa Ltda.",
     cycleLabel: "Ciclo: Agosto 2026 · encerrado em 24 ago",
     responseRate: "Taxa de resposta",
@@ -754,20 +640,17 @@ const DICT = {
       3: "Treinamento: comunicação em períodos de mudança organizacional",
       4: "Ampliar autonomia decisória em reuniões de equipe",
     },
-    loginEyebrow: "PAINEL DO ADMINISTRADOR",
     loginTitle: "Painel do Administrador",
     loginSubtitle: "Entre com sua conta para ver os resultados da sua empresa.",
     loginEmailLabel: "E-mail",
     loginPasswordLabel: "Senha",
     loginBtn: "Entrar",
     loginBtnLoading: "Entrando...",
-    loginBackLink: "← Voltar para 2blnr1.com",
-    loginFooter: "© 2026 2BeLive · Todos os direitos reservados mundialmente.",
-    logoutBtn: "Sair",
     loginErrorInvalid: "E-mail ou senha incorretos.",
     loginErrorNetwork: "Não foi possível conectar ao servidor. Verifique se o backend está rodando.",
     noCycleMsg: "Nenhum ciclo de pesquisa encontrado para esta empresa ainda.",
     actionPlanMockNote: "(dados de exemplo — endpoints de plano de ação ainda não implementados)",
+    noActions: "Nenhuma ação ainda — os planos são gerados automaticamente após as respostas serem processadas.",
     surveyLinkLabel: "Link da pesquisa — compartilhe com seus funcionários",
     copyLinkBtn: "Copiar link",
     copiedLinkBtn: "Copiado!",
@@ -789,10 +672,12 @@ const DICT = {
     gheDeleteConfirm: "Remover este GHE? Isso só é possível se nenhum respondente o selecionou.",
     gheHasResponses: "Este GHE já possui respostas e não pode ser removido.",
     gheNameExists: "Já existe um GHE com este nome.",
+    gheBreakdownTitle: "Resultados por GHE",
     gheBreakdownEmpty: "Nenhum dado por GHE disponível ainda.",
     suppressed: "Suprimido",
   },
   en: {
+    eyebrow: "Psychosocial Diagnostic · NR-1",
     companyName: "Comércio Alfa Ltda.",
     cycleLabel: "Cycle: August 2026 · closed Aug 24",
     responseRate: "Response rate",
@@ -818,20 +703,17 @@ const DICT = {
       3: "Training: communication during organizational change",
       4: "Expand decision-making autonomy in team meetings",
     },
-    loginEyebrow: "ADMIN DASHBOARD",
     loginTitle: "Admin Dashboard",
     loginSubtitle: "Sign in to see your company's results.",
     loginEmailLabel: "Email",
     loginPasswordLabel: "Password",
     loginBtn: "Sign in",
     loginBtnLoading: "Signing in...",
-    loginBackLink: "← Back to 2blnr1.com",
-    loginFooter: "© 2026 2BeLive · All Rights Reserved Worldwide.",
-    logoutBtn: "Log out",
     loginErrorInvalid: "Incorrect email or password.",
     loginErrorNetwork: "Couldn't reach the server. Check that the backend is running.",
     noCycleMsg: "No survey cycle found for this company yet.",
     actionPlanMockNote: "(sample data — action-plan endpoints not implemented yet)",
+    noActions: "No actions yet — plans are generated automatically after responses are processed.",
     surveyLinkLabel: "Survey link — share this with your employees",
     copyLinkBtn: "Copy link",
     copiedLinkBtn: "Copied!",
@@ -853,6 +735,7 @@ const DICT = {
     gheDeleteConfirm: "Remove this GHE? Only possible if no respondents have selected it.",
     gheHasResponses: "This GHE already has responses and cannot be removed.",
     gheNameExists: "A GHE with this name already exists.",
+    gheBreakdownTitle: "Results by GHE",
     gheBreakdownEmpty: "No per-GHE data available yet.",
     suppressed: "Suppressed",
   },
@@ -1084,11 +967,7 @@ function t() { return DICT[lang]; }
 async function apiFetch(path, opts = {}) {
   const res = await fetch(`${API_BASE_URL}${path}`, {
     ...opts,
-    headers: {
-      ...(opts.body ? { "Content-Type": "application/json" } : {}),
-      ...(opts.headers || {}),
-      Authorization: `Bearer ${adminToken}`,
-    },
+    headers: { ...(opts.headers || {}), Authorization: `Bearer ${adminToken}` },
   });
   if (res.status === 401) {
     // Token expired or invalid — drop back to the login screen rather than
@@ -1097,21 +976,6 @@ async function apiFetch(path, opts = {}) {
     throw new Error("unauthorized");
   }
   return res;
-}
-
-// Like apiFetch, but parses the JSON body and throws (with .status set) on
-// any non-2xx response, instead of handing back the raw Response. Use this
-// wherever the caller treats the result as already-parsed data.
-async function apiFetchJson(path, opts = {}) {
-  const res = await apiFetch(path, opts);
-  const body = await res.json().catch(() => null);
-  if (!res.ok) {
-    const err = new Error((body && body.error) || `request_failed_${res.status}`);
-    err.status = res.status;
-    err.body = body;
-    throw err;
-  }
-  return body;
 }
 
 async function loadDashboardData() {
@@ -1131,7 +995,7 @@ async function loadDashboardData() {
   ]);
   domainScores = await scoresRes.json();
   rewardPoolStatus = await rewardRes.json();
-  actionPlans = await actionsRes.json();
+  ({ actionPlans } = await actionsRes.json());
 
   await loadGhes();
   await loadGheScores();
@@ -1248,8 +1112,12 @@ function renderActions() {
       low: lang === "pt" ? "Baixa prioridade" : "Low priority",
     }[priority];
     const qs = QUICKSTART[lang]?.[a.domain_code];
-    const isTraining = a.delivery_type === "on_platform_training";
-    const isOffPlatform = a.delivery_type === "off_platform";
+    // Infer delivery_type if the backend didn't send it.
+    // Titles starting with "Treinamento:" are on-platform training; everything else is a company action.
+    const deliveryType = a.delivery_type ||
+      (a.title && /^treinamento:/i.test(a.title.trim()) ? "on_platform_training" : "off_platform");
+    const isTraining = deliveryType === "on_platform_training";
+    const isOffPlatform = deliveryType === "off_platform";
     const evidenceLabel = lang === "pt"
       ? "Registrar o que foi feito (exigido pelo NR-1 §6 como evidência de conformidade)"
       : "Record what was done (required by NR-1 §6 as compliance evidence)";
@@ -1266,7 +1134,7 @@ function renderActions() {
             <span class="action-dot" style="background:${dotColor}"></span>
             <div class="action-card-body">
               <div class="action-title">${getActionTitle(a.title)}</div>
-              <div class="action-meta">${t().domains[a.domain_code] || a.domain_code} · ${t().deliveryLabels[a.delivery_type] || a.delivery_type}</div>
+              <div class="action-meta">${t().domains[a.domain_code] || a.domain_code} · ${t().deliveryLabels[deliveryType] || deliveryType}</div>
               ${isTraining ? `<div class="training-tag" style="margin-top:5px">${getTrainingModule(a.domain_code, lang)}</div>` : ""}
             </div>
           </div>
@@ -1507,7 +1375,7 @@ document.getElementById("instrumentSaveBtn")?.addEventListener("click", saveInst
 async function loadGhes() {
   if (!cycleInfo || !cycleInfo.id) return;
   try {
-    const data = await apiFetchJson(`/cycles/${cycleInfo.id}/ghes`);
+    const data = await apiFetch(`/cycles/${cycleInfo.id}/ghes`);
     gheList = data || [];
     renderGheManagement();
   } catch (e) { console.error("ghe_load_error", e); }
@@ -1548,7 +1416,7 @@ async function addGhe() {
   if (!name) return;
 
   try {
-    const created = await apiFetchJson(`/cycles/${cycleInfo.id}/ghes`, {
+    const created = await apiFetch(`/cycles/${cycleInfo.id}/ghes`, {
       method: "POST",
       body: JSON.stringify({ name }),
     });
@@ -1570,7 +1438,7 @@ async function removeGhe(gheId) {
   const errEl = document.getElementById("gheError");
   errEl.style.display = "none";
   try {
-    await apiFetchJson(`/cycles/${cycleInfo.id}/ghes/${gheId}`, { method: "DELETE" });
+    await apiFetch(`/cycles/${cycleInfo.id}/ghes/${gheId}`, { method: "DELETE" });
     gheList = gheList.filter(g => g.id !== gheId);
     renderGheManagement();
   } catch (e) {
@@ -1585,7 +1453,7 @@ async function removeGhe(gheId) {
 async function loadGheScores() {
   if (!cycleInfo || !cycleInfo.id) return;
   try {
-    const data = await apiFetchJson(`/cycles/${cycleInfo.id}/ghe-scores`);
+    const data = await apiFetch(`/cycles/${cycleInfo.id}/ghe-scores`);
     gheScores = data || {};
     renderGheBreakdowns();
   } catch (e) { console.error("ghe_scores_error", e); }
@@ -1606,26 +1474,25 @@ function renderGheBreakdowns() {
     if (!hasAnyGhe) { el.innerHTML = ""; return; }
 
     el.innerHTML = `
+      <h4 style="font-size:0.75rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin:1rem 0 0.5rem">${d.gheBreakdownTitle || "Results by GHE"}</h4>
       <table class="ghe-breakdown-table">
         <thead>
           <tr>
             <th>GHE</th>
             <th>Score</th>
+            <th>n</th>
+            <th>Banda</th>
           </tr>
         </thead>
         <tbody>
           ${rows.map(r => {
             const band = r.risk_band || "none";
-            const suppressed = r.mean_score === null;
-            const scoreContent = suppressed
-              ? (d.suppressed || "—")
-              : `<span class="band-dot ${band}"></span>${Number(r.mean_score).toFixed(2)}`;
+            const score = r.mean_score !== null ? Number(r.mean_score).toFixed(2) : `<span style="opacity:.5">${d.suppressed || "—"}</span>`;
             return `<tr>
-              <td class="ghe-name-cell">${r.ghe_name}</td>
-              <td class="ghe-score-cell">
-                <div class="ghe-score-val${suppressed ? " suppressed" : ""}">${scoreContent}</div>
-                <div class="ghe-score-n">n=${r.respondent_count}</div>
-              </td>
+              <td>${r.ghe_name}</td>
+              <td>${score}</td>
+              <td>${r.respondent_count}</td>
+              <td><span class="band-dot ${band}"></span>${band !== "none" ? band : "—"}</td>
             </tr>`;
           }).join("")}
         </tbody>
@@ -1661,7 +1528,7 @@ function renderHeaderAndReward() {
   document.getElementById("surveyLinkLabel").textContent = t().surveyLinkLabel;
   document.getElementById("copySurveyLinkBtn").textContent = t().copyLinkBtn;
   if (cycleInfo && cycleInfo.inviteUrlToken) {
-    const surveyUrl = `https://2blnr1.com/frontend/employee-survey.html?survey=${cycleInfo.inviteUrlToken}`;
+    const surveyUrl = `https://bc2bl.github.io/nr1/frontend/employee-survey.html?survey=${cycleInfo.inviteUrlToken}`;
     document.getElementById("surveyLinkUrl").textContent = surveyUrl;
     document.getElementById("surveyLinkCard").style.display = "";
   } else {
@@ -1702,14 +1569,11 @@ function showDashboard() {
 }
 
 function applyLoginText() {
-  document.getElementById("loginEyebrow").textContent = t().loginEyebrow;
   document.getElementById("loginTitle").textContent = t().loginTitle;
   document.getElementById("loginSubtitle").textContent = t().loginSubtitle;
   document.getElementById("loginEmailLabel").textContent = t().loginEmailLabel;
   document.getElementById("loginPasswordLabel").textContent = t().loginPasswordLabel;
   document.getElementById("loginBtn").textContent = t().loginBtn;
-  document.getElementById("loginBackLink").textContent = t().loginBackLink;
-  document.getElementById("loginFooter").textContent = t().loginFooter;
 }
 
 document.getElementById("loginBtn").addEventListener("click", async () => {
@@ -1747,35 +1611,6 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
   }
 });
 
-// Enter key in either login field submits, same as clicking the button.
-["loginEmail", "loginPassword"].forEach(id => {
-  document.getElementById(id).addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      document.getElementById("loginBtn").click();
-    }
-  });
-});
-
-function logout() {
-  adminToken = null;
-  companyId = null;
-  cycleId = null;
-  cycleInfo = null;
-  domainScores = [];
-  rewardPoolStatus = null;
-  actionPlans = [];
-  gheList = [];
-  gheScores = {};
-  document.getElementById("loginEmail").value = "";
-  document.getElementById("loginPassword").value = "";
-  document.getElementById("loginError").classList.add("hidden");
-  // Send the admin back to the main entry page rather than re-showing this
-  // dashboard's own login screen.
-  window.location.href = "https://2blnr1.com/";
-}
-document.getElementById("logoutBtn").addEventListener("click", logout);
-
 document.querySelectorAll(".lang-toggle button").forEach(btn => {
   btn.addEventListener("click", () => {
     lang = btn.getAttribute("data-lang");
@@ -1809,61 +1644,16 @@ applyLoginText();
   showLogin();
 })();
 
-// Robust copy: tries the modern Clipboard API first, but falls back to a
-// hidden-textarea + execCommand("copy") trick for mobile browsers / in-app
-// webviews where navigator.clipboard is missing or silently refuses to
-// write (which otherwise leaves whatever was already on the clipboard
-// untouched, with no error and a false "Copied!" message).
-async function copyTextRobust(text) {
-  if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch (e) { /* fall through to legacy fallback */ }
-  }
-  try {
-    const ta = document.createElement("textarea");
-    ta.value = text;
-    ta.setAttribute("readonly", "");
-    ta.style.position = "fixed";
-    ta.style.top = "0";
-    ta.style.left = "-9999px";
-    document.body.appendChild(ta);
-    ta.focus();
-    ta.select();
-    ta.setSelectionRange(0, text.length);
-    const ok = document.execCommand("copy");
-    document.body.removeChild(ta);
-    return ok;
-  } catch (e) {
-    return false;
-  }
-}
-
-document.getElementById("copySurveyLinkBtn").addEventListener("click", async () => {
+document.getElementById("copySurveyLinkBtn").addEventListener("click", () => {
   const url = document.getElementById("surveyLinkUrl").textContent;
   const btn = document.getElementById("copySurveyLinkBtn");
-  const ok = await copyTextRobust(url);
-  if (ok) {
-    btn.textContent = t().copiedLinkBtn;
-    btn.classList.add("copied");
-  } else {
-    // Couldn't copy programmatically — select the link text so the person
-    // can copy it manually (tap-and-hold → Copy on mobile).
-    const urlEl = document.getElementById("surveyLinkUrl");
-    if (window.getSelection && document.createRange) {
-      const range = document.createRange();
-      range.selectNodeContents(urlEl);
-      const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
-    }
-    btn.textContent = lang === "pt" ? "Toque e copie o link selecionado" : "Tap & copy the selected link";
-  }
+  navigator.clipboard?.writeText(url).catch(() => {});
+  btn.textContent = t().copiedLinkBtn;
+  btn.classList.add("copied");
   setTimeout(() => {
     btn.textContent = t().copyLinkBtn;
     btn.classList.remove("copied");
-  }, 2500);
+  }, 2000);
 });
 </script>
 
