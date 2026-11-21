@@ -98,6 +98,16 @@
     padding: 5px 11px; border-radius: 16px; cursor: pointer; border: none; background: transparent;
     color: var(--ink-soft);
   }
+  .logout-btn {
+    font-family: var(--font); font-size: 11px; font-weight: 500;
+    padding: 5px 14px; border-radius: 16px; cursor: pointer;
+    border: 1px solid var(--color-border); background: transparent;
+    color: var(--ink-soft); display: flex; align-items: center; gap: 5px;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    align-self: flex-end;
+  }
+  .logout-btn:hover { background: rgba(239,83,80,0.08); border-color: #ef5350; color: #ef5350; }
+  @media (max-width: 640px) { .logout-btn { align-self: flex-start; } }
   .lang-toggle button.active { background: var(--color-dark-blue); color: #fff; }
 
   .rate-card {
@@ -581,9 +591,15 @@
       <div class="cycle-label" id="cycleLabel"></div>
     </div>
     <div class="header-right">
-      <div class="lang-toggle">
-        <button data-lang="pt" class="active">PT</button>
-        <button data-lang="en">EN</button>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
+        <div class="lang-toggle">
+          <button data-lang="pt" class="active">PT</button>
+          <button data-lang="en">EN</button>
+        </div>
+        <button class="logout-btn" id="logoutBtn" onclick="handleLogout()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span data-k="logoutBtn">Sair</span>
+        </button>
       </div>
       <div class="rate-card">
         <div class="rate-label" data-k="responseRate"></div>
@@ -759,6 +775,7 @@ const DICT = {
     actionPlanMockNote: "(dados de exemplo — endpoints de plano de ação ainda não implementados)",
     noActions: "Nenhuma ação ainda — os planos são gerados automaticamente após as respostas serem processadas.",
     surveyLinkLabel: "Link da pesquisa — compartilhe com seus funcionários",
+    logoutBtn: "Sair",
     copyLinkBtn: "Copiar link",
     copiedLinkBtn: "Copiado!",
     instrumentTitle: "Escolha o instrumento de avaliação",
@@ -842,6 +859,7 @@ const DICT = {
     actionPlanMockNote: "(sample data — action-plan endpoints not implemented yet)",
     noActions: "No actions yet — plans are generated automatically after responses are processed.",
     surveyLinkLabel: "Survey link — share this with your employees",
+    logoutBtn: "Log out",
     copyLinkBtn: "Copy link",
     copiedLinkBtn: "Copied!",
     instrumentTitle: "Choose your assessment instrument",
@@ -1713,6 +1731,10 @@ function renderAll() {
   const legendEl = document.getElementById("actionLegend");
   if (legendEl) legendEl.innerHTML = t().actionPlanLegend || "";
   revealDashboard();
+}
+
+function handleLogout() {
+  showLogin();
 }
 
 function showLogin() {
