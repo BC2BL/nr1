@@ -779,6 +779,7 @@ const TRAINING_MODULES = {
 };
 
 const ACTION_TITLE_EN = {
+  // Legacy seeded titles (kept for backward compatibility)
   "Revisar prazos e cargas de trabalho com a equipe": "Review deadlines and workload with the team",
   "Revisar distribuição de tarefas nos picos sazonais": "Review task distribution during peak periods",
   "Treinamento: priorização e gestão de carga de trabalho": "Training: workload prioritisation and management",
@@ -790,6 +791,19 @@ const ACTION_TITLE_EN = {
   "Treinamento: clareza de papéis e responsabilidades": "Training: role clarity and responsibilities",
   "Treinamento: comunicação em períodos de mudança organizacional": "Training: communication during organisational change",
   "Criar canal de perguntas sobre mudanças em andamento": "Create a Q&A channel for ongoing changes",
+  // Current seeded titles
+  "Revisar carga de trabalho da equipe": "Review team workload",
+  "Treinamento: Gestão do Tempo e Produtividade": "Training: Time Management & Productivity",
+  "Ampliar autonomia nas decisões do dia a dia": "Expand autonomy in day-to-day decisions",
+  "Treinamento: Liderança e Autonomia no Trabalho": "Training: Leadership & Autonomy at Work",
+  "Implementar programa de integração e convivência": "Implement a team integration and social programme",
+  "Treinamento: Comunicação Não-Violenta": "Training: Non-Violent Communication",
+  "Revisar e comunicar descrições de cargo": "Review and communicate job descriptions",
+  "Treinamento: Clareza de Papéis e Responsabilidades": "Training: Role Clarity & Responsibilities",
+  "Criar protocolo de comunicação de mudanças": "Create a change communication protocol",
+  "Treinamento: Adaptação e Resiliência Organizacional": "Training: Adaptation & Organisational Resilience",
+  "Fortalecer cultura de apoio entre líderes e equipes": "Strengthen a culture of support between leaders and teams",
+  "Treinamento: Saúde Mental e Bem-Estar no Trabalho": "Training: Mental Health & Wellbeing at Work",
 };
 function getActionTitle(titlePt) {
   if (lang === "en" && ACTION_TITLE_EN[titlePt]) return ACTION_TITLE_EN[titlePt];
