@@ -112,6 +112,32 @@
   .rate-bar-fill { height: 100%; background: var(--color-secondary); }
   .rate-seats { font-size: 10.5px; color: var(--muted); margin-top: 6px; font-family: var(--font); }
 
+  /* ── Loading skeleton ───────────────────────────────────────────────────── */
+  #dashboardLoading {
+    padding: 32px 0;
+  }
+  #dashboardLoading.hidden { display: none; }
+  .skel-pulse {
+    background: linear-gradient(90deg, #e8ecf0 25%, #f4f6f8 50%, #e8ecf0 75%);
+    background-size: 200% 100%;
+    animation: skelShimmer 1.4s ease-in-out infinite;
+    border-radius: 8px;
+  }
+  @keyframes skelShimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  .skel-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .skel-card  { height: 110px; }
+  .skel-line  { height: 18px; margin-bottom: 10px; }
+  .skel-line.short { width: 60%; }
+  .skel-list-item { height: 68px; margin-bottom: 10px; }
+
   /* Vital signs strip */
   .section-title { font-size: 12.5px; color: var(--ink-soft); margin-bottom: 12px; font-weight: 500; }
   .domain-grid {
@@ -529,6 +555,24 @@
     </div>
   </div>
 
+  <!-- Loading skeleton — visible while API calls resolve, hidden by renderAll() -->
+  <div id="dashboardLoading">
+    <div class="skel-row">
+      <div class="skel-pulse skel-card"></div>
+      <div class="skel-pulse skel-card"></div>
+      <div class="skel-pulse skel-card"></div>
+      <div class="skel-pulse skel-card"></div>
+      <div class="skel-pulse skel-card"></div>
+      <div class="skel-pulse skel-card"></div>
+    </div>
+    <div class="skel-pulse skel-line" style="width:30%;margin-bottom:16px;"></div>
+    <div class="skel-pulse skel-list-item"></div>
+    <div class="skel-pulse skel-list-item"></div>
+    <div class="skel-pulse skel-list-item"></div>
+  </div>
+
+  <!-- Real content — hidden during load -->
+  <div id="dashboardContent" class="hidden">
   <div>
     <div class="section-title" data-k="panelTitle"></div>
     <div class="domain-grid" id="domainGrid"></div>
@@ -609,7 +653,8 @@
     <div class="action-legend" id="actionLegend"></div>
     <div class="action-list" id="actionList"></div>
   </div>
-</div>
+  </div><!-- /dashboardContent -->
+</div><!-- /dashboardWrap -->
 
 <script>
 const DICT = {
@@ -1570,6 +1615,11 @@ function renderAll() {
   // Render action plan legend
   const legendEl = document.getElementById("actionLegend");
   if (legendEl) legendEl.innerHTML = t().actionPlanLegend || "";
+  // Swap skeleton → real content on first render
+  const loading = document.getElementById("dashboardLoading");
+  const content = document.getElementById("dashboardContent");
+  if (loading) loading.classList.add("hidden");
+  if (content) content.classList.remove("hidden");
 }
 
 function showLogin() {
@@ -1580,6 +1630,11 @@ function showLogin() {
   } catch (e) { /* private browsing */ }
   adminToken = null;
   companyId  = null;
+  // Reset skeleton so it shows again on the next login
+  const loading = document.getElementById("dashboardLoading");
+  const content = document.getElementById("dashboardContent");
+  if (loading) loading.classList.remove("hidden");
+  if (content) content.classList.add("hidden");
   document.getElementById("loginScreen").classList.remove("hidden");
   document.getElementById("dashboardWrap").classList.add("hidden");
 }
