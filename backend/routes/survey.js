@@ -2,7 +2,7 @@ const express = require("express");
 const crypto = require("crypto");
 const pool = require("../db");
 const { recomputeDomainScores } = require("../services/scoring");
-const { generateActionPlan } = require("../services/actionPlan");
+const { generateActionPlans } = require("../services/actionPlan");
 
 const router = express.Router();
 
@@ -237,7 +237,7 @@ router.post("/survey/:token/submit", async (req, res) => {
     // blocks the respondent's submit confirmation. Action-plan generation
     // chains after scoring, since it reads the freshly computed risk bands.
     recomputeDomainScores(cycle.id)
-      .then(() => generateActionPlan(cycle.id))
+      .then(() => generateActionPlans(cycle.id))
       .catch(err => console.error("scoring_or_action_plan_error", err));
 
     const reward = rewardResult.rows[0];
