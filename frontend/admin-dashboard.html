@@ -405,6 +405,21 @@
   .btn-evidence-save:disabled { background: var(--disabled); cursor: default; }
   .evidence-saved { font-size: 12px; color: var(--color-success-text); font-weight: 600; }
 
+  .btn-start-training {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 10px; padding: 7px 14px; border-radius: 8px;
+    background: var(--color-primary); color: #fff;
+    font-size: 12px; font-weight: 600; font-family: var(--font);
+    text-decoration: none; border: none; cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+  }
+  .btn-start-training:hover { background: var(--color-dark-blue); }
+  .btn-start-training--soon {
+    background: transparent; color: var(--muted);
+    border: 1px dashed var(--color-border); cursor: default;
+    font-weight: 500;
+  }
+  .btn-start-training--soon:hover { background: transparent; }
   .training-tag {
     display: inline-flex; align-items: center; gap: 5px;
     font-size: 11px; font-weight: 700; color: var(--color-primary);
@@ -1309,7 +1324,7 @@ function renderActions() {
             <div class="action-card-body">
               <div class="action-title">${getActionTitle(a.title)}</div>
               <div class="action-meta">${t().domains[a.domain_code] || a.domain_code} · ${t().deliveryLabels[deliveryType] || deliveryType}</div>
-              ${isTraining ? `<div class="training-tag" style="margin-top:5px">${getTrainingModule(a.domain_code, lang)}</div>` : ""}
+              ${isTraining ? `<div class="training-tag" style="margin-top:5px">${a.course_module || getTrainingModule(a.domain_code, lang)}</div>` : ""}
             </div>
           </div>
           <div class="action-card-right">
@@ -1336,11 +1351,19 @@ function renderActions() {
           <div class="expand-section">
             <div class="expand-label">${lang === "pt" ? "Módulo 2BeLive recomendado" : "Recommended 2BeLive module"}</div>
             <div class="expand-desc">
-              <strong>${getTrainingModule(a.domain_code, lang)}</strong><br>
+              <strong>${a.course_module || getTrainingModule(a.domain_code, lang)}</strong><br>
               <span style="font-size:12px;color:var(--muted)">${lang === "pt"
                 ? "Atribua este treinamento à equipe diretamente na plataforma 2BeLive após identificar os participantes."
                 : "Assign this training to your team directly on the 2BeLive platform after identifying participants."}</span>
             </div>
+            ${a.course_url ? `
+            <a href="${a.course_url}" target="_blank" rel="noopener" class="btn-start-training">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              ${lang === "pt" ? "Iniciar treinamento na 2BeLive" : "Start training on 2BeLive"}
+            </a>` : `
+            <span class="btn-start-training btn-start-training--soon">
+              ${lang === "pt" ? "Curso em breve na 2BeLive" : "Course coming soon on 2BeLive"}
+            </span>`}
           </div>` : ""}
 
           ${isOffPlatform ? `
