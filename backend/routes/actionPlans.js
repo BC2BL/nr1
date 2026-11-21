@@ -52,6 +52,8 @@ router.get(
            ai.delivery_type,
            ai.risk_band_trigger,
            ai.linked_training_id,
+           ai.course_module,
+           ai.course_url,
            sd.code    AS domain_code,
            sd.label_pt AS domain_label
          FROM company_action_plan cap
