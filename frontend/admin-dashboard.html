@@ -1573,6 +1573,13 @@ function renderAll() {
 }
 
 function showLogin() {
+  // Clear any persisted session so a refresh after logout doesn't auto-restore.
+  try {
+    localStorage.removeItem("nr1_token");
+    localStorage.removeItem("nr1_companyId");
+  } catch (e) { /* private browsing */ }
+  adminToken = null;
+  companyId  = null;
   document.getElementById("loginScreen").classList.remove("hidden");
   document.getElementById("dashboardWrap").classList.add("hidden");
 }
@@ -1614,6 +1621,10 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
     }
     adminToken = data.token;
     companyId = data.companyId;
+    try {
+      localStorage.setItem("nr1_token", adminToken);
+      localStorage.setItem("nr1_companyId", companyId);
+    } catch (e) { /* private browsing — session only, that's fine */ }
     showDashboard();
     await loadDashboardData();
   } catch (err) {
@@ -1654,7 +1665,21 @@ applyLoginText();
       loadDashboardData();
       return;
     }
-  } catch (e) { /* ignore — fall through to manual login */ }
+  } catch (e) { /* ignore — fall through to localStorage restore */ }
+
+  // ── Restore session from localStorage (survives page refresh) ──────────────
+  try {
+    const savedToken = localStorage.getItem("nr1_token");
+    const savedCid   = localStorage.getItem("nr1_companyId");
+    if (savedToken && savedCid) {
+      adminToken = savedToken;
+      companyId  = savedCid;
+      showDashboard();
+      loadDashboardData();
+      return;
+    }
+  } catch (e) { /* private browsing — fall through */ }
+
   showLogin();
 })();
 
