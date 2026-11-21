@@ -1,9 +1,3 @@
-/**
- * services/actionPlan.js
- *
- * Generates company_action_plan rows for a survey cycle after scoring runs.
- */
-
 const pool = require("../db");
 
 async function generateActionPlans(cycleId) {
